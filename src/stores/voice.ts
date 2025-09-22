@@ -1,100 +1,132 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { VoiceConfig } from '../types/chat'
-import { voiceAPI } from '../utils/voice'
 
 export const useVoiceStore = defineStore('voice', () => {
-  const config = ref<VoiceConfig>({
+  const isRecording = ref(false)
+  const isSupported = ref(false)
+  const transcript = ref('')
+  const error = ref<string | null>(null)
+  const config = ref({
     enabled: true,
-    language: 'zh-CN',
-    speed: 1.0,
-    pitch: 1.0
+    lang: 'zh-CN',
+    continuous: false,
+    interimResults: true
   })
 
-  const isRecording = ref(false)
-  const isPlaying = ref(false)
-  //如何解决ts在SpeechRecognition上报错的问题
-  //@ts-ignore
-  const recognition = ref<SpeechRecognition | null>(null)
+  // @ts-ignore: 处理浏览器前缀
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  let recognition: any = null
 
-  const initSpeechRecognition = () => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-      recognition.value = new SpeechRecognition()
-      recognition.value.continuous = false
-      recognition.value.interimResults = false
-      recognition.value.lang = config.value.language
+  const initializeRecognition = () => {
+    if (!SpeechRecognition) {
+      throw new Error('您的浏览器不支持语音识别功能')
+    }
+
+    recognition = new SpeechRecognition()
+    recognition.continuous = config.value.continuous
+    recognition.interimResults = config.value.interimResults
+    recognition.lang = config.value.lang
+
+    recognition.onresult = (event: any) => {
+      const results = event.results
+      transcript.value = results[results.length - 1][0].transcript
+    }
+
+    recognition.onerror = (event: any) => {
+      error.value = event.error
+      stopRecording()
+      throw new Error(`语音识别错误: ${event.error}`)
+    }
+
+    recognition.onend = () => {
+      isRecording.value = false
+    }
+
+    isSupported.value = true
+  }
+
+  const startRecording = async (): Promise<void> => {
+    if (!isSupported.value) {
+      initializeRecognition()
+    }
+
+    if (isRecording.value) {
+      return
+    }
+
+    transcript.value = ''
+    error.value = null
+
+    try {
+      recognition.start()
+      isRecording.value = true
+    } catch (err) {
+      isRecording.value = false
+      throw new Error('无法启动录音，请检查麦克风权限')
     }
   }
 
-  const startRecording = (): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (!recognition.value) {
-        initSpeechRecognition()
-      }
-
-      if (!recognition.value) {
-        reject(new Error('语音识别不支持'))
+  const stopRecording = async (): Promise<string> => {
+    return new Promise((resolve) => {
+      if (!isRecording.value || !recognition) {
+        resolve('')
         return
       }
 
-      isRecording.value = true
-
-      recognition.value.onresult = (event:any) => {
-        const transcript = event.results[0][0].transcript
+      recognition.onend = () => {
         isRecording.value = false
-        resolve(transcript)
+        resolve(transcript.value)
       }
 
-      recognition.value.onerror = (event:any) => {
-        isRecording.value = false
-        reject(new Error(`语音识别错误: ${event.error}`))
-      }
-
-      recognition.value.onend = () => {
-        isRecording.value = false
-      }
-
-      recognition.value.start()
+      recognition.stop()
     })
   }
 
-  const stopRecording = () => {
-    if (recognition.value) {
-      recognition.value.stop()
-    }
-    isRecording.value = false
-  }
-
-  const speak = async (text: string, voice?: string) => {
-    if (!config.value.enabled) return
-
+  const checkPermission = async (): Promise<boolean> => {
     try {
-      isPlaying.value = true
-      await voiceAPI.textToSpeech({
-        text,
-        voice: voice || 'default',
-        speed: config.value.speed,
-        pitch: config.value.pitch
+      // @ts-ignore: 处理浏览器前缀
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      if (!SpeechRecognition) {
+        return false
+      }
+
+      // 尝试创建实例来触发权限请求
+      const testRecognition = new SpeechRecognition()
+      testRecognition.lang = 'zh-CN'
+      
+      return new Promise((resolve) => {
+        testRecognition.onstart = () => {
+          resolve(true)
+          testRecognition.stop()
+        }
+        
+        testRecognition.onerror = (event: any) => {
+          if (event.error === 'not-allowed') {
+            resolve(false)
+          } else {
+            resolve(true)
+          }
+          testRecognition.stop()
+        }
+
+        setTimeout(() => {
+          testRecognition.start()
+        }, 100)
       })
     } catch (error) {
-      console.error('语音播放失败:', error)
-    } finally {
-      isPlaying.value = false
+      console.error('检查权限失败:', error)
+      return false
     }
-  }
-
-  const updateConfig = (newConfig: Partial<VoiceConfig>) => {
-    config.value = { ...config.value, ...newConfig }
   }
 
   return {
-    config,
     isRecording,
-    isPlaying,
+    isSupported,
+    transcript,
+    error,
+    config,
     startRecording,
     stopRecording,
-    speak,
-    updateConfig
+    checkPermission
   }
 })

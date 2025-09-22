@@ -136,6 +136,7 @@ const sendMessage = async () => {
 
 const handleVoiceInput = async (text: string) => {
   if (text.trim()) {
+    inputMessage.value = text // 可选：将识别结果填充到输入框
     await chatStore.addMessage(text, 'voice')
   }
 }

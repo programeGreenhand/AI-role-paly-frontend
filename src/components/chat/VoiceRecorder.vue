@@ -42,7 +42,8 @@ const emit = defineEmits<{
 const voiceStore = useVoiceStore()
 const isRecording = ref(false)
 
-const startRecording = async () => {
+const startRecording = async (event: Event) => {
+  event.preventDefault() // 防止触摸设备的默认行为
   if (!voiceStore.config.enabled) {
     ElMessage.warning('语音功能未启用')
     return
@@ -51,27 +52,32 @@ const startRecording = async () => {
   try {
     isRecording.value = true
     await voiceStore.startRecording()
+    ElMessage.info('录音中...')
   } catch (error) {
     isRecording.value = false
+    console.error('录音启动失败:', error)
     ElMessage.error('录音启动失败: ' + (error as Error).message)
   }
 }
 
-const stopRecording = async () => {
+const stopRecording = async (event: Event) => {
+  event.preventDefault()
   if (!isRecording.value) return
   
   try {
-    const text = await voiceStore.startRecording()
+    // 关键修复：调用 stopRecording 而不是再次调用 startRecording
+    const text = await voiceStore.stopRecording()
     isRecording.value = false
     
-    if (text.trim()) {
+    if (text && text.trim()) {
       emit('voiceInput', text)
       ElMessage.success('语音识别成功')
     } else {
-      ElMessage.warning('未识别到语音内容')
+      ElMessage.warning('未识别到语音内容或识别失败')
     }
   } catch (error) {
     isRecording.value = false
+    console.error('语音识别失败:', error)
     ElMessage.error('语音识别失败: ' + (error as Error).message)
   }
 }
