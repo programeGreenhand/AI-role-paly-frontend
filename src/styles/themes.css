@@ -1,0 +1,33 @@
+/* 魔法主题 */
+.magic {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.magic .el-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 哲学主题 */
+.philosophy {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: #333;
+}
+
+.philosophy .el-card {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 默认主题 */
+.default {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  color: #fff;
+}
+
+.default .el-card {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+}
