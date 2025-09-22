@@ -4,7 +4,11 @@
     <ElButton type="warning">操作台</ElButton>
   </div>
 
-  <el-drawer  v-model="drawer" title="对话历史"  :append-to-body="true" :with-header="false" direction="ltr" size="14%" class="history" :modal="false" :show-close="true" >
+  <el-drawer  v-model="drawer"   :append-to-body="true" :with-header="true" direction="ltr" size="14%" class="history" :show-close="false"> 
+    <template #header>
+      <ElInput v-model="searchQuery" placeholder="搜索历史记录..."></ElInput>
+    </template>
+
     <template #footer>
       <div class="footer-container">
         <el-dropdown placement="top-start">
@@ -17,9 +21,9 @@
           </template>
         </el-dropdown>
         
-        <el-button type="error" @click="drawer=false" icon="close">
+        <!-- <el-button type="error" @click="drawer=false" icon="close">
           
-        </el-button>
+        </el-button> -->
       </div>
     </template>
     <div class="history-list">
@@ -43,10 +47,7 @@ import { ref} from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
-
-
-
+const searchQuery = ref('')
 const drawer = ref(false)
 
 
@@ -60,25 +61,8 @@ const goToUserProfile = () => {
 }
 </script>
 
-<style scoped>
-.home-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+<style >
 
-.header {
-  text-align: center;
-  padding: 40px 0;
-  color: black;
-}
-
-.title {
-  font-size: 3rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
 
 .main-content {
   display: flex;
@@ -249,5 +233,12 @@ const goToUserProfile = () => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-2px);
   transition: all 0.3s ease;
+}
+
+:deep(.el-overlay) {
+  /* 将遮罩层的宽度设置为0，或者透明度设置为0，使其不可见且不阻挡点击 */
+  width: 0 !important;
+  /* 或者 */
+  /* opacity: 0 !important; */
 }
 </style>

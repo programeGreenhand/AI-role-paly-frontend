@@ -2,7 +2,7 @@
   <div class="settings-view">
     <el-container>
       <el-header class="settings-header">
-        <h1>设置</h1>
+      
         <el-button @click="goHome" icon="house">返回首页</el-button>
       </el-header>
 
