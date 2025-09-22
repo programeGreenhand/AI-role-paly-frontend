@@ -61,9 +61,9 @@
               <el-form label-width="120px">
                 <el-form-item label="主题模式">
                   <el-radio-group v-model="themeMode">
-                    <el-radio label="auto">自动</el-radio>
-                    <el-radio label="light">浅色</el-radio>
-                    <el-radio label="dark">深色</el-radio>
+                    <el-radio label="light-blue">light-blue</el-radio>
+                    <el-radio label="light-purple">light-purple</el-radio>
+                    <el-radio label="light-green">light-green</el-radio>
                   </el-radio-group>
                 </el-form-item>
                 
@@ -90,14 +90,20 @@ import { useChatStore } from '../stores/chat'
 import CharacterCustomizer from '../components/character/CharacterCustomizer.vue'
 import type { CustomCharacter } from '../types/character'
 import { ElMessage,ElMessageBox } from 'element-plus'
+import { useThemeStore } from '../stores/theme'
 
 const router = useRouter()
 const voiceStore = useVoiceStore()
 const characterStore = useCharacterStore()
 const chatStore = useChatStore()
-
+const themeStore = useThemeStore()
 const activeTab = ref('voice')
-const themeMode = ref('auto')
+const themeMode = ref('light-blue')
+
+watch(themeMode, (newMode) => {
+  themeStore.setWhatColor(newMode);
+  console.log('Theme mode changed to:', newMode);
+}, { immediate: true });
 
 const voiceConfig = ref({ ...voiceStore.config })
 
@@ -127,14 +133,14 @@ const clearAllHistory = () => {
 }
 
 const goHome = () => {
-  router.push('/')
+  router.push('/hall')
 }
 </script>
 
 <style scoped>
 .settings-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
 }
 
 .settings-header {
@@ -156,6 +162,9 @@ const goHome = () => {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .settings-tabs {

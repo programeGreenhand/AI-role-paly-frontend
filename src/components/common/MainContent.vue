@@ -1,66 +1,89 @@
 <template>
-  <!-- 书签样式的历史记录按钮 -->
-  <div class="bookmark-history-btn" @click="drawer = true">
-    <ElButton type="warning">操作台</ElButton>
-  </div>
-
-  <el-drawer  v-model="drawer" title="对话历史"  :append-to-body="true" :with-header="false" direction="ltr" size="14%" class="history" :modal="false" :show-close="true" >
-    <template #footer>
-      <div class="footer-container">
-        <el-dropdown placement="top-start">
-          <el-button class="personal-center-footer" type="text" icon="user" size="large">航海王开发组</el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="goToSettings">设置</el-dropdown-item>
-              <el-dropdown-item @click="goToUserProfile">个人中心</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-        
-        <el-button type="error" @click="drawer=false" icon="close">
-          
-        </el-button>
-      </div>
-    </template>
-    <div class="history-list">
-      <div v-for="item in [1,2,3,4,5,7,8,9,1,,5,5,5,5,5,5]" :key="item" class="character-item">
-        <el-image
-          style="width: 30px; height: 30px"
-          src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+    <div class="home-container">
+    <el-header class="header">
+      <h1 class="title">AI角色聊天</h1>
+    </el-header>
+    
+    <el-main class="main-content">
+      <div class="search-section">
+        <el-input
+          v-model="searchQuery"
+          placeholder="搜索角色名称..."
+          size="large"
+          class="search-input"
         />
-        <div class="character-info">
-          <span class="character-name">哈利波特{{ item }}</span>
-        </div>
       </div>
-    </div>
-  </el-drawer>
 
-  <RouterView></RouterView>
+      <div class="characters-section">
+        <CharacterSelector
+          :characters="filteredCharacters"
+          @select="handleCharacterSelect"
+        />
+      </div>
+
+      <div class="features-section">
+        <h2>功能特色</h2>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-card class="feature-card">
+              <el-icon size="40" color="#409EFF"><ChatDotSquare /></el-icon>
+              <h3>智能对话</h3>
+              <p>与AI角色进行自然流畅的对话交流</p>
+            </el-card>
+          </el-col>
+          <el-col :span="8">
+            <el-card class="feature-card">
+              <el-icon size="40" color="#67C23A"><Microphone /></el-icon>
+              <h3>语音交互</h3>
+              <p>支持语音输入和语音回复，沉浸式体验</p>
+            </el-card>
+          </el-col>
+          <el-col :span="8">
+            <el-card class="feature-card">
+              <el-icon size="40" color="#E6A23C"><Setting /></el-icon>
+              <h3>个性定制</h3>
+              <p>自定义角色个性和对话风格</p>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
+    </el-main>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref} from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useCharacterStore } from '../../stores/character'
+import CharacterSelector from '../character/CharacterSelector.vue'
+import type { Character } from '../../types/character'
 
 const router = useRouter()
+const characterStore = useCharacterStore()
+
+const searchQuery = ref('')
+
+const filteredCharacters = computed(() => {
+  if (!searchQuery.value) {
+    return characterStore.allCharacters
+  }
+  return characterStore.allCharacters.filter(character =>
+    character.name?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    character.description?.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
 
 
 
-
-const drawer = ref(false)
-
-
-
-const goToSettings = () => {
-  router.push('/hall/settings')
+const handleCharacterSelect = (character: Character) => {
+  characterStore.setCurrentCharacter(character)
+  router.push(`/chat/${character.id}`)
 }
 
-const goToUserProfile = () => {
-  router.push('/hall/user/profile')
-}
+
 </script>
 
-<style scoped>
+<style lang="css" scoped>
 .home-container {
   display: flex;
   flex-direction: column;
@@ -224,30 +247,4 @@ const goToUserProfile = () => {
   color: #333;
 }
 
-/* 如何是的el-drawer内容过多时候不出现滚动条 */
-:deep(.el-drawer__body) {
-  overflow: hidden;
-}
-
-.footer-container
-{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-
-.personal-center-footer{
-  border:1px solid #eee;
-  width: 85%;
-  border-radius: 10px;
-  height: 100%;
-}
-
-.personal-center-footer:hover{
-  border:1px solid #409EFF;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
-  transition: all 0.3s ease;
-}
 </style>

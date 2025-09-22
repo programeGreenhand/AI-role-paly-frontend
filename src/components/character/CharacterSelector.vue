@@ -16,6 +16,7 @@
 import type { Character } from '../../types/character'
 import CharacterCard from './CharacterCard.vue'
 
+//@ts-ignore
 defineProps<{
   characters: Character[]
 }>()

@@ -5,14 +5,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed} from 'vue'
 import { useCharacterStore } from './stores/character'
 
+
 const characterStore = useCharacterStore()
+
 
 const currentTheme = computed(() => {
   return characterStore.currentCharacter?.theme || 'default'
 })
+
+
+
 </script>
 
 <style>

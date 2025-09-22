@@ -27,18 +27,31 @@ const routes = [
   {
     path: '/hall',
     name: 'Home',
-    component: Home
+    component: Home,
+    children:[
+      {
+        path: '',
+        name: 'MainContent',
+        component: ()=>import('../components/common/MainContent.vue')
+      },
+      {
+        path: 'user/profile',
+        name: 'UserProfile',
+        component: ()=>import('@/views/UserProfile.vue')
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: Settings
+      }
+    ]
   },
   {
     path: '/chat/:characterId?',
     name: 'Chat',
     component: Chat
   },
-  {
-    path: '/settings',
-    name: 'Settings',
-    component: Settings
-  }
+  
 ]
 
 const router = createRouter({

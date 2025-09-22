@@ -34,6 +34,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       loading.value = true
       try {
         // 实际项目中应调用API登录
+        // @ts-ignore
         const res = await loginUser(loginForm)
         console.log('登录成功:', loginForm)
         // 登录成功后跳转

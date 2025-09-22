@@ -10,6 +10,8 @@ body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
   color: #333;
+  background-color: var(--theme-color, #ffffff);  
+  /* 找了半天错在哪里？原来是应错了css文件，还有就是:root到底是啥，他的样式优先级比body高？ */
 }
 
 .fade-enter-active,
