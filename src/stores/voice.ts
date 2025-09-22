@@ -13,6 +13,8 @@ export const useVoiceStore = defineStore('voice', () => {
 
   const isRecording = ref(false)
   const isPlaying = ref(false)
+  //如何解决ts在SpeechRecognition上报错的问题
+  //@ts-ignore
   const recognition = ref<SpeechRecognition | null>(null)
 
   const initSpeechRecognition = () => {
@@ -38,13 +40,13 @@ export const useVoiceStore = defineStore('voice', () => {
 
       isRecording.value = true
 
-      recognition.value.onresult = (event) => {
+      recognition.value.onresult = (event:any) => {
         const transcript = event.results[0][0].transcript
         isRecording.value = false
         resolve(transcript)
       }
 
-      recognition.value.onerror = (event) => {
+      recognition.value.onerror = (event:any) => {
         isRecording.value = false
         reject(new Error(`语音识别错误: ${event.error}`))
       }

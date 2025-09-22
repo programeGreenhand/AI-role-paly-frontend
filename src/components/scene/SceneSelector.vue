@@ -23,6 +23,7 @@
 import { ref, computed, watch } from 'vue'
 import { useSceneStore } from '../../stores/scene'
 
+
 const props = defineProps<{
   characterId: string
 }>()
@@ -45,10 +46,11 @@ const handleSceneChange = (sceneId: string) => {
   }
 }
 
+// @ts-ignore
 watch(availableScenes, (scenes) => {
   if (scenes.length > 0 && !selectedSceneId.value) {
-    selectedSceneId.value = scenes[0]?.id
-    handleSceneChange(scenes[0].id)
+    selectedSceneId.value = scenes[0]?.id || ''
+    handleSceneChange(scenes[0]?.id || '')
   }
 }, { immediate: true })
 

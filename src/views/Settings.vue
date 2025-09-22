@@ -3,7 +3,7 @@
     <el-container>
       <el-header class="settings-header">
         <h1>设置</h1>
-        <el-button @click="goHome" :icon="House">返回首页</el-button>
+        <el-button @click="goHome" icon="house">返回首页</el-button>
       </el-header>
 
       <el-main class="settings-main">
@@ -89,7 +89,7 @@ import { useCharacterStore } from '../stores/character'
 import { useChatStore } from '../stores/chat'
 import CharacterCustomizer from '../components/character/CharacterCustomizer.vue'
 import type { CustomCharacter } from '../types/character'
-
+import { ElMessage,ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const voiceStore = useVoiceStore()

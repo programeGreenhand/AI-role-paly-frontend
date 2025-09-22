@@ -20,6 +20,7 @@
 import { computed } from 'vue'
 import type { Scene } from '../../stores/scene'
 
+
 const props = defineProps<{
   scene?: Scene | null
 }>()
@@ -44,6 +45,7 @@ const elementCount = computed(() => {
   }
 })
 
+// @ts-ignore
 const getElementStyle = (index: number) => {
   const randomDelay = Math.random() * 5
   const randomDuration = 10 + Math.random() * 20

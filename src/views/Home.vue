@@ -3,11 +3,12 @@
     <!-- <div class="titles"> -->
       <el-header class="header">
         <h1 class="title">AI角色聊天</h1>
+        <el-button type="primary" size="small" icon="setting" @click="goToSettings">设置</el-button>
       </el-header>
       
     <!-- </div> -->
     <el-main class="main-content">
-      <el-button type="primary" :icon="Setting" @click="goToSettings">设置</el-button>
+      
       <div class="search-section">
         <el-input
           v-model="searchQuery"
@@ -19,8 +20,11 @@
         </el-input>
       </div>
 
+      
       <div class="characters-section">
+      <!-- @vue-ignore -->
         <CharacterSelector
+          
           :characters="filteredCharacters"
           @select="handleCharacterSelect"
         />

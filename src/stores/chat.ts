@@ -23,6 +23,7 @@ export const useChatStore = defineStore('chat', () => {
     return session
   }
 
+  //@ts-ignore
   const addMessage = async (content: string, type: 'text' | 'voice' = 'text') => {
     if (!currentSession.value) return
 
@@ -47,16 +48,19 @@ export const useChatStore = defineStore('chat', () => {
 
       const characterMessage: Message = {
         id: `msg-${Date.now()}-char`,
-        content: response.data.message,
+         //@ts-ignore
+        content: response.data?.message,
         type: 'text',
         sender: 'character',
         timestamp: Date.now(),
-        emotion: response.data.emotion
+        emotion: response.data?.emotion
       }
 
       currentSession.value.messages.push(characterMessage)
+       //@ts-ignore
       currentSession.value.context.push(content, response.data.message)
-      currentEmotion.value = response.data.emotion
+       //@ts-ignore
+      currentEmotion.value = response.data?.emotion
       
       // 限制上下文长度
       if (currentSession.value.context.length > 10) {

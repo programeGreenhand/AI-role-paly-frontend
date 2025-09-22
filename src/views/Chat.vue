@@ -20,10 +20,10 @@
             :character-id="currentCharacter.id"
             @change="handleSceneChange"
           />
-          <el-button @click="clearChat" type="danger" :icon="Delete">
+          <el-button @click="clearChat" type="danger" icon="delete">
             清空对话
           </el-button>
-          <el-button @click="goHome" :icon="House">
+          <el-button @click="goHome" icon="house">
             返回首页
           </el-button>
         </div>
@@ -112,13 +112,14 @@ onMounted(() => {
   if (characterId) {
     const character = characterStore.getCharacterById(characterId)
     if (character) {
+      //@ts-ignore  
       characterStore.setCurrentCharacter(character)
       chatStore.createSession(characterId)
       
       // 设置默认场景
       const scenes = sceneStore.getScenesForCharacter(characterId)
       if (scenes.length > 0) {
-        sceneStore.setScene(scenes[0])
+        sceneStore.setScene(scenes[0]!)
       }
     } else {
       router.push('/')

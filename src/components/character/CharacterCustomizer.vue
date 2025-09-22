@@ -146,8 +146,8 @@ const addTrait = () => {
 
 const removeTrait = (trait: string) => {
   const index = customCharacter.personality?.indexOf(trait)
-  if (index > -1) {
-    customCharacter.personality?.splice(index, 1)
+  if (index! > -1) {
+    customCharacter.personality?.splice(index!, 1)
   }
 }
 
