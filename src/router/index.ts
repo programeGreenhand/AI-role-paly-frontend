@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Chat from '../views/Chat.vue'
 import Settings from '../views/Settings.vue'
-import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs'
+
 
 
 const routes = [

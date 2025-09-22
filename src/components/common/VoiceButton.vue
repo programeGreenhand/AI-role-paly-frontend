@@ -30,7 +30,7 @@ const togglePlay = async () => {
   
   try {
     isPlaying.value = true
-    await voiceStore.speak(props.text, props.voice)
+    await voiceStore.speak(props.text, props.voice!)
   } catch (error) {
     console.error('语音播放失败:', error)
   } finally {

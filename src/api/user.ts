@@ -1,4 +1,4 @@
-// api/user.ts
+// src/apis/user.ts
 import axios from 'axios'
 
 // 创建axios实例

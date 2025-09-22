@@ -8,14 +8,34 @@ export const useVoiceStore = defineStore('voice', () => {
   const error = ref<string | null>(null)
   const config = ref({
     enabled: true,
-    lang: 'zh-CN',
+    language: 'zh-CN',
     continuous: false,
-    interimResults: true
+    interimResults: true,
+    speed: 1.0,
+    pitch: 1.0,
   })
 
   // @ts-ignore: 处理浏览器前缀
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
   let recognition: any = null
+
+  //使用webAPI实现语音播报，同时可以选择不同的声音
+  //@ts-ignore
+  const speak = (text: string, voice: string | null) => {
+    if (!('speechSynthesis' in window)) {
+      throw new Error('您的浏览器不支持语音合成功能')
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = config.value.language
+    utterance.pitch = config.value.pitch
+    utterance.rate = config.value.speed
+    window.speechSynthesis.speak(utterance)
+  }
+
+  const updateConfig = (newConfig: Partial<typeof config.value>) => {
+    config.value = { ...config.value, ...newConfig }
+  }
 
   const initializeRecognition = () => {
     if (!SpeechRecognition) {
@@ -25,7 +45,7 @@ export const useVoiceStore = defineStore('voice', () => {
     recognition = new SpeechRecognition()
     recognition.continuous = config.value.continuous
     recognition.interimResults = config.value.interimResults
-    recognition.lang = config.value.lang
+    recognition.lang = config.value.language
 
     recognition.onresult = (event: any) => {
       const results = event.results
@@ -127,6 +147,8 @@ export const useVoiceStore = defineStore('voice', () => {
     config,
     startRecording,
     stopRecording,
-    checkPermission
+    checkPermission,
+    updateConfig,
+    speak
   }
 })

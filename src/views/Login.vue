@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
+//@ts-ignore
 import { loginUser } from '../api/user'
 
 const router = useRouter()

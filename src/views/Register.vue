@@ -2,7 +2,8 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
-import { registerUser } from '../api/user'
+//@ts-ignore
+import { registerUser } from '@/api/user'
 
 const router = useRouter()
 const formRef = ref<FormInstance>()
@@ -16,6 +17,7 @@ const registerForm = reactive({
   agreeTerms: false
 })
 
+//@ts-ignore
 const validatePass = (rule: any, value: any, callback: any) => {
   if (value === '') {
     callback(new Error('请输入密码'))
@@ -29,6 +31,7 @@ const validatePass = (rule: any, value: any, callback: any) => {
   }
 }
 
+//@ts-ignore
 const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === '') {
     callback(new Error('请再次输入密码'))
@@ -57,6 +60,7 @@ const rules = reactive<FormRules>({
   ],
   agreeTerms: [
     { 
+      //@ts-ignore
       validator: (rule, value, callback) => {
         if (!value) {
           callback(new Error('请同意用户协议和隐私政策'))
