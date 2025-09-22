@@ -1,30 +1,44 @@
 <template>
+  <!-- 书签样式的历史记录按钮 -->
+  <div class="bookmark-history-btn" @click="drawer = true">
+    <ElButton type="warning">聊天历史</ElButton>
+  </div>
+
+  <el-drawer  v-model="drawer" title="对话历史" :with-header="false" direction="ltr" size="14%" class="history" :modal="false" :show-close="true" >
+    <template #footer>
+    <el-button @click="drawer =false"><el-icon><Close /></el-icon></el-button>
+    </template>
+    <div class="history-list">
+      <div v-for="item in [1,2,3,4,5,7,8,9,1,,5,5,5,5,5,5]" :key="item" class="character-item" @click="clickMe(item)">
+        <el-image
+          style="width: 30px; height: 30px"
+          src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+        />
+        <div class="character-info">
+          <span class="character-name">哈利波特{{ item }}</span>
+        </div>
+      </div>
+    </div>
+  </el-drawer>
+
   <div class="home-container">
-    <!-- <div class="titles"> -->
-      <el-header class="header">
-        <h1 class="title">AI角色聊天</h1>
-        <el-button type="primary" size="small" icon="setting" @click="goToSettings">设置</el-button>
-      </el-header>
-      
-    <!-- </div> -->
+    <el-header class="header">
+      <h1 class="title">AI角色聊天</h1>
+      <el-button type="primary" size="small" icon="setting" @click="goToSettings">设置</el-button>
+    </el-header>
+    
     <el-main class="main-content">
-      
       <div class="search-section">
         <el-input
           v-model="searchQuery"
           placeholder="搜索角色名称..."
           size="large"
           class="search-input"
-        >
-          
-        </el-input>
+        />
       </div>
 
-      
       <div class="characters-section">
-      <!-- @vue-ignore -->
         <CharacterSelector
-          
           :characters="filteredCharacters"
           @select="handleCharacterSelect"
         />
@@ -72,6 +86,12 @@ const characterStore = useCharacterStore()
 
 const searchQuery = ref('')
 
+const clickMe = (item: number) => {
+  console.log('click me', item)
+}
+
+const drawer = ref(false)
+
 const filteredCharacters = computed(() => {
   if (!searchQuery.value) {
     return characterStore.allCharacters
@@ -97,7 +117,6 @@ const goToSettings = () => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  
 }
 
 .header {
@@ -111,11 +130,6 @@ const goToSettings = () => {
   font-weight: bold;
   margin-bottom: 10px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.subtitle {
-  font-size: 1.2rem;
-  opacity: 0.9;
 }
 
 .main-content {
@@ -138,7 +152,6 @@ const goToSettings = () => {
 .search-input {
   max-width: 500px;
   margin: 0 auto;
-
 }
 
 .characters-section,
@@ -177,4 +190,95 @@ const goToSettings = () => {
   color: black;
   line-height: 1.6;
 }
+
+/* 书签样式历史按钮 */
+.bookmark-history-btn {
+  position: fixed;
+  top: 50vh;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 1000;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.bookmark-history-btn:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.bookmark-shape {
+  width: 40px;
+  height: 120px;
+  background: linear-gradient(45deg, #e67e22, #f39c12);
+  border-radius: 0 8px 8px 0;
+  position: relative;
+  box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.bookmark-shape::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 15px solid #d35400;
+}
+
+.bookmark-history-btn:hover .bookmark-shape {
+  background: linear-gradient(45deg, #f39c12, #e67e22);
+  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.bookmark-label {
+  margin-top: 10px;
+  color: #e67e22;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 历史记录列表样式 */
+.history-list {
+  padding: 10px;
+}
+
+.character-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.character-item:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateX(5px);
+}
+
+.character-info {
+  margin-left: 12px;
+}
+
+.character-name {
+  font-weight: bold;
+  color: #333;
+}
+
+/* 如何是的el-drawer内容过多时候不出现滚动条 */
+:deep(.el-drawer__body) {
+  overflow: hidden;
+}
+
 </style>
