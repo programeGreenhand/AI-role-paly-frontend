@@ -4,7 +4,7 @@ import { ref } from 'vue'
 export interface Scene {
   id: string
   name: string
-  background: string
+  background: string | (() => Promise<string>)
   music?: string
   theme: string
   characterIds: string[]
@@ -15,7 +15,7 @@ export const useSceneStore = defineStore('scene', () => {
     {
       id: 'hogwarts',
       name: '霍格沃茨城堡',
-      background: '/backgrounds/hogwarts.jpg',
+      background: '001',
       music: '/music/harry-potter-theme.mp3',
       theme: 'magic',
       characterIds: ['harry-potter']
@@ -23,18 +23,39 @@ export const useSceneStore = defineStore('scene', () => {
     {
       id: 'ancient-athens',
       name: '古雅典',
-      background: '/backgrounds/athens.jpg',
+      background: '001',
       music: '/music/ancient-greece.mp3',
       theme: 'philosophy',
       characterIds: ['socrates']
     },
     {
-      id: 'library',
-      name: '图书馆',
-      background: '/backgrounds/library.jpg',
+      id: 'school',
+      name: '教室',
+      background: '001',
+      theme: 'study',
+      characterIds: ['konan']
+    },
+    {
+      id: 'yuanlaohui',
+      name: '元老会',
+      background: '002',
       theme: 'study',
       characterIds: ['socrates']
-    }
+    },
+    {
+      id: 'shiwusuo',
+      name: '事务所',
+      background: '002',
+      theme: 'study',
+      characterIds: ['konan']
+    },
+    {
+      id: 'jiaotang',
+      name: '教堂',
+      background: '002',
+      theme: 'study',
+      characterIds: ['harry-potter']
+    },
   ])
 
   const currentScene = ref<Scene | null>(null)

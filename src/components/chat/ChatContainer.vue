@@ -47,7 +47,9 @@ const handlePlayAudio = async (message: Message) => {
     await voiceStore.playAudio(message.audioUrl)
     message.isPlaying = false
   } else if (message.content && message.sender === 'character') {
-    // 使用Web API语音播报
+    // 使用Web API语音播报 这个使用web api进行播报实际不符合需求，应该是可以选择合适音色进行播报
+    
+    // @ts-ignore
     voiceStore.speak(message.content)
   }
 }

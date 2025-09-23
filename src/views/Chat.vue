@@ -1,6 +1,8 @@
 <template>
-  <div class="chat-view" :class="currentTheme">
-    <SceneBackground :scene="currentScene" />
+ <!--:style="{ backgroundImage: `url(assets/charactor/sugeladi/background/001.jpg)` }"--> 
+  <div class="chat-view" :class="currentTheme" :style="background" >
+    
+    <!-- <SceneBackground :scene="currentScene" /> -->
     
     <!-- 优雅的浮动头部 -->
     <div class="floating-header">
@@ -81,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCharacterStore } from '../stores/character'
 import { useChatStore } from '../stores/chat'
@@ -89,11 +91,25 @@ import { useSceneStore } from '../stores/scene'
 import { useVoiceStore } from '../stores/voice'
 import ChatContainer from '../components/chat/ChatContainer.vue'
 import CharacterAnimation from '../components/character/CharacterAnimation.vue'
-import SceneBackground from '../components/scene/SceneBackground.vue'
+// import SceneBackground from '../components/scene/SceneBackground.vue'
 import SceneSelector from '../components/scene/SceneSelector.vue'
 import VoiceRecorder from '../components/chat/VoiceRecorder.vue'
 import type { Scene } from '../stores/scene'
 import { ElMessage } from 'element-plus'
+// import backgroundImage from '../assets/charactor/sugeladi/background/001.jpg'
+
+// const background = computed(() => {
+//   return {
+//     backgroundImage: `url(${backgroundImage})`,
+//     backgroundSize: 'cover',
+//     backgroundPosition: 'center',
+//     backgroundRepeat: 'no-repeat'
+//   }
+// })
+
+
+
+
 
 const route = useRoute()
 const router = useRouter()
@@ -106,6 +122,19 @@ const inputMessage = ref('')
 
 const currentCharacter = computed(() => characterStore.currentCharacter)
 const currentScene = computed(() => sceneStore.currentScene)
+
+//test switchBackground
+const getBackgroundImage = (imageName:string) => {
+  return new URL(`../assets/charactor/${currentScene.value?.characterIds[0]}/background/${currentScene.value?.background}.jpg`, import.meta.url).href;
+};
+
+const background = computed(() => ({
+  backgroundImage: `url(${getBackgroundImage('')})`, // 根据变量动态选择图片
+  backgroundSize: 'cover'
+}));
+
+
+
 const currentTheme = computed(() => currentCharacter.value?.theme || 'default')
 const messages = computed(() => chatStore.messages)
 const isTyping = computed(() => chatStore.isTyping)
@@ -239,7 +268,7 @@ const goHome = () => {
   grid-template-rows: auto 1fr auto;
   grid-gap: 0;
   position: relative;
-  
+  /* background-image: url('..\assets\charactor\sugeladi\background\002.jpg'); */
   overflow: hidden;
 }
 
@@ -560,4 +589,7 @@ const goHome = () => {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
+
+
+
 </style>
