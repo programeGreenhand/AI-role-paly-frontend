@@ -12,7 +12,7 @@
           <span class="dot"></span>
         </div>
       </div>
-      <div class="typing-text">{{ character?.name }} 正在思考...</div>
+      <div class="typing-text">{{ character?.name || 'AI助手' }} 正在思考...</div>
     </div>
   </div>
 </template>
@@ -40,6 +40,7 @@ defineProps<{
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .character-avatar img {
@@ -55,11 +56,13 @@ defineProps<{
 }
 
 .typing-bubble {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 18px;
   border-bottom-left-radius: 6px;
   padding: 12px 16px;
   min-width: 60px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .typing-dots {
@@ -83,7 +86,7 @@ defineProps<{
 
 .typing-text {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.6);
   padding-left: 8px;
 }
 
@@ -101,5 +104,21 @@ defineProps<{
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .character-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .typing-bubble {
+    padding: 10px 14px;
+  }
+  
+  .typing-text {
+    font-size: 11px;
+  }
 }
 </style>

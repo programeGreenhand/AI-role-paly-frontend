@@ -5,14 +5,14 @@
     :style="backgroundStyle"
   >
     <div class="background-overlay"></div>
-    <div class="floating-elements">
+    <!-- <div class="floating-elements">
       <div
         v-for="i in elementCount"
         :key="i"
         class="floating-element"
         :style="getElementStyle(i)"
       ></div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -45,21 +45,21 @@ const elementCount = computed(() => {
   }
 })
 
-// @ts-ignore
-const getElementStyle = (index: number) => {
-  const randomDelay = Math.random() * 5
-  const randomDuration = 10 + Math.random() * 20
-  const randomLeft = Math.random() * 100
-  const randomSize = 4 + Math.random() * 8
+// // @ts-ignore
+// const getElementStyle = (index: number) => {
+//   const randomDelay = Math.random() * 5
+//   const randomDuration = 10 + Math.random() * 20
+//   const randomLeft = Math.random() * 100
+//   const randomSize = 4 + Math.random() * 8
   
-  return {
-    left: `${randomLeft}%`,
-    animationDelay: `${randomDelay}s`,
-    animationDuration: `${randomDuration}s`,
-    width: `${randomSize}px`,
-    height: `${randomSize}px`
-  }
-}
+//   return {
+//     left: `${randomLeft}%`,
+//     animationDelay: `${randomDelay}s`,
+//     animationDuration: `${randomDuration}s`,
+//     width: `${randomSize}px`,
+//     height: `${randomSize}px`
+//   }
+// }
 </script>
 
 <style scoped>

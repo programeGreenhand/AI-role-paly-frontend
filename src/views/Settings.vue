@@ -113,7 +113,7 @@ watch(voiceConfig, (newConfig) => {
 }, { deep: true })
 
 const handleCreateCharacter = (character: CustomCharacter) => {
-  characterStore.addCustomCharacter(character)
+  characterStore.addCustomCharacter(character) //此处只是存储在前端本地
   ElMessage.success('自定义角色创建成功！')
 }
 

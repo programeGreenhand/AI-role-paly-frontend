@@ -40,7 +40,7 @@
           </el-col>
           <el-col :span="8">
             <el-card class="feature-card">
-              <el-icon size="40" color="#E6A23C"><Setting /></el-icon>
+              <el-icon size="65" color="#E6A23C"><Setting /></el-icon>
               <h3>个性定制</h3>
               <p>自定义角色个性和对话风格</p>
             </el-card>

@@ -1,7 +1,6 @@
-// import type { VoiceRequest, APIResponse } from '../types/api'
-import type { VoiceRequest} from '../types/api'
+import type { VoiceRequest } from '../types/api'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080/api'
 
 class VoiceAPI {
   async textToSpeech(request: VoiceRequest): Promise<void> {
@@ -30,6 +29,28 @@ class VoiceAPI {
       }
     } catch (error) {
       console.error('TTS请求失败:', error)
+      throw error
+    }
+  }
+
+  async speechToText(audioBlob: Blob): Promise<string> {
+    try {
+      const formData = new FormData()
+      formData.append('audio', audioBlob, 'audio.wav')
+      
+      const response = await fetch(`${API_BASE_URL}/voice/asr`, {
+        method: 'POST',
+        body: formData
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        return result.data?.text || ''
+      }
+      
+      throw new Error('语音识别失败')
+    } catch (error) {
+      console.error('ASR请求失败:', error)
       throw error
     }
   }

@@ -7,6 +7,7 @@
           :key="message.id"
           :message="message"
           :character="currentCharacter"
+          @play-audio="handlePlayAudio"
         />
       </TransitionGroup>
       
@@ -21,6 +22,7 @@ import type { Message } from '../../types/chat'
 import type { Character } from '../../types/character'
 import MessageBubble from './MessageBubble.vue'
 import TypingIndicator from './TypingIndicator.vue'
+import { useVoiceStore } from '../../stores/voice'
 
 const props = defineProps<{
   messages: Message[]
@@ -28,6 +30,7 @@ const props = defineProps<{
   currentCharacter: Character | null
 }>()
 
+const voiceStore = useVoiceStore()
 const chatContainerRef = ref<HTMLElement>()
 
 const scrollToBottom = () => {
@@ -38,6 +41,17 @@ const scrollToBottom = () => {
   })
 }
 
+const handlePlayAudio = async (message: Message) => {
+  if (message.audioUrl) {
+    message.isPlaying = true
+    await voiceStore.playAudio(message.audioUrl)
+    message.isPlaying = false
+  } else if (message.content && message.sender === 'character') {
+    // 使用Web API语音播报
+    voiceStore.speak(message.content)
+  }
+}
+
 watch(() => props.messages, scrollToBottom, { deep: true })
 watch(() => props.isTyping, scrollToBottom)
 </script>
@@ -45,9 +59,11 @@ watch(() => props.isTyping, scrollToBottom)
 <style scoped>
 .chat-container {
   height: 100%;
+  
   overflow-y: auto;
   padding: 20px;
   scroll-behavior: smooth;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 }
 
 .messages-list {
@@ -75,5 +91,16 @@ watch(() => props.isTyping, scrollToBottom)
 .chat-bubble-leave-to {
   opacity: 0;
   transform: translateY(-20px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .chat-container {
+    padding: 12px;
+  }
+  
+  .messages-list {
+    gap: 12px;
+  }
 }
 </style>

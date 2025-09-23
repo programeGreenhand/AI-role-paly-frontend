@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Message, ChatSession } from '../types/chat'
-import { chatAPI } from '../utils/api'
 
 export const useChatStore = defineStore('chat', () => {
   const currentSession = ref<ChatSession | null>(null)
   const sessions = ref<ChatSession[]>([])
   const isTyping = ref(false)
   const currentEmotion = ref('neutral')
+
+  const messages = computed(() => currentSession.value?.messages || [])
 
   const createSession = (characterId: string) => {
     const session: ChatSession = {
@@ -23,8 +24,7 @@ export const useChatStore = defineStore('chat', () => {
     return session
   }
 
-  //@ts-ignore
-  const addMessage = async (content: string, type: 'text' | 'voice' = 'text') => {
+  const addUserMessage = (content: string, type: 'text' | 'voice' = 'text', audioUrl?: string) => {
     if (!currentSession.value) return
 
     const userMessage: Message = {
@@ -32,45 +32,41 @@ export const useChatStore = defineStore('chat', () => {
       content,
       type,
       sender: 'user',
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      audioUrl
     }
 
     currentSession.value.messages.push(userMessage)
-    isTyping.value = true
+    return userMessage
+  }
 
-    try {
-      const response = await chatAPI.sendMessage({
-        message: content,
-        characterId: currentSession.value.characterId,
-        context: currentSession.value.context,
-        emotion: currentEmotion.value
-      })
+  const addCharacterMessage = (content: string, emotion?: string, audioUrl?: string) => {
+    if (!currentSession.value) return
 
-      const characterMessage: Message = {
-        id: `msg-${Date.now()}-char`,
-         //@ts-ignore
-        content: response.data?.message,
-        type: 'text',
-        sender: 'character',
-        timestamp: Date.now(),
-        emotion: response.data?.emotion
-      }
-
-      currentSession.value.messages.push(characterMessage)
-       //@ts-ignore
-      currentSession.value.context.push(content, response.data.message)
-       //@ts-ignore
-      currentEmotion.value = response.data?.emotion
-      
-      // 限制上下文长度
-      if (currentSession.value.context.length > 10) {
-        currentSession.value.context = currentSession.value.context.slice(-10)
-      }
-    } catch (error) {
-      console.error('发送消息失败:', error)
-    } finally {
-      isTyping.value = false
+    const characterMessage: Message = {
+      id: `msg-${Date.now()}-char`,
+      content,
+      type: 'text',
+      sender: 'character',
+      timestamp: Date.now(),
+      emotion,
+      voiceUrl: audioUrl
     }
+
+    currentSession.value.messages.push(characterMessage)
+    currentSession.value.context.push(content)
+    currentEmotion.value = emotion || 'neutral'
+    
+    // 限制上下文长度
+    if (currentSession.value.context.length > 10) {
+      currentSession.value.context = currentSession.value.context.slice(-10)
+    }
+
+    return characterMessage
+  }
+
+  const setTyping = (typing: boolean) => {
+    isTyping.value = typing
   }
 
   const clearSession = () => {
@@ -86,8 +82,11 @@ export const useChatStore = defineStore('chat', () => {
     sessions,
     isTyping,
     currentEmotion,
+    messages,
     createSession,
-    addMessage,
+    addUserMessage,
+    addCharacterMessage,
+    setTyping,
     clearSession
   }
 })

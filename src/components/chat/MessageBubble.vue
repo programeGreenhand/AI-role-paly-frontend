@@ -11,12 +11,27 @@
         <span class="message-time">{{ formatTime(message.timestamp) }}</span>
         <span v-if="message.emotion" class="message-emotion">{{ getEmotionText(message.emotion) }}</span>
         
-        <VoiceButton
-          v-if="message.type === 'text' && message.sender === 'character'"
-          :text="message.content"
-          :voice="character?.voice"
+        <!-- 音频播放按钮 -->
+        <el-button
+          v-if="message.sender === 'character' && (message.audioUrl || message.content)"
+          @click="$emit('playAudio', message)"
+          :disabled="message.isPlaying"
+          type="text"
           size="small"
-        />
+          class="play-button"
+        >
+          <el-icon>
+            <VideoPlay v-if="!message.isPlaying" />
+            <Loading v-else />
+          </el-icon>
+          {{ message.isPlaying ? '播放中' : '播放' }}
+        </el-button>
+
+        <!-- 语音消息标识 -->
+        <el-tag v-if="message.type === 'voice'" size="small" type="info">
+          <el-icon><Microphone /></el-icon>
+          语音
+        </el-tag>
       </div>
     </div>
     
@@ -29,11 +44,15 @@
 <script setup lang="ts">
 import type { Message } from '../../types/chat'
 import type { Character } from '../../types/character'
-import VoiceButton from '../common/VoiceButton.vue'
+import { VideoPlay, Loading, Microphone, User } from '@element-plus/icons-vue'
 
 defineProps<{
   message: Message
   character: Character | null
+}>()
+
+defineEmits<{
+  playAudio: [message: Message]
 }>()
 
 const formatTime = (timestamp: number) => {
@@ -50,7 +69,9 @@ const getEmotionText = (emotion: string) => {
     excited: '🤩',
     angry: '😠',
     wise: '🤔',
-    neutral: '😐'
+    neutral: '😐',
+    surprised: '😲',
+    confused: '😕'
   }
   return emotionMap[emotion] || '😐'
 }
@@ -62,6 +83,7 @@ const getEmotionText = (emotion: string) => {
   align-items: flex-end;
   gap: 10px;
   margin-bottom: 15px;
+  animation: slideIn 0.3s ease-out;
 }
 
 .message-user {
@@ -78,6 +100,7 @@ const getEmotionText = (emotion: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .character-avatar img {
@@ -87,7 +110,7 @@ const getEmotionText = (emotion: string) => {
 }
 
 .user-avatar {
-  background: #409EFF;
+  background: linear-gradient(135deg, #409EFF, #3A7BD5);
   color: white;
 }
 
@@ -102,16 +125,18 @@ const getEmotionText = (emotion: string) => {
   font-size: 14px;
   line-height: 1.5;
   word-wrap: break-word;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .message-character .message-text {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #333;
   border-bottom-left-radius: 6px;
 }
 
 .message-user .message-text {
-  background: #409EFF;
+  background: linear-gradient(135deg, #409EFF, #3A7BD5);
   color: white;
   border-bottom-right-radius: 6px;
 }
@@ -122,11 +147,12 @@ const getEmotionText = (emotion: string) => {
   gap: 8px;
   padding: 4px 8px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .message-user .message-meta {
   justify-content: flex-end;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .message-time {
@@ -135,6 +161,13 @@ const getEmotionText = (emotion: string) => {
 
 .message-emotion {
   font-size: 14px;
+}
+
+.play-button {
+  padding: 2px 6px;
+  font-size: 11px;
+  height: auto;
+  margin-left: 4px;
 }
 
 /* 情绪色彩 */
@@ -156,5 +189,47 @@ const getEmotionText = (emotion: string) => {
 
 .emotion-wise .message-text {
   border-left: 4px solid #409EFF;
+}
+
+.emotion-surprised .message-text {
+  border-left: 4px solid #AB47BC;
+}
+
+.emotion-confused .message-text {
+  border-left: 4px solid #FF7043;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .message-content {
+    max-width: 85%;
+  }
+  
+  .character-avatar,
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .message-text {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .message-meta {
+    font-size: 11px;
+    gap: 6px;
+  }
 }
 </style>

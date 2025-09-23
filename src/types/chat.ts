@@ -6,6 +6,8 @@ export interface Message {
   timestamp: number
   emotion?: string
   voiceUrl?: string
+  audioUrl?: string
+  isPlaying?: boolean
 }
 
 export interface ChatSession {
