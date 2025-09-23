@@ -2,7 +2,7 @@
   <div class="character-animation" :class="[`emotion-${emotion}`, `theme-${character.theme}`]">
     <div class="character-avatar-container">
       <img
-        :src="character.avatar || '/avatars/default.jpg'"
+        :src=getroleImage(character.id)
         :alt="character.name"
         class="character-avatar"
         :class="{ 'talking': isTalking }"
@@ -37,6 +37,12 @@ defineProps<{
   character: Character
   emotion: string
 }>()
+
+const getroleImage = (id:string) => {
+  const url =  new URL(`../../assets/charactor/${id}/role/avatar.jpg`, import.meta.url).href;
+  console.log("url:",url,"id:",id)
+  return url
+};
 
 const chatStore = useChatStore()
 

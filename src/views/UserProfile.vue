@@ -3,8 +3,7 @@
     <!-- 头部区域 -->
     <div class="header-section">
       <div class="title-area">
-        <h1 class="page-title">用户资料管理</h1>
-        <p class="page-subtitle">管理和查看用户信息</p>
+        <h1 class="page-title">个人空间</h1>
       </div>
     </div>
 
@@ -16,7 +15,7 @@
             <template #label>
               <span class="tab-label">
                 <i class="el-icon-folder"></i>
-                文件管理
+                智能体
               </span>
             </template>
           </el-tab-pane>
@@ -47,51 +46,92 @@
 
     <!-- 内容区域 -->
     <div class="content-section">
-      <div class="cards-grid">
+      <!-- 桌面端布局 -->
+      <div class="cards-grid desktop-view" >
         <el-card 
-          v-for="user in filteredUsers" 
-          :key="user.id"
+          v-for="agent in character.characters" 
+          :key="agent.id"
           class="user-card"
-          shadow="hover"
+          shadow="always"
+          @click="gotoRoleChat(agent.id)"
         >
-          <template #header>
-            <div class="card-header">
-              <div class="user-avatar">
-                {{ user.name.charAt(0) }}
-              </div>
-              <div class="user-basic-info">
-                <h3 class="user-name">{{ user.name }}</h3>
-                <span class="user-id">ID: {{ user.id }}</span>
-              </div>
-            </div>
-          </template>
           
           <div class="card-content">
-            <div class="info-item">
-              <i class="el-icon-message"></i>
-              <span class="info-label">邮箱:</span>
-              <span class="info-value">{{ user.email }}</span>
-            </div>
-            <div class="info-item">
-              <i class="el-icon-phone"></i>
-              <span class="info-label">电话:</span>
-              <span class="info-value">{{ user.phone }}</span>
-            </div>
-            <div class="info-item">
+            <!-- <el-image src="/src/assets/charactor/harry-potter/role/avatar.jpg"/> -->
+            <el-image :src=getroleImage(agent.id) />
+            <div class="info-item" >
               <i class="el-icon-location"></i>
-              <span class="info-label">部门:</span>
-              <span class="info-value">{{ user.department }}</span>
+              <span class="info-value">
+                <h3>
+                  <strong>{{ agent.name }}</strong>
+                </h3>
+              </span>
             </div>
           </div>
-          
-          <template #footer>
-            <div class="card-actions">
-              <el-button type="primary" size="small">编辑</el-button>
-              <el-button type="info" size="small">查看</el-button>
-              <el-button type="danger" size="small">删除</el-button>
-            </div>
-          </template>
+
         </el-card>
+      </div>
+      
+      <!-- 移动端水平滚动布局 -->
+      <div class="mobile-scroll-container mobile-view">
+        <div class="cards-scroll-wrapper">
+          <div class="cards-scroll-track">
+            <el-card 
+              v-for="user in filteredUsers" 
+              :key="user.id"
+              class="user-card mobile-card"
+              shadow="hover"
+            >
+              <template #header>
+                <div class="card-header">
+                  <div class="user-avatar">
+                    {{ user.name.charAt(0) }}
+                  </div>
+                  <div class="user-basic-info">
+                    <h3 class="user-name">{{ user.name }}</h3>
+                    <span class="user-id">ID: {{ user.id }}</span>
+                  </div>
+                </div>
+              </template>
+              
+              <div class="card-content">
+                <div class="info-item">
+                  <i class="el-icon-message"></i>
+                  <span class="info-label">邮箱:</span>
+                  <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-item">
+                  <i class="el-icon-phone"></i>
+                  <span class="info-label">电话:</span>
+                  <span class="info-value">{{ user.phone }}</span>
+                </div>
+                <div class="info-item">
+                  <i class="el-icon-location"></i>
+                  <span class="info-label">部门:</span>
+                  <span class="info-value">{{ user.department }}</span>
+                </div>
+              </div>
+              
+              <template #footer>
+                <div class="card-actions">
+                  <el-button type="primary" size="small">编辑</el-button>
+                  <el-button type="info" size="small">查看</el-button>
+                  <el-button type="danger" size="small">删除</el-button>
+                </div>
+              </template>
+            </el-card>
+          </div>
+        </div>
+        
+        <!-- 滚动指示器 -->
+        <div class="scroll-indicator">
+          <div 
+            v-for="(user, index) in filteredUsers" 
+            :key="user.id"
+            class="indicator-dot"
+            :class="{ active: currentSlide === index }"
+          ></div>
+        </div>
       </div>
       
       <!-- 空状态 -->
@@ -105,11 +145,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useCharacterStore } from '../stores/character'
+import { useRouter } from 'vue-router';
+
+const getroleImage = (id:string) => {
+  return new URL(`../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
+};
+
 
 const searchQuery = ref('');
 const activeTab = ref('files');
-
+const currentSlide = ref(0);
+const character = useCharacterStore()
+const router = useRouter()
 // 扩展的用户数据
 const source = ref([
   { 
@@ -167,6 +216,37 @@ const filteredUsers = computed(() => {
     user.department.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
+
+// 处理移动端滚动
+const handleScroll = (event: Event) => {
+  const scrollContainer = event.target as HTMLElement;
+  const scrollLeft = scrollContainer.scrollLeft;
+  const cardWidth = scrollContainer.querySelector('.mobile-card')?.clientWidth || 350;
+  const newSlide = Math.round(scrollLeft / cardWidth);
+  
+  if (newSlide !== currentSlide.value) {
+    currentSlide.value = newSlide;
+  }
+};
+
+const gotoRoleChat = (characterId: string) => {
+  router.push(`/chat/${characterId}`)
+};
+
+// 初始化滚动事件
+onMounted(() => {
+  const scrollContainer = document.querySelector('.cards-scroll-wrapper');
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', handleScroll);
+  }
+});
+
+onUnmounted(() => {
+  const scrollContainer = document.querySelector('.cards-scroll-wrapper');
+  if (scrollContainer) {
+    scrollContainer.removeEventListener('scroll', handleScroll);
+  }
+});
 </script>
 
 <style scoped>
@@ -192,10 +272,6 @@ const filteredUsers = computed(() => {
   font-weight: 700;
   color: #2c3e50;
   margin: 0 0 0.5rem 0;
-  
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .page-subtitle {
@@ -252,6 +328,11 @@ const filteredUsers = computed(() => {
   min-height: 400px;
 }
 
+/* 桌面端布局 */
+.desktop-view {
+  display: block;
+}
+
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -259,6 +340,62 @@ const filteredUsers = computed(() => {
   margin-bottom: 2rem;
 }
 
+/* 移动端布局 */
+.mobile-view {
+  display: none;
+}
+
+.mobile-scroll-container {
+  margin-bottom: 2rem;
+}
+
+.cards-scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cards-scroll-wrapper::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+.cards-scroll-track {
+  display: inline-flex;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+.mobile-card {
+  min-width: 300px;
+  flex-shrink: 0;
+}
+
+/* 滚动指示器 */
+.scroll-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dcdfe6;
+  transition: all 0.3s ease;
+}
+
+.indicator-dot.active {
+  background: #409eff;
+  transform: scale(1.2);
+}
+
+/* 卡片通用样式 */
 .user-card {
   border-radius: 12px;
   overflow: hidden;
@@ -272,7 +409,6 @@ const filteredUsers = computed(() => {
 }
 
 .user-card :deep(.el-card__header) {
-
   color: white;
   padding: 1rem;
 }
@@ -408,9 +544,17 @@ const filteredUsers = computed(() => {
     width: 100%;
   }
   
-  .cards-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  /* 切换布局 */
+  .desktop-view {
+    display: none;
+  }
+  
+  .mobile-view {
+    display: block;
+  }
+  
+  .mobile-card {
+    min-width: 280px;
   }
   
   .card-header {
@@ -446,6 +590,10 @@ const filteredUsers = computed(() => {
     padding: 1rem;
   }
   
+  .mobile-card {
+    min-width: 260px;
+  }
+  
   .info-item {
     flex-direction: column;
     align-items: flex-start;
@@ -454,6 +602,10 @@ const filteredUsers = computed(() => {
   
   .info-label {
     min-width: auto;
+  }
+  
+  .cards-scroll-track {
+    padding: 0 0.5rem;
   }
 }
 </style>

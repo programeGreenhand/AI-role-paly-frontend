@@ -6,7 +6,8 @@
     shadow="hover"
   >
     <div class="character-avatar">
-      <img :src="character.avatar || '/avatars/default.jpg'" :alt="character.name" />
+      <img :src=getroleImage(character.id) :alt="character.name" />
+       <!-- <img src='../../' :alt="character.name" /> -->
       <div class="character-status" :class="`status-${character.emotionalTendency?.default || 'neutral'}`"></div>
     </div>
     
@@ -40,6 +41,13 @@
 
 <script setup lang="ts">
 import type { Character } from '../../types/character'
+
+
+const getroleImage = (id:string) => {
+  const url =  new URL(`../../assets/charactor/${id}/role/avatar.jpg`, import.meta.url).href;
+  console.log("url:",url,"id:",id)
+  return url
+};
 
 defineProps<{
   character: Character

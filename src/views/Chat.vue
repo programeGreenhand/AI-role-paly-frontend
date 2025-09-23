@@ -96,21 +96,6 @@ import SceneSelector from '../components/scene/SceneSelector.vue'
 import VoiceRecorder from '../components/chat/VoiceRecorder.vue'
 import type { Scene } from '../stores/scene'
 import { ElMessage } from 'element-plus'
-// import backgroundImage from '../assets/charactor/sugeladi/background/001.jpg'
-
-// const background = computed(() => {
-//   return {
-//     backgroundImage: `url(${backgroundImage})`,
-//     backgroundSize: 'cover',
-//     backgroundPosition: 'center',
-//     backgroundRepeat: 'no-repeat'
-//   }
-// })
-
-
-
-
-
 const route = useRoute()
 const router = useRouter()
 const characterStore = useCharacterStore()
