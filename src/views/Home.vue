@@ -36,17 +36,29 @@
       </div>
 
       <!-- 内容列表 -->
-      <div class="content-list" @click="handleListClick">
-        <div v-for="item in filteredList" :key="item" class="list-item">
+      <div class="content-list" >
+        <div v-for="item in character.characters" :key="item.id" class="list-item" @click="gotoRoleChat(item.id)">
           <el-avatar 
             :size="40"
-            src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+            :src="getroleImage(item.id)"
+            
           />
           <div class="item-info">
-            <span class="item-name">哈利波特{{ item }}</span>
+            <span class="item-name">{{ item.name }}</span>
             <span class="item-time">2小时前</span>
           </div>
+
+
+          <el-dropdown placement="bottom-start">
           <el-button text icon="MoreFilled" />
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @clikc.stop="deletRole">删除</el-dropdown-item>
+              <el-dropdown-item @clikc.stop="modifyRole">编辑</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+           
         </div>
       </div>
 
@@ -75,10 +87,27 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-
+import { useCharacterStore } from '../stores/character'
+const character = useCharacterStore()
 const router = useRouter()
 const searchQuery = ref('')
 const drawer = ref(false)
+
+const getroleImage = (id:string) => {
+  return new URL(`../assets/charactor/${id}/role/avatar.jpg`, import.meta.url).href;
+};
+
+const gotoRoleChat = function(id:string){
+  router.push(`/chat/${id}`)
+}
+
+const deletRole = ()=>{
+  console.log('delete')
+}
+
+const modifyRole = ()=>{
+  
+}
 
 // 响应式抽屉宽度
 const drawerSize = computed(() => {
@@ -106,15 +135,7 @@ const goToUserProfile = () => {
   drawer.value = false
 }
 
-const handleListClick = (event) => {
-  //我要获取点击的信息呀，比如item-info里的文本内容
-  const targetLi = event.target.closest('.list-item')
-  if (targetLi) {
-    const itemName = targetLi.querySelector('.item-name').textContent
-    const itemTime = targetLi.querySelector('.item-time').textContent
-    console.log('点击了列表项:', itemName, itemTime)
-  }
-}
+
 </script>
 
 <style scoped>

@@ -65,7 +65,10 @@ watch(activeTab, (newTab) => {
   justify-content: center;
   align-items: center;
   background-color: #f5f7fa;
-  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-image: url('login.jpg') ;
+  background-size: cover; 
+  background-repeat: no-repeat;
+  
 }
 
 .login-register-card {
@@ -74,6 +77,7 @@ watch(activeTab, (newTab) => {
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  opacity: 0.9;
 }
 
 .card-header {

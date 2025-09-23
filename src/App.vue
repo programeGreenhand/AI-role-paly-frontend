@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed} from 'vue'
+import { computed, onMounted} from 'vue'
 import { useCharacterStore } from './stores/character'
 
 
@@ -16,6 +16,9 @@ const currentTheme = computed(() => {
   return characterStore.currentCharacter?.theme || 'default'
 })
 
+onMounted(()=>{
+  localStorage.setItem('islogin','true')
+})
 
 
 </script>

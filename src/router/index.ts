@@ -15,6 +15,7 @@ const routes = [
         path:'login',
         name:'Login',
         component:()=>import('../views/Login.vue')
+        
       },
       {
         path:'register',
@@ -32,24 +33,28 @@ const routes = [
       {
         path: '',
         name: 'MainContent',
-        component: ()=>import('../components/common/MainContent.vue')
+        component: ()=>import('../components/common/MainContent.vue'),
+        meta:{authRequire:true}
       },
       {
         path: 'user/profile',
         name: 'UserProfile',
-        component: ()=>import('@/views/UserProfile.vue')
+        component: ()=>import('@/views/UserProfile.vue'),
+        meta:{authRequire:true}
       },
       {
         path: 'settings',
         name: 'Settings',
-        component: Settings
+        component: Settings,
+        meta:{authRequire:true}
       }
     ]
   },
   {
     path: '/chat/:characterId?',
     name: 'Chat',
-    component: Chat
+    component: Chat,
+    meta:{authRequire:true}
   },
   
 ]
@@ -57,6 +62,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to,from,next)=>{
+  if(!localStorage.getItem('islogin')){
+    next('/login')
+  }else{
+    next()
+  }
+  next()
 })
 
 export default router

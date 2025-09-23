@@ -242,7 +242,7 @@ const clearChat = () => {
 }
 
 const goHome = () => {
-  router.push('/')
+  router.push('/hall')
 }
 </script>
 
