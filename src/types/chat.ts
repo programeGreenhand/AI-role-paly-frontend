@@ -1,7 +1,7 @@
 export interface Message {
   id: string
   content: string
-  type: 'text' | 'voice'
+  type: 'text' | 'voice'   //多了一个这个，也就是文本类型的响应结果还是音频结果
   sender: 'user' | 'character'
   timestamp: number
   emotion?: string

@@ -1,9 +1,5 @@
 <template>
- <!--:style="{ backgroundImage: `url(assets/charactor/sugeladi/background/001.jpg)` }"--> 
-  <div class="chat-view" :class="currentTheme" :style="background" >
-    
-    <!-- <SceneBackground :scene="currentScene" /> -->
-    
+  <div class="chat-view" :class="currentTheme" :style="background">
     <!-- 优雅的浮动头部 -->
     <div class="floating-header">
       <div class="character-showcase">
@@ -38,8 +34,8 @@
     <div class="main-chat-area" style="width: 80vw;margin-left: 10vw;">
       <div class="chat-window">
         <ChatContainer
-          :messages="messages"
-          :is-typing="isTyping"
+          :messages="chatStore.messages"
+          :is-typing="chatStore.isTyping"
           :current-character="currentCharacter"
         />
       </div>
@@ -49,10 +45,9 @@
     <div class="input-panel">
       <div class="input-container">
         <div class="unified-input-area">
-          <VoiceRecorder
+          <VoiceRecorder 
+            :disabled="false"
             @voice-input="handleVoiceInput"
-            :disabled="isTyping"
-            class="voice-trigger"
           />
           
           <div class="message-composer">
@@ -60,7 +55,7 @@
               v-model="inputMessage"
               placeholder="说点什么..."
               @keyup.enter="sendMessage"
-              :disabled="isTyping"
+              :disabled="chatStore.isTyping"
               class="composer-input"
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 3 }"
@@ -68,9 +63,9 @@
             />
             <el-button
               @click="sendMessage"
-              :disabled="!inputMessage.trim() || isTyping"
+              :disabled="!inputMessage.trim() || chatStore.isTyping"
               type="primary"
-              :loading="isTyping"
+              :loading="chatStore.isTyping"
               class="send-button"
               icon="Position"
               circle
@@ -83,110 +78,74 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+
+// 导入 Pinia stores
 import { useCharacterStore } from '../stores/character'
 import { useChatStore } from '../stores/chat'
 import { useSceneStore } from '../stores/scene'
 import { useVoiceStore } from '../stores/voice'
+import { useWebSocketStore } from '../stores/webSocketStore'
+import { useChatMessagesStore } from '../stores/chatMessagesStore'
+
+// 导入组件
 import ChatContainer from '../components/chat/ChatContainer.vue'
 import CharacterAnimation from '../components/character/CharacterAnimation.vue'
-// import SceneBackground from '../components/scene/SceneBackground.vue'
 import SceneSelector from '../components/scene/SceneSelector.vue'
 import VoiceRecorder from '../components/chat/VoiceRecorder.vue'
 import type { Scene } from '../stores/scene'
-import { ElMessage } from 'element-plus'
+
 const route = useRoute()
 const router = useRouter()
+
+// 使用 Pinia stores
 const characterStore = useCharacterStore()
 const chatStore = useChatStore()
 const sceneStore = useSceneStore()
 const voiceStore = useVoiceStore()
+const wsStore = useWebSocketStore()
+const chatMessagesStore = useChatMessagesStore()
 
+// 本地状态
 const inputMessage = ref('')
 
+// 计算属性
 const currentCharacter = computed(() => characterStore.currentCharacter)
 const currentScene = computed(() => sceneStore.currentScene)
-
-//test switchBackground
-const getBackgroundImage = (imageName:string) => {
-  return new URL(`../assets/charactor/${currentScene.value?.characterIds[0]}/background/${currentScene.value?.background}.jpg`, import.meta.url).href;
-};
-
-const background = computed(() => ({
-  backgroundImage: `url(${getBackgroundImage('')})`, // 根据变量动态选择图片
-  backgroundSize: 'cover'
-}));
-
-
-
 const currentTheme = computed(() => currentCharacter.value?.theme || 'default')
-const messages = computed(() => chatStore.messages)
-const isTyping = computed(() => chatStore.isTyping)
 const currentEmotion = computed(() => chatStore.currentEmotion)
 
-onMounted(async () => {
-  const characterId = route.params.characterId as string
-  if (characterId) {
-    const character = characterStore.getCharacterById(characterId)
-    if (character) {
-      //@ts-ignore  
-      characterStore.setCurrentCharacter(character)
-      chatStore.createSession(characterId)
-      
-      // 设置默认场景
-      const scenes = sceneStore.getScenesForCharacter(characterId)
-      if (scenes.length > 0) {
-        sceneStore.setScene(scenes[0]!)
-      }
-    } else {
-      router.push('/')
-    }
+// 动态背景图片
+const getBackgroundImage = () => {
+  if (!currentScene.value?.characterIds[0] || !currentScene.value?.background) {
+    return ''
   }
-
-  // 初始化语音功能
-  try {
-    await voiceStore.fetchVoiceList()
-    await voiceStore.connectWebSocket()
-  } catch (error) {
-    console.error('语音功能初始化失败:', error)
-  }
-})
-
-onUnmounted(() => {
-  voiceStore.disconnectWebSocket()
-})
-
-const sendMessage = async () => {
-  if (!inputMessage.value.trim() || !currentCharacter.value) return
-  
-  try {
-    chatStore.setTyping(true)
-    
-    // 添加用户消息
-    chatStore.addUserMessage(inputMessage.value)
-    
-    // 通过 WebSocket 发送文本消息
-    voiceStore.sendTextMessage(
-      inputMessage.value, 
-      currentCharacter.value.id, 
-      currentEmotion.value
-    )
-    
-    inputMessage.value = ''
-  } catch (error) {
-    console.error('发送消息失败:', error)
-    ElMessage.error('发送消息失败，请重试')
-    chatStore.setTyping(false)
-  }
+  return new URL(
+    `../assets/charactor/${currentScene.value.characterIds[0]}/background/${currentScene.value.background}.jpg`, 
+    import.meta.url
+  ).href
 }
 
-const handleVoiceInput = async (text: string, audioUrl?: string) => {
+const background = computed(() => ({
+  backgroundImage: `url(${getBackgroundImage()})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat'
+}))
+
+// 处理语音输入
+const handleVoiceInput = (text: string, audioUrl?: string) => {
+  console.log('收到语音输入:')
+  console.log('AI回复:', text)
+  console.log('音频数据:', audioUrl ? '有' : '无')
+  
   if (!text.trim() || !currentCharacter.value) return
   
   try {
-    // 添加用户语音消息
-    chatStore.addUserMessage(text, 'voice', audioUrl)
+    // 添加角色回复消息到聊天记录
+    chatStore.addCharacterMessage(text, currentEmotion.value, audioUrl)
     
     // 如果有回复的语音，自动播放
     if (audioUrl && voiceStore.config.enabled) {
@@ -204,46 +163,145 @@ const handleVoiceInput = async (text: string, audioUrl?: string) => {
   }
 }
 
-// 监听 WebSocket 响应
-const handleWSResponse = (event: CustomEvent) => {
-  const { text, audioUrl, emotion } = event.detail
+// 发送文本消息
+const sendMessage = async () => {
+  if (!inputMessage.value.trim() || !currentCharacter.value) return
   
-  // 添加角色回复消息
-  chatStore.addCharacterMessage(text, emotion, audioUrl)
-  chatStore.setTyping(false)
-  
-  // 如果启用了语音且有音频 URL，自动播放
-  if (voiceStore.config.enabled && audioUrl) {
-    setTimeout(async () => {
-      try {
-        await voiceStore.playAudio(audioUrl)
-      } catch (error) {
-        console.error('播放回复音频失败:', error)
+  try {
+    chatStore.setTyping(true)
+    
+    // 添加用户消息
+    chatStore.addUserMessage(inputMessage.value)
+    
+    // 通过 WebSocket 发送文本消息
+    if (wsStore.isConnected) {
+      wsStore.send({
+        type: 'text',
+        data: {
+          text: inputMessage.value,
+          characterId: currentCharacter.value.id,
+          emotion: currentEmotion.value
+        },
+        timestamp: Date.now(),
+        messageId: wsStore.generateMessageId()
+      })
+      
+      // 等待AI回复
+      await waitForAIResponse()
+    } else {
+      // 如果没有WebSocket连接，模拟AI回复
+      setTimeout(() => {
+        chatStore.addCharacterMessage(`这是对"${inputMessage.value}"的模拟回复`)
+        chatStore.setTyping(false)
+      }, 1000)
+    }
+    
+    inputMessage.value = ''
+  } catch (error) {
+    console.error('发送消息失败:', error)
+    ElMessage.error('发送消息失败，请重试')
+    chatStore.setTyping(false)
+  }
+}
+
+// 等待AI回复
+const waitForAIResponse = (): Promise<void> => {
+  return new Promise((resolve) => {
+    const checkResponse = () => {
+      if (!chatStore.isTyping) {
+        resolve()
+      } else {
+        setTimeout(checkResponse, 100)
       }
-    }, 500)
+    }
+    checkResponse()
+  })
+}
+
+// WebSocket 消息处理
+const setupMessageHandlers = () => {
+  // 处理AI文本响应
+  wsStore.onMessage('text_response', (data) => {
+    if (data.data.text) {
+      chatStore.addCharacterMessage(data.data.text, data.data.emotion)
+      chatStore.setTyping(false)
+    }
+  })
+
+  // 处理错误消息
+  wsStore.onMessage('error', (data) => {
+    const errorMsg = data.data?.message || '服务器处理错误'
+    ElMessage.error(errorMsg)
+    chatStore.setTyping(false)
+  })
+}
+
+// 场景变更处理
+const handleSceneChange = (scene: Scene) => {
+  sceneStore.setScene(scene)
+  ElMessage.success(`已切换到场景: ${scene.name}`)
+}
+
+// 清空聊天
+const clearChat = () => {
+  chatStore.clearSession()
+  chatMessagesStore.clearMessages()
+  ElMessage.success('对话已清空')
+}
+
+// 返回首页
+const goHome = () => {
+  router.push('/hall')
+}
+
+// 初始化函数
+const initialize = async () => {
+  const characterId = route.params.characterId as string
+  if (characterId) {
+    const character = characterStore.getCharacterById(characterId)
+    if (character) {
+      characterStore.setCurrentCharacter(character)
+      chatStore.createSession(characterId)
+      
+      // 设置默认场景
+      const scenes = sceneStore.getScenesForCharacter(characterId)
+      if (scenes.length > 0) {
+        sceneStore.setScene(scenes[0]!)
+      }
+    } else {
+      router.push('/')
+      return
+    }
+  }
+
+  // 设置WebSocket消息处理器
+  setupMessageHandlers()
+
+  // 连接WebSocket（可选，根据需要连接）
+  // try {
+  //   await wsStore.connect()
+  //   ElMessage.success('已连接到聊天服务器')
+  // } catch (error) {
+  //   console.warn('WebSocket连接失败，将使用模拟模式:', error)
+  // }
+
+  // 初始化语音功能
+  try {
+    await voiceStore.fetchVoiceList()
+  } catch (error) {
+    console.error('语音列表获取失败:', error)
   }
 }
 
 onMounted(() => {
-  window.addEventListener('voice-response', handleWSResponse as EventListener)
+  initialize()
 })
 
 onUnmounted(() => {
-  window.removeEventListener('voice-response', handleWSResponse as EventListener)
+  // 清理资源
+  wsStore.disconnect()
+  chatStore.setTyping(false)
 })
-
-const handleSceneChange = (scene: Scene) => {
-  sceneStore.setScene(scene)
-}
-
-const clearChat = () => {
-  chatStore.clearSession()
-  ElMessage.success('对话已清空')
-}
-
-const goHome = () => {
-  router.push('/hall')
-}
 </script>
 
 <style scoped>
@@ -253,7 +311,6 @@ const goHome = () => {
   grid-template-rows: auto 1fr auto;
   grid-gap: 0;
   position: relative;
-  /* background-image: url('..\assets\charactor\sugeladi\background\002.jpg'); */
   overflow: hidden;
 }
 
@@ -326,7 +383,6 @@ const goHome = () => {
 /* 主聊天区域 */
 .main-chat-area {
   margin: 0 20px;
-  
   position: relative;
   z-index: 1;
   display: flex;
@@ -449,9 +505,7 @@ const goHome = () => {
 
 .config-row {
   display: grid;
-  /* 修改为单行排列 因为我有两行，但是想要两行不换行放在同一行，所以希望你能做到*/
   grid-template-columns: repeat(2, 1fr);
-  /* 空间是不是太小了，元素堆在一起了 */
   grid-auto-rows: minmax(100px, auto);
   gap: 20px;
 }
@@ -574,7 +628,4 @@ const goHome = () => {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
-
-
-
 </style>
