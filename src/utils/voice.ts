@@ -1,6 +1,6 @@
 import type { VoiceRequest } from '../types/api'
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8080/api'
+const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8081/api'
 
 class VoiceAPI {
   async textToSpeech(request: VoiceRequest): Promise<void> {

@@ -21,13 +21,11 @@ export const useThemeStore = defineStore("theme",()=>{
     }
 
     const setWhatColor = (color: string) => {
-  console.log('Setting color:', color, 'Value:', colorMap[color]); // 添加日志
+  
   if(colorMap[color]){
     whatColor.value = colorMap[color]
-    console.log('whatColor is now:', whatColor.value); // 确认值已更新
-  } else {
-    console.warn('Color not found in colorMap:', color);
-  }
+
+  } 
 }
 
     // 保存主题颜色到localStorage

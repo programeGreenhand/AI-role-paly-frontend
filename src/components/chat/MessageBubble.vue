@@ -1,7 +1,8 @@
 <template>
   <div class="message-bubble" :class="[`message-${message.sender}`, `emotion-${message.emotion}`]">
     <div v-if="message.sender === 'character'" class="character-avatar">
-      <img :src="character?.avatar || '/avatars/default.jpg'" :alt="character?.name" />
+      <img src='' :alt="character?.name" />  
+      <!-- 此处未传递传递人物信息 -->
     </div>
     
     <div class="message-content">
@@ -45,6 +46,11 @@
 import type { Message } from '../../types/chat'
 import type { Character } from '../../types/character'
 import { VideoPlay, Loading, Microphone, User } from '@element-plus/icons-vue'
+
+
+const getroleImage = (id:string) => {
+  return new URL(`../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
+};
 
 defineProps<{
   message: Message

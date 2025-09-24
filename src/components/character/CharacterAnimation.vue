@@ -40,7 +40,7 @@ defineProps<{
 
 const getroleImage = (id:string) => {
   const url =  new URL(`../../assets/charactor/${id}/role/avatar.jpg`, import.meta.url).href;
-  console.log("url:",url,"id:",id)
+  
   return url
 };
 

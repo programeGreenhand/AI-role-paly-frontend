@@ -12,38 +12,26 @@
             <el-card class="settings-card">
               <h3>语音配置</h3>
               
-              <el-form :model="voiceConfig" label-width="120px">
-                <el-form-item label="启用语音">
-                  <el-switch v-model="voiceConfig.enabled" />
-                </el-form-item>
-                
-                <el-form-item label="语言">
-                  <el-select v-model="voiceConfig.language">
-                    <el-option label="中文" value="zh-CN" />
-                    <el-option label="English" value="en-US" />
+              <el-form-item label="语言">
+                   <el-select v-model="voiceConfig.voice_type">
+                      <el-option 
+                          v-for="item in lists" 
+                          :key="item.voice_type"
+                          :label="item.voice_name" 
+                          :value="item.voice_type"
+                      >
+                          <div style="display: flex; justify-content: space-between; align-items: center;">
+                              <span>{{ item.voice_name }}</span>
+                              <audio 
+                                  :src="item.url" 
+                                  controls
+                                  style="height: 30px; width: 150px;"
+                                  @click.stop
+                              ></audio>
+                          </div>
+                      </el-option>
                   </el-select>
-                </el-form-item>
-                
-                <el-form-item label="语速">
-                  <el-slider
-                    v-model="voiceConfig.speed"
-                    :min="0.5"
-                    :max="2"
-                    :step="0.1"
-                    show-input
-                  />
-                </el-form-item>
-                
-                <el-form-item label="音调">
-                  <el-slider
-                    v-model="voiceConfig.pitch"
-                    :min="0.5"
-                    :max="2"
-                    :step="0.1"
-                    show-input
-                  />
-                </el-form-item>
-              </el-form>
+              </el-form-item>
             </el-card>
           </el-tab-pane>
 
@@ -82,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,watch } from 'vue'
+import { onMounted, ref,watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVoiceStore } from '../stores/voice'
 import { useCharacterStore } from '../stores/character'
@@ -91,7 +79,8 @@ import CharacterCustomizer from '../components/character/CharacterCustomizer.vue
 import type { CustomCharacter } from '../types/character'
 import { ElMessage,ElMessageBox } from 'element-plus'
 import { useThemeStore } from '../stores/theme'
-
+import { voiceAPI } from '../api/voice'
+import type { VoiceItem } from '../types/voice'
 const router = useRouter()
 const voiceStore = useVoiceStore()
 const characterStore = useCharacterStore()
@@ -99,18 +88,13 @@ const chatStore = useChatStore()
 const themeStore = useThemeStore()
 const activeTab = ref('voice')
 const themeMode = ref('light-blue')
+const lists = ref<VoiceItem[]>([])
 
 watch(themeMode, (newMode) => {
   themeStore.setWhatColor(newMode);
-  console.log('Theme mode changed to:', newMode);
+ 
 }, { immediate: true });
 
-const voiceConfig = ref({ ...voiceStore.config })
-
-// 监听语音配置变化
-watch(voiceConfig, (newConfig) => {
-  voiceStore.updateConfig(newConfig)
-}, { deep: true })
 
 const handleCreateCharacter = (character: CustomCharacter) => {
   characterStore.addCustomCharacter(character) //此处只是存储在前端本地
@@ -135,6 +119,28 @@ const clearAllHistory = () => {
 const goHome = () => {
   router.push('/hall')
 }
+
+
+const voiceConfig = ref<VoiceItem>({} as VoiceItem); // 不再初始化为 undefined，提供一个空对象（根据你的 VoiceItem 类型调整）
+
+// 监听语音配置变化 (如果需要)
+watch(voiceConfig, (newConfig) => {
+  voiceStore.updateConfig(newConfig);
+  // 保存到localStorage
+  localStorage.setItem('voiceConfig', JSON.stringify(newConfig));
+}, { deep: true });
+
+
+onMounted(async ()=>{
+  const data = await voiceAPI.getVoiceList();
+  lists.value = data;
+  
+  // 设置默认选中项：例如选中数组中的第一项
+  if (lists.value.length > 0 && !voiceConfig.value.voice_type) {
+    voiceConfig.value = { ...lists.value[0] }; // 或者 voiceConfig.value.voice_type = lists.value[0].voice_type;
+  }
+ 
+})
 </script>
 
 <style scoped>
