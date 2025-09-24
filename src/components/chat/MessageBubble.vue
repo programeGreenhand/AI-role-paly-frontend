@@ -1,8 +1,7 @@
 <template>
-  <div class="message-bubble" :class="[`message-${message.sender}`, `emotion-${message.emotion}`]">
+  <div v-if="message" class="message-bubble" :class="[`message-${message.sender}`, `emotion-${message.emotion}`]">
     <div v-if="message.sender === 'character'" class="character-avatar">
-      <img src='' :alt="character?.name" />  
-      <!-- 此处未传递传递人物信息 -->
+      <img v-if="character && character.id" :src="getCharacterImage(character.id)" :alt="character?.name" />  
     </div>
     
     <div class="message-content">
@@ -12,26 +11,26 @@
         <span class="message-time">{{ formatTime(message.timestamp) }}</span>
         <span v-if="message.emotion" class="message-emotion">{{ getEmotionText(message.emotion) }}</span>
         
-        <!-- 音频播放按钮 -->
+        <!-- 音频播放按钮 - 只对AI回复显示 -->
         <el-button
-          v-if="message.sender === 'character' && (message.audioUrl || message.content)"
-          @click="$emit('playAudio', message)"
-          :disabled="message.isPlaying"
+          v-if="message.sender === 'character' && message.audioUrl"
+          @click="handlePlayAudio"
+          :loading="isPlaying"
           type="text"
           size="small"
           class="play-button"
         >
           <el-icon>
-            <VideoPlay v-if="!message.isPlaying" />
+            <VideoPlay v-if="!isPlaying" />
             <Loading v-else />
           </el-icon>
-          {{ message.isPlaying ? '播放中' : '播放' }}
+          {{ isPlaying ? '播放中' : '播放语音' }}
         </el-button>
 
         <!-- 语音消息标识 -->
-        <el-tag v-if="message.type === 'voice'" size="small" type="info">
+        <el-tag v-if="message.audioLabel" size="small" type="info">
           <el-icon><Microphone /></el-icon>
-          语音
+          {{ message.audioLabel }}
         </el-tag>
       </div>
     </div>
@@ -43,26 +42,31 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { Message } from '../../types/chat'
 import type { Character } from '../../types/character'
 import { VideoPlay, Loading, Microphone, User } from '@element-plus/icons-vue'
+import { useVoiceStore } from '../../stores/voice'
 
+const voiceStore = useVoiceStore()
+const isPlaying = ref(false)
 
-const getroleImage = (id:string) => {
-  return new URL(`../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
-};
-
-defineProps<{
-  message: Message
+const props = defineProps<{
+  message: Message | null
   character: Character | null
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   playAudio: [message: Message]
 }>()
 
-const formatTime = (timestamp: number) => {
-  return new Date(timestamp).toLocaleTimeString('zh-CN', {
+const getCharacterImage = (id: string) => {
+  return new URL(`../../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
+}
+
+const formatTime = (timestamp: number | Date) => {
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
+  return date.toLocaleTimeString('zh-CN', {
     hour: '2-digit',
     minute: '2-digit'
   })
@@ -80,6 +84,20 @@ const getEmotionText = (emotion: string) => {
     confused: '😕'
   }
   return emotionMap[emotion] || '😐'
+}
+
+const handlePlayAudio = async () => {
+  if (!props.message || !props.message.audioUrl) return
+  
+  try {
+    isPlaying.value = true
+    await voiceStore.playAudio(props.message.audioUrl)
+  } catch (error) {
+    console.error('播放音频失败:', error)
+    ElMessage.error('播放音频失败')
+  } finally {
+    isPlaying.value = false
+  }
 }
 </script>
 

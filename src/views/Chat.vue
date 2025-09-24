@@ -312,6 +312,7 @@ onUnmounted(() => {
   grid-gap: 0;
   position: relative;
   overflow: hidden;
+  transition: all 2s linear;
 }
 
 /* 浮动头部设计 */
