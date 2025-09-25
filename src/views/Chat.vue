@@ -185,6 +185,7 @@ const setupMessageHandlers = () => {
       }
       
       // 添加AI回复消息，包含音频URL
+      //这里已经得到了AI的响应回复信息1了！！！！！
       chatStore.addCharacterMessage(data.data.text, data.data.emotion, audioUrl)
       
       // 触发自定义事件，传递AI回复的文本和音频
@@ -227,7 +228,7 @@ const handleVoiceInput = (text: string, audioUrl?: string) => {
   try {
     // 添加角色回复消息到聊天记录
     chatStore.addCharacterMessage(text, currentEmotion.value, audioUrl)
-    
+    //此处
     // 如果有回复的语音，自动播放
     if (audioUrl && voiceStore.config.enabled) {
       setTimeout(async () => {
@@ -375,6 +376,7 @@ onUnmounted(() => {
   grid-gap: 0;
   position: relative;
   overflow: hidden;
+  transition: all 2s linear;
 }
 
 /* 浮动头部设计 */

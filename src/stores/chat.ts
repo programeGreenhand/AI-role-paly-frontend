@@ -42,6 +42,7 @@ export const useChatStore = defineStore('chat', () => {
 
   // 设置输入状态
   const setTyping = (typing: boolean): void => {
+    console.log(typing?'打字中':"输出完毕")
     isTyping.value = typing;
   };
 
