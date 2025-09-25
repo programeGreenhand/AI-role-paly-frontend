@@ -1,7 +1,7 @@
 <template>
   <div class="chat-view" :class="currentTheme" :style="background">
     <!-- 优雅的浮动头部 -->
-    <div class="floating-header">
+    <div class="floating-header"  ref="floatingHeader" >
       <div class="character-showcase">
         <div class="character-avatar-container">
           <CharacterAnimation
@@ -97,6 +97,7 @@ import SceneSelector from '../components/scene/SceneSelector.vue'
 import VoiceRecorder from '../components/chat/VoiceRecorder.vue'
 import type { Scene } from '../stores/scene'
 
+
 const route = useRoute()
 const router = useRouter()
 
@@ -110,6 +111,7 @@ const chatMessagesStore = useChatMessagesStore()
 
 // 本地状态
 const inputMessage = ref('')
+const isProcessing = ref(false)
 
 // 计算属性
 const currentCharacter = computed(() => characterStore.currentCharacter)
@@ -135,11 +137,90 @@ const background = computed(() => ({
   backgroundRepeat: 'no-repeat'
 }))
 
-// 处理语音输入
+// Base64转Blob的辅助函数
+const base64ToBlob = (base64Data: string, contentType: string = ''): Blob => {
+  const byteCharacters = atob(base64Data)
+  const byteArrays = []
+  
+  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+    const slice = byteCharacters.slice(offset, offset + 512)
+    
+    const byteNumbers = new Array(slice.length)
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i)
+    }
+    
+    const byteArray = new Uint8Array(byteNumbers)
+    byteArrays.push(byteArray)
+  }
+  
+  return new Blob(byteArrays, { type: contentType })
+}
+
+// WebSocket 消息处理
+const setupMessageHandlers = () => {
+  // 处理语音识别结果（用户说的话）
+  wsStore.onMessage('processing', (data) => {
+    if (data.data.recognizedText) {
+      // 添加用户消息，但不包含音频（因为这是用户说的话）
+      chatStore.addUserMessage(data.data.recognizedText, '语音消息')
+    }
+  })
+
+  // 处理AI响应（AI的回答，包含音频）
+  wsStore.onMessage('response', (data) => {
+    if (data.data.text) {
+      // 从响应中获取音频数据
+      const audioData = data.data.audioData // 假设服务器返回base64编码的音频数据
+      let audioUrl = null
+      
+      if (audioData) {
+        // 将base64数据转换为Blob URL
+        try {
+          const audioBlob = base64ToBlob(audioData, 'audio/webm')
+          audioUrl = URL.createObjectURL(audioBlob)
+        } catch (error) {
+          console.error('音频数据转换失败:', error)
+        }
+      }
+      
+      // 添加AI回复消息，包含音频URL
+      chatStore.addCharacterMessage(data.data.text, data.data.emotion, audioUrl)
+      
+      // 触发自定义事件，传递AI回复的文本和音频
+      const event = new CustomEvent('voice-response', {
+        detail: {
+          text: data.data.text,
+          audioUrl: audioUrl
+        }
+      })
+      window.dispatchEvent(event)
+      
+      // 重置处理状态
+      isProcessing.value = false
+      chatStore.setTyping(false)
+    }
+  })
+
+  // 处理错误消息
+  wsStore.onMessage('error', (data) => {
+    const errorMsg = data.data?.message || '服务器处理错误'
+    ElMessage.error(errorMsg)
+    isProcessing.value = false
+    chatStore.setTyping(false)
+  })
+
+  // 处理连接状态变化
+  wsStore.onMessage('connection_ack', (data) => {
+    ElMessage.success('服务器连接确认')
+  })
+}
+
+// 处理语音输入（AI的回复）
 const handleVoiceInput = (text: string, audioUrl?: string) => {
-  console.log('收到语音输入:')
-  console.log('AI回复:', text)
-  console.log('音频数据:', audioUrl ? '有' : '无')
+  console.log('收到AI语音回复:')
+  console.log('AI回复文本:', text)
+  console.log('AI回复音频:', audioUrl ? '有' : '无')
   
   if (!text.trim() || !currentCharacter.value) return
   
@@ -153,13 +234,13 @@ const handleVoiceInput = (text: string, audioUrl?: string) => {
         try {
           await voiceStore.playAudio(audioUrl)
         } catch (error) {
-          console.error('播放音频失败:', error)
+          console.error('播放AI回复音频失败:', error)
         }
       }, 500)
     }
   } catch (error) {
-    console.error('处理语音输入失败:', error)
-    ElMessage.error('处理语音输入失败，请重试')
+    console.error('处理AI语音回复失败:', error)
+    ElMessage.error('处理AI语音回复失败，请重试')
   }
 }
 
@@ -215,24 +296,6 @@ const waitForAIResponse = (): Promise<void> => {
       }
     }
     checkResponse()
-  })
-}
-
-// WebSocket 消息处理
-const setupMessageHandlers = () => {
-  // 处理AI文本响应
-  wsStore.onMessage('text_response', (data) => {
-    if (data.data.text) {
-      chatStore.addCharacterMessage(data.data.text, data.data.emotion)
-      chatStore.setTyping(false)
-    }
-  })
-
-  // 处理错误消息
-  wsStore.onMessage('error', (data) => {
-    const errorMsg = data.data?.message || '服务器处理错误'
-    ElMessage.error(errorMsg)
-    chatStore.setTyping(false)
   })
 }
 
@@ -312,7 +375,6 @@ onUnmounted(() => {
   grid-gap: 0;
   position: relative;
   overflow: hidden;
-  transition: all 2s linear;
 }
 
 /* 浮动头部设计 */
@@ -383,7 +445,7 @@ onUnmounted(() => {
 
 /* 主聊天区域 */
 .main-chat-area {
-  margin: 0 20px;
+  margin: 0 15vh;
   position: relative;
   z-index: 1;
   display: flex;
@@ -393,6 +455,7 @@ onUnmounted(() => {
 
 .chat-window {
   flex: 1;
+  margin: 0 20vw;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
