@@ -88,6 +88,15 @@ export const useCharacterStore = defineStore('character', () => {
     currentCharacter.value = character
   }
 
+  const loadCharacterList = (characters:Character[])=>{
+    characters.forEach(char=>{
+      if(!allCharacters.value.find(c=>c.id === char.id)){
+        allCharacters.value.push(char);
+      }
+    });
+  };
+
+  //这里添加新角色！！！！！
   const addCustomCharacter = (character: CustomCharacter) => {
     customCharacters.value.push({
       ...character,
@@ -107,6 +116,7 @@ export const useCharacterStore = defineStore('character', () => {
     allCharacters,
     setCurrentCharacter,
     addCustomCharacter,
-    getCharacterById
+    getCharacterById,
+    loadCharacterList
   }
 })

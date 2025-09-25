@@ -12,7 +12,7 @@
             <el-card class="settings-card">
               <h3>语音配置</h3>
               
-              <el-form-item label="语言">
+              <el-form-item label="音色">
                    <el-select v-model="voiceConfig.voice_type">
                       <el-option 
                           v-for="item in lists" 
@@ -94,6 +94,8 @@ watch(themeMode, (newMode) => {
   themeStore.setWhatColor(newMode);
  
 }, { immediate: true });
+
+
 
 
 const handleCreateCharacter = (character: CustomCharacter) => {

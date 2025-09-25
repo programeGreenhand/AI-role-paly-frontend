@@ -72,67 +72,7 @@
         </el-card>
       </div>
       
-      <!-- 移动端水平滚动布局 -->
-      <div class="mobile-scroll-container mobile-view">
-        <div class="cards-scroll-wrapper">
-          <div class="cards-scroll-track">
-            <el-card 
-              v-for="user in filteredUsers" 
-              :key="user.id"
-              class="user-card mobile-card"
-              shadow="hover"
-            >
-              <template #header>
-                <div class="card-header">
-                  <div class="user-avatar">
-                    {{ user.name.charAt(0) }}
-                  </div>
-                  <div class="user-basic-info">
-                    <h3 class="user-name">{{ user.name }}</h3>
-                    <span class="user-id">ID: {{ user.id }}</span>
-                  </div>
-                </div>
-              </template>
-              
-              <div class="card-content">
-                <div class="info-item">
-                  <i class="el-icon-message"></i>
-                  <span class="info-label">邮箱:</span>
-                  <span class="info-value">{{ user.email }}</span>
-                </div>
-                <div class="info-item">
-                  <i class="el-icon-phone"></i>
-                  <span class="info-label">电话:</span>
-                  <span class="info-value">{{ user.phone }}</span>
-                </div>
-                <div class="info-item">
-                  <i class="el-icon-location"></i>
-                  <span class="info-label">部门:</span>
-                  <span class="info-value">{{ user.department }}</span>
-                </div>
-              </div>
-              
-              <template #footer>
-                <div class="card-actions">
-                  <el-button type="primary" size="small">编辑</el-button>
-                  <el-button type="info" size="small">查看</el-button>
-                  <el-button type="danger" size="small">删除</el-button>
-                </div>
-              </template>
-            </el-card>
-          </div>
-        </div>
-        
-        <!-- 滚动指示器 -->
-        <div class="scroll-indicator">
-          <div 
-            v-for="(user, index) in filteredUsers" 
-            :key="user.id"
-            class="indicator-dot"
-            :class="{ active: currentSlide === index }"
-          ></div>
-        </div>
-      </div>
+      
       
       <!-- 空状态 -->
       <div v-if="filteredUsers.length === 0" class="empty-state">
@@ -148,17 +88,22 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useCharacterStore } from '../stores/character'
 import { useRouter } from 'vue-router';
+import { getCharacterList } from '../api/character';
+import type { Character } from '../types/character';
+
+const characterLists = ref<Character[]>()
+const searchQuery = ref('');
+const activeTab = ref('files');
+const currentSlide = ref(0);
+const character = useCharacterStore()
+const router = useRouter()
 
 const getroleImage = (id:string) => {
   return new URL(`../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
 };
 
 
-const searchQuery = ref('');
-const activeTab = ref('files');
-const currentSlide = ref(0);
-const character = useCharacterStore()
-const router = useRouter()
+
 // 扩展的用户数据
 const source = ref([
   { 
@@ -233,6 +178,18 @@ const gotoRoleChat = (characterId: string) => {
   router.push(`/chat/${characterId}`)
 };
 
+//获取角色列表数据
+const LoadingCharacterList = async () => {
+  try {
+    const data = await getCharacterList(localStorage.getItem('userId') || '');
+    characterLists.value = [...data];
+    character.loadCharacterList(characterLists.value || [])
+    console.log('角色列表加载成功:', characterLists.value);
+  } catch (error) {
+    console.error('获取角色列表失败:', error);
+  }
+};
+
 // 初始化滚动事件
 onMounted(() => {
   const scrollContainer = document.querySelector('.cards-scroll-wrapper');
@@ -247,6 +204,12 @@ onUnmounted(() => {
     scrollContainer.removeEventListener('scroll', handleScroll);
   }
 });
+
+onMounted(()=>{
+  //根据用户请求加载所拥有角色的信息：
+  //初始化该页面的时候
+  LoadingCharacterList()
+})
 </script>
 
 <style scoped>
