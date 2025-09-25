@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Chat from '../views/Chat.vue'
 import Settings from '../views/Settings.vue'
+import { pa } from 'element-plus/es/locales.mjs'
 
 
 
@@ -39,13 +40,19 @@ const routes = [
       {
         path: 'user/profile',
         name: 'UserProfile',
-        component: ()=>import('@/views/UserProfile.vue'),
+        component: ()=>import('../views/UserProfile.vue'),
         meta:{authRequire:true}
       },
       {
         path: 'settings',
         name: 'Settings',
         component: Settings,
+        meta:{authRequire:true}
+      },
+      {
+        path: 'shopping',
+        name: 'Shopping',
+        component: ()=>import('../views/Shopping.vue'),
         meta:{authRequire:true}
       }
     ]

@@ -15,6 +15,8 @@ server.interceptors.request.use(
     }
     return config
   },
+
+    //@ts-ignore
     error=>{
         Promise.reject()
     }
@@ -26,7 +28,8 @@ server.interceptors.response.use(
             return response.data
         }
     },
-    error=>{
+    
+    _error=>{
         Promise.reject()
     }
 )

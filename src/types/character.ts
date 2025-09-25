@@ -29,3 +29,7 @@ export interface EmotionalTendency {
 export interface CustomCharacter extends Partial<Character> {
   isCustom: true
 }
+
+export interface ShoppingItem extends CustomCharacter{
+  authr: string
+}

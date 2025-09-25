@@ -74,7 +74,7 @@ export const useVoiceStore = defineStore('voice', () => {
 
   const handleResponseMessage = (message: WSResponseMessage) => {
     isProcessing.value = false
-    chat
+    
     // 触发自定义事件，让组件监听
     const event = new CustomEvent('voice-response', {
       detail: {

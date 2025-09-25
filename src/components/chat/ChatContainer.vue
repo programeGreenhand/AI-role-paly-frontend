@@ -44,7 +44,9 @@ const validMessages = computed(() => {
     .filter(message => message && typeof message === 'object' && message.sender)
     .sort((a, b) => {
       try {
+        //@ts-ignore
         const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime()
+        //@ts-ignore
         const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime()
         return timeA - timeB
       } catch (error) {

@@ -6,6 +6,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 import './styles/global.css'
+import VueVirtualScroller from "vue-virtual-scroller";
 // import VueAudioRecorder from 'vue-audio-recorder';
 // import * as Lame from 'lamejs';
 // window.Lame = Lame; // 暴露到全局
@@ -19,5 +20,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(createPinia())
 app.use(router)
 app.use(ElementPlus)
+app.use(VueVirtualScroller)
 // app.use(VueAudioRecorder)
 app.mount('#app')

@@ -74,6 +74,8 @@
             <el-dropdown-menu>
               <el-dropdown-item @click="goToSettings" icon="Setting">设置</el-dropdown-item>
               <el-dropdown-item @click="goToUserProfile" icon="User">个人中心</el-dropdown-item>
+              <!-- 选一个合适的图标 -->
+              <el-dropdown-item @click="goShoppingTrolley" icon="ShoppingTrolley">智能体宇宙</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -100,6 +102,8 @@ const getroleImage = (id:string) => {
 const gotoRoleChat = function(id:string){
   router.push(`/chat/${id}`)
 }
+
+
 
 const deletRole = ()=>{
   console.log('delete')
@@ -132,6 +136,11 @@ const goToSettings = () => {
 
 const goToUserProfile = () => {
   router.push('/hall/user/profile')
+  drawer.value = false
+}
+
+const goShoppingTrolley = () => {
+  router.push('/hall/shopping')
   drawer.value = false
 }
 
