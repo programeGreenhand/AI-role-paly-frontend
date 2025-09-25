@@ -91,6 +91,7 @@ const handlePlayAudio = async () => {
   
   try {
     isPlaying.value = true
+    //通过message的音频文件url来播放？好像挺符合要求的，就是根据响应结果直接进行回复
     await voiceStore.playAudio(props.message.audioUrl)
   } catch (error) {
     console.error('播放音频失败:', error)

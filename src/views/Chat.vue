@@ -265,7 +265,8 @@ const sendMessage = async () => {
           emotion: currentEmotion.value
         },
         timestamp: Date.now(),
-        messageId: wsStore.generateMessageId()
+        messageId: wsStore.generateMessageId(),
+        audioType: voiceStore.config.voiceType
       })
       
       // 等待AI回复

@@ -206,10 +206,12 @@ const sendAudioToServer = (blob: Blob): Promise<void> => {
           type: 'audio',
           data: {
             audioData: base64Data,
-            format: 'webm'
+            format: 'webm',
+            
           },
           timestamp: Date.now(),
-          messageId: wsStore.generateMessageId()
+          messageId: wsStore.generateMessageId(),
+          audioType: voiceStore.config.voiceType
         })
         
         ElMessage.success('已发送语音消息')

@@ -11,6 +11,7 @@ export interface WebSocketMessage {
   data?: any;
   timestamp: number;
   messageId: string;
+  audioType?:string
 }
 
 export interface AppState {
