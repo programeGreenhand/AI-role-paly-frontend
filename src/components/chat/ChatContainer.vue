@@ -35,6 +35,7 @@ const chatContainerRef = ref<HTMLElement>()
 
 // 过滤掉无效的消息
 const validMessages = computed(() => {
+  console.log("当前消息数量为::",props.messages.length)
   if (!props.messages || !Array.isArray(props.messages)) {
     return []
   }
