@@ -207,7 +207,6 @@ const sendAudioToServer = (blob: Blob): Promise<void> => {
           data: {
             audioData: base64Data,
             format: 'webm',
-            
           },
           timestamp: Date.now(),
           messageId: wsStore.generateMessageId(),

@@ -1,9 +1,9 @@
 // src/apis/user.ts
 import axios from 'axios'
-
+const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8081/api'
 // 创建axios实例
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL:  API_BASE_URL,
   timeout: 10000
 })
 
@@ -27,17 +27,6 @@ api.interceptors.response.use(
   response => {
     const res = response.data
     
-    // 根据实际API返回结构处理
-    if (res.code !== 200) {
-      // 处理各种错误情况
-      if (res.code === 401) {
-        // 未授权
-        localStorage.removeItem('token')
-        // 可以在这里添加跳转到登录页的逻辑
-      }
-      
-      return Promise.reject(new Error(res.message || '请求失败'))
-    }
     
     return res.data
   },

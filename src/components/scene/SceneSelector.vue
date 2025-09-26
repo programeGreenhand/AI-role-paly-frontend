@@ -6,23 +6,26 @@
     class="scene-selector"
   >
     <el-option
-      v-for="scene in availableScenes"
+      v-for="scene in lists"
       :key="scene.id"
       :label="scene.name"
-      :value="scene.id"
+      :value="scene.name"
     >
       <div class="scene-option">
         <span class="scene-name">{{ scene.name }}</span>
-        <span class="scene-theme">{{ scene.theme }}</span>
+        <span class="scene-theme">{{ scene.description }}</span>
       </div>
     </el-option>
   </el-select>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useSceneStore } from '../../stores/scene'
+import axios from 'axios';
 
+
+const lists = ref(null)
 
 const props = defineProps<{
   characterId: string
@@ -54,6 +57,15 @@ watch(availableScenes, (scenes) => {
   }
 }, { immediate: true })
 
+const clickme = async ()=>{
+  const response = await axios.get('http://localhost:8081/api/scenes');
+  lists.value = response.data.data
+  console.log(response.data.data)
+}
+
+onMounted(()=>{
+  clickme()
+})
 
 </script>
 

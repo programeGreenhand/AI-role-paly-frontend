@@ -10,6 +10,18 @@
     />
   </div>
 
+  <el-button @click="clickme">展示场景列表</el-button>
+  <el-button @click="clickme1">展示广场</el-button>
+  <el-button @click="clickme3">个人对话历史</el-button>
+  <el-button @click="clickme4">获取收藏AI</el-button>
+  <el-button @click="clickme5">获取自建AI</el-button>
+  <el-button @click="clickme6">自建AI广场</el-button>
+  <el-button @click="clickme7">收藏智能体</el-button>
+  <el-button @click="clickme8">收藏智能体</el-button>
+  <el-button @click="clickme9">取消收藏</el-button>
+  <el-button @click="clickme10">创建对话会话</el-button>
+  <el-button @click="clickme11">获取会话消息</el-button>
+
   <el-drawer  
     v-model="drawer"   
     :append-to-body="true" 
@@ -90,6 +102,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCharacterStore } from '../stores/character'
+import axios from 'axios'
 const character = useCharacterStore()
 const router = useRouter()
 const searchQuery = ref('')
@@ -102,6 +115,91 @@ const getroleImage = (id:string) => {
 const gotoRoleChat = function(id:string){
   router.push(`/chat/${id}`)
 }
+
+////测试按钮
+const clickme = async ()=>{
+  const response = await axios.get('http://localhost:8081/api/scenes');
+  console.log(response.data)
+}
+
+const clickme1 = async ()=>{
+  const response = await axios.get('http://localhost:8081/api/characters/public');
+  console.log(response.data)
+}
+
+const clickme3 = async ()=>{
+  const userId = '550e8400-e29b-41d4-a716-446655440000';
+// 使用模板字符串将变量直接嵌入URL路径
+  const response = await axios.get(`http://localhost:8081/api/user/${userId}/sessions`);
+  console.log(response.data)
+}
+
+const clickme4 = async ()=>{
+  const userId = '550e8400-e29b-41d4-a716-446655440000';
+// 使用模板字符串将变量直接嵌入URL路径
+  const response = await axios.get(`http://localhost:8081/api/user/${userId}/favorites`);
+  console.log(response.data)
+}
+
+const clickme5 = async ()=>{
+  const userId = '550e8400-e29b-41d4-a716-446655440000';
+// 使用模板字符串将变量直接嵌入URL路径
+  const response = await axios.get(`http://localhost:8081/api/user/${userId}/characters`);
+  console.log(response.data)
+}
+
+const clickme6 = async ()=>{
+  const response = await axios.get('http://localhost:8081/api/characters/public');
+  console.log(response.data)
+}
+
+const clickme7 = async ()=>{
+  const response = await axios.get('http://localhost:8081/api/characters/custom');  //有问题
+  console.log(response.data)
+}
+
+const clickme8 = async ()=>{
+  const characterId = '0a269f10-3df4-489f-8ccb-4ae278f98455';
+// 使用模板字符串将变量直接嵌入URL路径
+  const response = await axios.post(`http://localhost:8081/api/user/:userId/favorites/${characterId}`);
+  console.log(response.data)
+}
+
+
+const clickme9 = async ()=>{
+  const userId = '550e8400-e29b-41d4-a716-446655440000';
+   const characterId = '0a269f10-3df4-489f-8ccb-4ae278f98455'
+// 使用模板字符串将变量直接嵌入URL路径
+  const response = await axios.delete(`http://localhost:8081/api/user/${userId}/favorites/${characterId}`);
+  console.log(response.data)
+}
+
+const clickme10 = async ()=>{
+  const userId = '550e8400-e29b-41d4-a716-446655440000';
+// 使用模板字符串将变量直接嵌入URL路径 characterId, sceneId, title
+  const response = await axios.post(`http://localhost:8081/api/user/${userId}/sessions`,{
+    "characterId": "0a269f10-3df4-489f-8ccb-4ae278f98455",
+    "sceneId": "00bf1ea0-1380-4c98-8279-cb76cd7e8f2f",
+    'title':'hello world ni hao ya'
+  });
+  console.log(response.data)
+}
+
+
+const clickme11 = async ()=>{
+  const sessionId = 1;
+// 使用模板字符串将变量直接嵌入URL路径
+  const response = await axios.get(`http://localhost:8081/api/sessions/${sessionId}/messages`);
+  console.log(response.data)
+}
+
+
+
+
+
+
+
+
 
 
 

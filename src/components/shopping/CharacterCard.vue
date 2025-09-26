@@ -99,8 +99,12 @@ const getStatLabel = (key: string): string => {
   width: 280px;
   height: 380px;
   perspective: 1000px;
-  margin: 20px;
   cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.character-card:hover {
+  transform: translateY(-5px);
 }
 
 .card-inner {
@@ -346,7 +350,6 @@ const getStatLabel = (key: string): string => {
   .character-card {
     width: 250px;
     height: 340px;
-    margin: 15px;
   }
   
   .avatar-container {

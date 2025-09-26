@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Chat from '../views/Chat.vue'
 import Settings from '../views/Settings.vue'
-import { pa } from 'element-plus/es/locales.mjs'
+
 
 
 
@@ -71,13 +71,13 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to,from,next)=>{
-  if(!localStorage.getItem('islogin')){
-    next('/login')
-  }else{
-    next()
-  }
-  next()
-})
+// router.beforeEach((to,from,next)=>{
+//   if(!localStorage.getItem('islogin')){
+//     next('/login')
+//   }else{
+//     next()
+//   }
+//   next()
+// })
 
 export default router

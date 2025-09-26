@@ -23,7 +23,7 @@
             <template #label>
               <span class="tab-label">
                 <i class="el-icon-edit"></i>
-                内容写作
+                聊天记录
               </span>
             </template>
           </el-tab-pane>

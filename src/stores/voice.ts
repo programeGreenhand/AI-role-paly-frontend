@@ -5,7 +5,7 @@ import { voiceAPI } from '../api/voice'
 import type { VoiceItem, AudioRecordingConfig } from '../types/voice'
 import type { WSMessage, WSResponseMessage, VoiceConfig } from '../types/websocket'
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8081/ws/chat'  //8080端口
+const WS_URL =  'ws://localhost:8081/ws/chat'  //8080端口
 
 export const useVoiceStore = defineStore('voice', () => {
   // 状态

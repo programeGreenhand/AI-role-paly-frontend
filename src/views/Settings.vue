@@ -81,6 +81,7 @@ import { ElMessage,ElMessageBox } from 'element-plus'
 import { useThemeStore } from '../stores/theme'
 import { voiceAPI } from '../api/voice'
 import type { VoiceItem } from '../types/voice'
+import axios from 'axios'
 const router = useRouter()
 const voiceStore = useVoiceStore()
 const characterStore = useCharacterStore()
@@ -100,6 +101,9 @@ watch(themeMode, (newMode) => {
 
 const handleCreateCharacter = (character: CustomCharacter) => {
   characterStore.addCustomCharacter(character) //此处只是存储在前端本地
+  //推送角色信息：
+  const userId = '550e8400-e29b-41d4-a716-446655440000';
+  const res = axios.post(`http://localhost:8081/api/user/${userId}/characters`, character)
   ElMessage.success('自定义角色创建成功！')
 }
 
