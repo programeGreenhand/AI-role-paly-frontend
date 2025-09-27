@@ -13,6 +13,7 @@ export interface WSAudioMessage extends WSMessage {
     audioData: string // base64 encoded audio
     format: string // 'wav', 'mp3', etc.
     sessionId?:string
+    voiceType?:string
   }
 }
 
@@ -24,6 +25,7 @@ export interface WSTextMessage extends WSMessage {
     characterId: string
     emotion?: string
     sessionId?:string
+    voiceType?:string
   }
 }
 

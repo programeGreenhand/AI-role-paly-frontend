@@ -7,7 +7,7 @@
         <div class="card-border">
           <div class="card-content">
             <div class="avatar-container">
-              <img :src="character.avatar" :alt="character.name" class="avatar" /> 
+              <img :src="character.avatar_url" :alt="character.name" class="avatar" /> 
               <div class="status-indicator" :class="{ online: character.is_public }"></div>
             </div>
             <div class="character-info">

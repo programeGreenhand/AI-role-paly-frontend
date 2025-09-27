@@ -14,6 +14,7 @@ export const useVoiceStore = defineStore('voice', () => {
   const wsConnected = ref(false)
   const voiceList = ref<VoiceItem[]>([])
   const error = ref<string | null>(null)
+ 
 
   const config = ref<VoiceConfig>({
     voiceType: 'qiniu_zh_female_wwxkjx',

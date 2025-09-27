@@ -1,7 +1,7 @@
 // import type { WSMessage, WSAudioMessage, WSTextMessage, VoiceConfig } from '../types/websocket'
 import type { WSMessage, WSAudioMessage, WSTextMessage,  } from '../types/websocket'
 import { useChatStore } from '../stores/chat'
-
+import { useVoiceStore } from '../stores/voice'
 export class ChatWebSocket {
   private ws: WebSocket | null = null
   private wsUrl: string
@@ -95,7 +95,7 @@ export class ChatWebSocket {
 
   sendAudio(audioData: string, format: string ): void {
     
-
+     const voiceStore = useVoiceStore()
     const chatStore = useChatStore()
     const sessionId = chatStore.currentSession.id
     console.log('txt sessionId',sessionId)
@@ -105,7 +105,7 @@ export class ChatWebSocket {
 
     const message: WSAudioMessage = {
       type: 'audio',
-      data: { audioData, format,sessionId },
+      data: { audioData, format,sessionId,voiceType:voiceStore.config.voiceType },
       timestamp: Date.now(),
       messageId: this.generateMessageId()
     }
@@ -114,6 +114,7 @@ export class ChatWebSocket {
   }
 
   sendText(text: string, characterId: string, emotion?: string): void {
+     const voiceStore = useVoiceStore()
     const chatStore = useChatStore()
     const sessionId = chatStore.currentSession.id
     console.log('audio sessionId',sessionId)
@@ -123,7 +124,7 @@ export class ChatWebSocket {
 
     const message: WSTextMessage = {
       type: 'text',
-      data: { text, characterId, emotion, sessionId},
+      data: { text, characterId, emotion, sessionId,voiceType:voiceStore.config.voiceType},
       timestamp: Date.now(),
       messageId: this.generateMessageId(),
 

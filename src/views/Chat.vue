@@ -1,6 +1,7 @@
 <template>
-  <div class="chat-view" :class="currentTheme" :style="background">
+  <div class="chat-view" :class="currentTheme" :style="{ backgroundImage: `url(${backgroundImageUrl})` }">
     <!-- 优雅的浮动头部 -->
+     
     <div class="floating-header" ref="floatingHeader">
       <div class="character-showcase">
         <div class="character-avatar-container">
@@ -8,6 +9,7 @@
             v-if="currentCharacter"
             :character="currentCharacter"
             :emotion="currentEmotion"
+            @change="handleSceneChange"
           />
         </div>
         <div class="character-meta">
@@ -115,24 +117,17 @@ const currentCharacter = computed(() => characterStore.currentCharacter)
 const currentScene = computed(() => sceneStore.currentScene)
 const currentTheme = computed(() => currentCharacter.value?.theme || 'default')
 const currentEmotion = computed(() => chatStore.currentEmotion)
+const backgroundImageUrl = ref('http://onepiece-spiderman.oss-cn-shenzhen.aliyuncs.com/scene/gudaishuyuan.jpg')
 
 // 动态背景图片
-const getBackgroundImage = () => {
-  if (!currentScene.value?.characterIds[0] || !currentScene.value?.background) {
-    return ''
+const handleSceneChange = (scene:any) => {
+  console.log(scene)
+  sceneStore.setScene(scene)
+  if (scene) {
+    backgroundImageUrl.value = scene
   }
-  return new URL(
-    `../assets/charactor/${currentScene.value.characterIds[0]}/background/${currentScene.value.background}.jpg`, 
-    import.meta.url
-  ).href
+  ElMessage.success(`已切换到场景: ${scene.name}`)
 }
-
-const background = computed(() => ({
-  backgroundImage: `url(${getBackgroundImage()})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat'
-}))
 
 // Base64转Blob的辅助函数
 const base64ToBlob = (base64Data: string, contentType: string = ''): Blob => {
@@ -269,10 +264,10 @@ const sendToAI = async (text: string) => {
 }
 
 // 场景变更处理
-const handleSceneChange = (scene: Scene) => {
-  sceneStore.setScene(scene)
-  ElMessage.success(`已切换到场景: ${scene.name}`)
-}
+// const handleSceneChange = (scene: Scene) => {
+//   sceneStore.setScene(scene)
+//   ElMessage.success(`已切换到场景: ${scene.name}`)
+// }
 
 // 清空聊天
 const clearChat = () => {

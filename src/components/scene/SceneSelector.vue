@@ -9,7 +9,7 @@
       v-for="scene in lists"
       :key="scene.id"
       :label="scene.name"
-      :value="scene.name"
+      :value="scene.image_url"
     >
       <div class="scene-option">
         <span class="scene-name">{{ scene.name }}</span>
@@ -23,9 +23,21 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useSceneStore } from '../../stores/scene'
 import axios from 'axios';
+import type { Scene } from '../../types/scenes';
 
 
 const lists = ref(null)
+const scenes = ref<Scene[]>([])
+
+
+const handleSceneChange = (sceneId: string) => {
+  
+  
+  console.log(sceneId)
+  if (sceneId) {
+    emit('change', sceneId)
+  }
+}
 
 const props = defineProps<{
   characterId: string
@@ -42,12 +54,12 @@ const availableScenes = computed(() => {
   return sceneStore.getScenesForCharacter(props.characterId)
 })
 
-const handleSceneChange = (sceneId: string) => {
-  const scene = sceneStore.getSceneById(sceneId)
-  if (scene) {
-    emit('change', scene)
-  }
-}
+// const handleSceneChange = (sceneId: string) => {
+//   const scene = sceneStore.getSceneById(sceneId)
+//   if (scene) {
+//     emit('change', scene)
+//   }
+// }
 
 // @ts-ignore
 watch(availableScenes, (scenes) => {
