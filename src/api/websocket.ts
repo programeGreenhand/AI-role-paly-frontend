@@ -1,6 +1,7 @@
 // import type { WSMessage, WSAudioMessage, WSTextMessage, VoiceConfig } from '../types/websocket'
 import type { WSMessage, WSAudioMessage, WSTextMessage,  } from '../types/websocket'
 import { useChatStore } from '../stores/chat'
+
 export class ChatWebSocket {
   private ws: WebSocket | null = null
   private wsUrl: string
@@ -89,8 +90,15 @@ export class ChatWebSocket {
       this.messageHandlers.delete(id)
     }
   }
+  
+  
 
-  sendAudio(audioData: string, format: string = 'wav',sessionId:string): void {
+  sendAudio(audioData: string, format: string ): void {
+    
+
+    const chatStore = useChatStore()
+    const sessionId = chatStore.currentSession.id
+    console.log('txt sessionId',sessionId)
     if (!this.isConnected()) {
       throw new Error('WebSocket not connected')
     }
@@ -105,7 +113,10 @@ export class ChatWebSocket {
     this.ws!.send(JSON.stringify(message))
   }
 
-  sendText(text: string, characterId: string, emotion?: string,sessionId:string): void {
+  sendText(text: string, characterId: string, emotion?: string): void {
+    const chatStore = useChatStore()
+    const sessionId = chatStore.currentSession.id
+    console.log('audio sessionId',sessionId)
     if (!this.isConnected()) {
       throw new Error('WebSocket not connected')
     }

@@ -260,7 +260,6 @@ const sendToAI = async (text: string) => {
       text,
       currentCharacter.value!.id,
       currentEmotion.value,
-      chatStore.currentSession
     )
   } catch (error) {
     console.error('发送AI消息失败:', error)
@@ -291,7 +290,7 @@ const initialize = async () => {
   const userId = localStorage.getItem('userId')
   console.log(`Chat界面获取到userId ${userId}`)
   const characterId = characterStore.currentCharacter?.id || route.params.characterId as string 
-  
+  console.log(`Chat界面获取到userId ${characterId}`)
   if (!characterId) {
     ElMessage.error('未指定角色')
     router.push('/hall')
@@ -318,8 +317,8 @@ const initialize = async () => {
       //获得后端返回的sessionID
       const sessionId = await chatStore.createSession(userId, characterId)
       //sessionId保存在前端，每次发送信息进行携带
-      chatStore.currentSession = sessionId.id;
-      console.log('会话创建成功: 获得SessionId值为', chatStore.currentSession)
+      chatStore.currentSession.id = sessionId.id;
+      console.log('会话创建成功: 获得SessionId值为', chatStore.currentSession.id)
     }
     
     // 设置默认场景

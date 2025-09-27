@@ -56,9 +56,10 @@ server.interceptors.response.use(
 
       const response = await server.post(`/user/${userId}/sessions`, {
         characterId:characterId,
-        sceneId: sceneId || null,
+        sceneId: sceneId || "0a6d74a4-5687-477b-b2bc-57b08642e5a2",
         title: title || `与${characterId}的对话`
-      });
+      });  //与什么对话的标题在这里
+      console.log('返回session id :',response.data)
 
       if (response.success && response.data) {
         const session = response.data.session;

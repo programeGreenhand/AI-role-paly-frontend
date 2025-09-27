@@ -2,7 +2,7 @@
   <div class="voice-recorder">
     <!-- 录音按钮 -->
     <el-button
-      :type="audioStore.state.isRecording ? 'danger' : 'primary'"
+      :type="voiceStore.isRecording ? 'danger' : 'primary'"
       @mousedown="handleStartRecording"
       @mouseup="handleStopRecording"
       @touchstart="handleStartRecording"
@@ -11,15 +11,15 @@
       size="large"
       class="record-button"
       :class="{
-        'recording': audioStore.state.isRecording,
-        'processing': isProcessing
+        'recording': voiceStore.isRecording,
+        'processing': voiceStore.isProcessing
       }"
-      :disabled="!wsStore.isConnected || isProcessing"
+      :disabled="!voiceStore.wsConnected || voiceStore.isProcessing"
     >
-      <el-icon v-if="!audioStore.state.isRecording && !isProcessing">
+      <el-icon v-if="!voiceStore.isRecording && !voiceStore.isProcessing">
         <Microphone />
       </el-icon>
-      <el-icon v-else-if="audioStore.state.isRecording" class="recording-icon">
+      <el-icon v-else-if="voiceStore.isRecording" class="recording-icon">
         <VideoPause />
       </el-icon>
       <el-icon v-else class="processing-icon">
@@ -28,16 +28,15 @@
     </el-button>
     
     <!-- 录音状态指示器 -->
-    <div v-if="audioStore.state.isRecording" class="recording-indicator">
+    <div v-if="voiceStore.isRecording" class="recording-indicator">
       <div class="wave-form">
         <div class="wave-bar" v-for="i in 5" :key="i"></div>
       </div>
       <span class="recording-text">松开发送语音</span>
-      <span class="duration-text">{{ formatDuration(audioStore.state.recordingDuration) }}</span>
     </div>
 
     <!-- 处理状态指示器 -->
-    <div v-if="isProcessing" class="processing-indicator">
+    <div v-if="voiceStore.isProcessing" class="processing-indicator">
       <div class="spinner"></div>
       <span class="processing-text">处理中...</span>
     </div>
@@ -61,12 +60,12 @@
 
     <!-- WebSocket状态 -->
     <div class="ws-status">
-      <span :class="['status-dot', { connected: wsStore.isConnected }]"></span>
+      <span :class="['status-dot', { connected: voiceStore.wsConnected }]"></span>
       <span class="status-text">
-        {{ wsStore.connectionStatus.text }}
+        {{ voiceStore.wsConnected ? '服务器连接成功' : '服务器未连接' }}
       </span>
       <el-button 
-        v-if="!wsStore.isConnected" 
+        v-if="!voiceStore.wsConnected" 
         @click="handleConnect" 
         size="small" 
         type="text"
@@ -77,8 +76,8 @@
     </div>
 
     <!-- 错误提示 -->
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
+    <div v-if="voiceStore.error" class="error-message">
+      {{ voiceStore.error }}
     </div>
   </div>
 </template>
@@ -87,43 +86,23 @@
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Microphone, VideoPause, Loading } from '@element-plus/icons-vue'
-
-// 导入 Pinia stores
 import { useVoiceStore } from '../../stores/voice'
-import { useAudioRecordingStore } from '../../stores/audioRecordingStore'
-import { useWebSocketStore } from '../../stores/webSocketStore'
-import { useChatMessagesStore } from '../../stores/chatMessagesStore'
 import { useChatStore } from '../../stores/chat'
 
-const chats = useChatStore()
 const voiceStore = useVoiceStore()
-const audioStore = useAudioRecordingStore()
-const wsStore = useWebSocketStore()
-const chatStore = useChatMessagesStore()
-
+const chatStore = useChatStore()
 
 // 本地状态
-const isProcessing = ref(false)
 const errorMessage = ref('')
-
-// 计算属性
-const isConnected = computed(() => wsStore.isConnected)
-
-// 格式化录音时长
-const formatDuration = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-}
 
 // 连接 WebSocket
 const handleConnect = async (): Promise<void> => {
-  if (wsStore.isConnected) {
-    wsStore.disconnect()
+  if (voiceStore.wsConnected) {
+    voiceStore.disconnectWebSocket()
     ElMessage.info('已断开与服务器的连接')
   } else {
     try {
-      await wsStore.connect()
+      await voiceStore.connectWebSocket()
       ElMessage.success('已成功连接到语音服务器，可以开始录音对话')
     } catch (error) {
       const errorMsg = `连接服务器失败: ${error instanceof Error ? error.message : '未知错误'}`
@@ -135,18 +114,18 @@ const handleConnect = async (): Promise<void> => {
 
 // 开始录音
 const handleStartRecording = async (): Promise<void> => {
-  if (!wsStore.isConnected) {
+  if (!voiceStore.wsConnected) {
     ElMessage.warning('请先连接到服务器')
     return
   }
 
-  if (isProcessing.value) {
+  if (voiceStore.isProcessing) {
     ElMessage.warning('正在处理上一个请求，请稍候...')
     return
   }
 
   try {
-    await audioStore.startRecording()
+    await voiceStore.startRecording()
     errorMessage.value = ''
     ElMessage.info('录音已开始，请开始说话...')
   } catch (error) {
@@ -171,123 +150,34 @@ const handleStartRecording = async (): Promise<void> => {
   }
 }
 
-// 停止录音并发送到服务器
+// 停止录音
 const handleStopRecording = async (): Promise<void> => {
-  if (!audioStore.state.isRecording) return
+  if (!voiceStore.isRecording) return
 
-  audioStore.stopRecording()
-  
-  const audioBlob = audioStore.getAudioBlob()
-  if (audioBlob && wsStore.isConnected) {
-    isProcessing.value = true
-    errorMessage.value = ''
-    
-    try {
-      await sendAudioToServer(audioBlob)
-      ElMessage.info('录音已停止，正在处理音频...')
-    } catch (error) {
-      const errorMsg = `发送音频失败: ${error instanceof Error ? error.message : '未知错误'}`
-      errorMessage.value = errorMsg
-      ElMessage.error(errorMsg)
-      isProcessing.value = false
-    }
-  } else {
-    ElMessage.warning('录音数据无效或未连接到服务器')
-  }
+  voiceStore.stopRecording()
+  ElMessage.info('录音已停止，正在处理音频...')
 }
 
-// 发送音频到服务器   这里是发送语音到后端！！！！
-const sendAudioToServer = (blob: Blob): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    
-    //这么高级？？？文件读取的时候自动转为base64?
-    reader.onload = () => {
-      try {
-        const base64Data = (reader.result as string).split(',')[1]
-        
-        wsStore.send({
-          type: 'audio',
-          data: {
-            audioData: base64Data,
-            format: 'map3',
-            sessionId:chats.currentSession
-          },
-          timestamp: Date.now(),
-          messageId: wsStore.generateMessageId(),
-          audioType: voiceStore.config.voiceType
-        })
-        
-        ElMessage.success('已发送语音消息')
-        resolve()
-      } catch (error) {
-        reject(error)
-      }
-    }
-    
-    reader.onerror = () => {
-      reject(new Error('文件读取失败'))
-    }
-    
-    reader.readAsDataURL(blob)
-  })
-}
-
-// WebSocket 消息处理
+// 设置消息处理器
 const setupMessageHandlers = () => {
   // 处理语音识别结果
-  wsStore.onMessage('processing', (data) => {
-    if (data.data.recognizedText) {
-      chatStore.addMessage('user', data.data.recognizedText, '语音消息')
+  window.addEventListener('user-voice-input', (event: any) => {
+    const { text, audioUrl } = event.detail
+    if (text) {
+      emit('voiceInput', text, audioUrl)
     }
   })
 
   // 处理AI响应
-  wsStore.onMessage('response', (data) => {
-    if (data.data.text) {
-      chatStore.addMessage('character', data.data.text)
-      
-      // 触发自定义事件
-      const event = new CustomEvent('voice-response', {
-        detail: {
-          text: data.data.text,
-          audioUrl: audioStore.getAudioBlob() ? URL.createObjectURL(audioStore.getAudioBlob()!) : undefined
-        }
-      })
-      window.dispatchEvent(event)
-      
-      // 重置处理状态
-      isProcessing.value = false
-    }
+  window.addEventListener('voice-response', (event: any) => {
+    const { text, audioUrl } = event.detail
+    emit('voiceInput', text, audioUrl)
   })
-
-  // 处理错误消息
-  wsStore.onMessage('error', (data) => {
-    const errorMsg = data.data?.message || '服务器处理错误'
-    errorMessage.value = errorMsg
-    isProcessing.value = false
-    ElMessage.error(errorMsg)
-  })
-
-  // 处理连接状态变化
-  wsStore.onMessage('connection_ack', (data) => {
-    ElMessage.success('服务器连接确认')
-  })
-}
-
-// 清理函数
-const cleanup = () => {
-  audioStore.resetRecording()
-  wsStore.disconnect()
-  isProcessing.value = false
-  errorMessage.value = ''
 }
 
 const emit = defineEmits<{
   voiceInput: [text: string, audioUrl?: string]
 }>()
-
-let responseHandler: ((event: CustomEvent) => void) | null = null
 
 onMounted(async () => {
   try {
@@ -299,15 +189,6 @@ onMounted(async () => {
     
     // 获取语音列表
     await voiceStore.fetchVoiceList()
-
-    // 监听语音响应事件
-    responseHandler = (event: CustomEvent) => {
-      const { text, audioUrl } = event.detail
-      console.log(`语音响应: text=${text}, audioUrl=${audioUrl ? '有' : '无'}`)
-      emit('voiceInput', text, audioUrl)
-    }
-    
-    window.addEventListener('voice-response', responseHandler as EventListener)
     
   } catch (error) {
     console.error('语音功能初始化失败:', error)
@@ -317,20 +198,16 @@ onMounted(async () => {
 
 onUnmounted(() => {
   // 清理事件监听器
-  if (responseHandler) {
-    window.removeEventListener('voice-response', responseHandler as EventListener)
-  }
+  window.removeEventListener('user-voice-input', () => {})
+  window.removeEventListener('voice-response', () => {})
   
   // 清理资源
-  cleanup()
+  voiceStore.disconnectWebSocket()
 })
-
-defineProps<{
-  disabled?: boolean
-}>()
 </script>
 
 <style scoped>
+/* 样式保持不变，与之前相同 */
 .voice-recorder {
   display: flex;
   flex-direction: column;
@@ -404,12 +281,6 @@ defineProps<{
 .wave-bar:nth-child(3) { animation-delay: 0.2s; }
 .wave-bar:nth-child(4) { animation-delay: 0.3s; }
 .wave-bar:nth-child(5) { animation-delay: 0.4s; }
-
-.duration-text {
-  font-size: 12px;
-  color: #666;
-  font-family: monospace;
-}
 
 .spinner {
   width: 20px;

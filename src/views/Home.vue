@@ -208,6 +208,7 @@ const clickme9 = async ()=>{
 
 const clickme10 = async ()=>{
   const userId = localStorage.getItem('userId');
+  console.log(userId)
 // 使用模板字符串将变量直接嵌入URL路径 characterId, sceneId, title 创建对话会话
   const response = await server.post(`/api/user/${userId}/sessions`,{
     "characterId": "1cc32b86-8802-43a0-b16e-ae80ecd19074",

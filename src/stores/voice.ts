@@ -215,7 +215,7 @@ export const useVoiceStore = defineStore('voice', () => {
           
           // 通过 WebSocket 发送音频数据
           if (chatWS) {
-            chatWS.sendAudio(base64Audio, 'wav')
+            chatWS.sendAudio(base64Audio, 'webm')  //???sessionid
           }
         }
       }
@@ -231,15 +231,15 @@ export const useVoiceStore = defineStore('voice', () => {
   }
 
   // 发送文本消息
-  const sendTextMessage = (text: string, characterId: string, emotion?: string,sessionId:string) => {
+  const sendTextMessage = (text: string, characterId: string, emotion?: string) => {
     if (!wsConnected.value || !chatWS) {
       throw new Error('WebSocket not connected')
     }
-
+    
     isProcessing.value = true
     error.value = null
     
-    chatWS.sendText(text, characterId, emotion,sessionId)
+    chatWS.sendText(text, characterId, emotion)
   }
 
   // 播放音频
