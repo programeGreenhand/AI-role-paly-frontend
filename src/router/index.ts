@@ -58,10 +58,10 @@ const routes = [
     ]
   },
   {
-    path: '/chat/:characterId?',
+    path: '/chat',
     name: 'Chat',
     component: Chat,
-    meta:{authRequire:true}
+    
   },
   
 ]

@@ -13,6 +13,7 @@
         <CharacterCard
           v-for="character in filteredCharacters"
           :key="character.id"
+          
           :character="character"
           @chat="handleChat"
         />
@@ -38,13 +39,19 @@ import CharacterCard from '../components/shopping/CharacterCard.vue'
 import SearchBar from '../components/shopping/SearchBar.vue'
 import type { Character } from '../types/character'
 import { getShoppingList } from '../api/shopping'
+import { useCharacterStore } from '../stores/character'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 // 响应式数据
 const searchQuery = ref('')
 const isMobile = ref(false)
 const containerRef = ref<HTMLElement>()
 const characters = ref<Character[]>([])
+const characterStore = useCharacterStore()
+const router = useRouter()
+
+
 
 // 计算属性 - 过滤后的角色列表
 const filteredCharacters = computed(() => {
@@ -66,6 +73,10 @@ const handleSearch = (query: string) => {
 const handleChat = (character: Character) => {
   console.log('开始与角色聊天:', character.name)
   // 这里实现跳转到聊天页面的逻辑
+  characterStore.setCurrentCharacter(character);
+  console.log(character.id)
+  router.push(`/chat`)
+
 }
 
 const checkMobile = () => {
@@ -94,7 +105,7 @@ onUnmounted(() => {
 .character-store {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
 }
 
 .search-section {

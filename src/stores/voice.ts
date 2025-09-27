@@ -5,7 +5,7 @@ import { voiceAPI } from '../api/voice'
 import type { VoiceItem, AudioRecordingConfig } from '../types/voice'
 import type { WSMessage, WSResponseMessage, VoiceConfig } from '../types/websocket'
 
-const WS_URL =  'ws://localhost:8081/ws/chat'  //8080端口
+const WS_URL = 'ws://localhost:8081/ws/chat'
 
 export const useVoiceStore = defineStore('voice', () => {
   // 状态
@@ -58,6 +58,10 @@ export const useVoiceStore = defineStore('voice', () => {
   // 处理 WebSocket 消息
   const handleWSMessage = (message: WSMessage) => {
     switch (message.type) {
+      case 'processing':
+        // 处理语音识别过程中的消息
+        handleProcessingMessage(message)
+        break
       case 'response':
         handleResponseMessage(message as WSResponseMessage)
         break
@@ -72,10 +76,23 @@ export const useVoiceStore = defineStore('voice', () => {
     }
   }
 
+  const handleProcessingMessage = (message: WSMessage) => {
+    if (message.data.recognizedText) {
+      // 语音识别完成，触发用户输入事件
+      const event = new CustomEvent('user-voice-input', {
+        detail: {
+          text: message.data.recognizedText,
+          audioUrl: message.data.audioUrl
+        }
+      })
+      window.dispatchEvent(event)
+    }
+  }
+
   const handleResponseMessage = (message: WSResponseMessage) => {
     isProcessing.value = false
     
-    // 触发自定义事件，让组件监听
+    // 触发AI回复事件
     const event = new CustomEvent('voice-response', {
       detail: {
         text: message.data.text,
@@ -88,6 +105,7 @@ export const useVoiceStore = defineStore('voice', () => {
 
   const handleErrorMessage = (message: WSMessage) => {
     isProcessing.value = false
+    isRecording.value = false
     error.value = message.data.error || 'Unknown error occurred'
     console.error('WebSocket error:', message.data)
   }
@@ -164,7 +182,7 @@ export const useVoiceStore = defineStore('voice', () => {
         stream.getTracks().forEach(track => track.stop())
       }
 
-      mediaRecorder.start(100) // 每100ms收集一次数据
+      mediaRecorder.start(100)
       isRecording.value = true
       error.value = null
 
@@ -180,21 +198,20 @@ export const useVoiceStore = defineStore('voice', () => {
     if (mediaRecorder && isRecording.value) {
       mediaRecorder.stop()
       isRecording.value = false
+      isProcessing.value = true
     }
   }
 
   // 处理音频数据
   const processAudioBlob = async (audioBlob: Blob) => {
     try {
-      isProcessing.value = true
-      
       // 将音频转换为 base64
       const reader = new FileReader()
       reader.readAsDataURL(audioBlob)
       
       reader.onload = () => {
         if (typeof reader.result === 'string') {
-          const base64Audio = reader.result.split(',')[1] // 移除 data:audio/... 前缀
+          const base64Audio = reader.result.split(',')[1]
           
           // 通过 WebSocket 发送音频数据
           if (chatWS) {
@@ -214,7 +231,7 @@ export const useVoiceStore = defineStore('voice', () => {
   }
 
   // 发送文本消息
-  const sendTextMessage = (text: string, characterId: string, emotion?: string) => {
+  const sendTextMessage = (text: string, characterId: string, emotion?: string,sessionId:string) => {
     if (!wsConnected.value || !chatWS) {
       throw new Error('WebSocket not connected')
     }
@@ -222,7 +239,7 @@ export const useVoiceStore = defineStore('voice', () => {
     isProcessing.value = true
     error.value = null
     
-    chatWS.sendText(text, characterId, emotion)
+    chatWS.sendText(text, characterId, emotion,sessionId)
   }
 
   // 播放音频

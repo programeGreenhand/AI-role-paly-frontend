@@ -1,20 +1,21 @@
 <!-- CharacterCard.vue -->
 <template>
-  <div class="character-card" :class="{ flipped: isFlipped }">
-    <div class="card-inner">
+  <div class="character-card" :class="{ flipped: isFlipped }" >
+    <div class="card-inner" >
       <!-- 正面 -->
-      <div class="card-front" @click="flipCard">
+      <div class="card-front" @click="flipCard" >
         <div class="card-border">
           <div class="card-content">
             <div class="avatar-container">
-              <img :src="character.avatar" :alt="character.name" class="avatar" />
-              <div class="status-indicator" :class="{ online: character.isOnline }"></div>
+              <img :src="character.avatar" :alt="character.name" class="avatar" /> 
+              <div class="status-indicator" :class="{ online: character.is_public }"></div>
             </div>
             <div class="character-info">
+              <el-icon size="25" @click.stop="save" :color="isActive?'black':'yellow'"><Star /></el-icon>
               <h3 class="character-name">{{ character.name }}</h3>
-              <p class="character-category">{{ character.category }}</p>
+              <p class="character-category">{{ character.author }}</p>
               <div class="tags">
-                <span v-for="tag in character.tags" :key="tag" class="tag">
+                <span v-for="tag in character.skills" :key="tag" class="tag">
                   {{ tag }}
                 </span>
               </div>
@@ -26,7 +27,7 @@
       <!-- 背面 -->
       <div class="card-back">
         <div class="card-border">
-          <div class="card-content">
+          <div class="card-content" >
             <div class="back-header">
               <h3 class="character-name">{{ character.name }}</h3>
               <button @click="flipCard" class="flip-back-btn">
@@ -64,6 +65,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { Character } from '../../types/character'
+import axios from 'axios'
+import server from '../../api/session'
+const isActive = ref(true)
+const count = ref(1)
 
 const props = defineProps<{
   character: Character
@@ -75,11 +80,26 @@ const emit = defineEmits<{
 
 const isFlipped = ref(false)
 
+const save = ()=>{
+  const uerId = localStorage.getItem("userId") || 1
+  isActive.value = !isActive.value
+  count.value++;
+  
+  //如果为偶数就加入收藏
+  if(count.value%2 === 0){
+    server.post(`/api/user/${uerId}/favorites/${props.character.id}`)
+  }else{//如果为奇数就取消收藏
+    server.delete(`/api/user/${uerId}/favorites/${props.character.id}`)
+  }
+  
+}
+
 const flipCard = () => {
   isFlipped.value = !isFlipped.value
 }
 
 const startChat = () => {
+  //开始聊天，这里是新的对话，
   emit('chat', props.character)
 }
 
@@ -95,6 +115,9 @@ const getStatLabel = (key: string): string => {
 </script>
 
 <style scoped>
+.active{
+  color:yellow
+}
 .character-card {
   width: 280px;
   height: 380px;

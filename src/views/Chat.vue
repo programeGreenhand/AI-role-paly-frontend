@@ -1,7 +1,7 @@
 <template>
   <div class="chat-view" :class="currentTheme" :style="background">
     <!-- 优雅的浮动头部 -->
-    <div class="floating-header"  ref="floatingHeader" >
+    <div class="floating-header" ref="floatingHeader">
       <div class="character-showcase">
         <div class="character-avatar-container">
           <CharacterAnimation
@@ -46,8 +46,10 @@
       <div class="input-container">
         <div class="unified-input-area">
           <VoiceRecorder 
-            :disabled="false"
+            :disabled="!wsConnected || chatStore.isTyping"
             @voice-input="handleVoiceInput"
+            @voice-start="handleVoiceStart"
+            @voice-end="handleVoiceEnd"
           />
           
           <div class="message-composer">
@@ -55,7 +57,7 @@
               v-model="inputMessage"
               placeholder="说点什么..."
               @keyup.enter="sendMessage"
-              :disabled="chatStore.isTyping"
+              :disabled="chatStore.isTyping || !wsConnected"
               class="composer-input"
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 3 }"
@@ -63,7 +65,7 @@
             />
             <el-button
               @click="sendMessage"
-              :disabled="!inputMessage.trim() || chatStore.isTyping"
+              :disabled="!inputMessage.trim() || chatStore.isTyping || !wsConnected"
               type="primary"
               :loading="chatStore.isTyping"
               class="send-button"
@@ -79,7 +81,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { loadRouteLocation, useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 // 导入 Pinia stores
@@ -87,9 +89,7 @@ import { useCharacterStore } from '../stores/character'
 import { useChatStore } from '../stores/chat'
 import { useSceneStore } from '../stores/scene'
 import { useVoiceStore } from '../stores/voice'
-import { useWebSocketStore } from '../stores/webSocketStore'
-import { useChatMessagesStore } from '../stores/chatMessagesStore'
-
+import { AuthStore } from '../stores/user'
 // 导入组件
 import ChatContainer from '../components/chat/ChatContainer.vue'
 import CharacterAnimation from '../components/character/CharacterAnimation.vue'
@@ -97,21 +97,18 @@ import SceneSelector from '../components/scene/SceneSelector.vue'
 import VoiceRecorder from '../components/chat/VoiceRecorder.vue'
 import type { Scene } from '../stores/scene'
 
-
 const route = useRoute()
 const router = useRouter()
-
+const auth = AuthStore()
 // 使用 Pinia stores
 const characterStore = useCharacterStore()
 const chatStore = useChatStore()
 const sceneStore = useSceneStore()
 const voiceStore = useVoiceStore()
-const wsStore = useWebSocketStore()
-const chatMessagesStore = useChatMessagesStore()
 
 // 本地状态
 const inputMessage = ref('')
-const isProcessing = ref(false)
+const wsConnected = ref(false)
 
 // 计算属性
 const currentCharacter = computed(() => characterStore.currentCharacter)
@@ -159,77 +156,26 @@ const base64ToBlob = (base64Data: string, contentType: string = ''): Blob => {
 
 // WebSocket 消息处理
 const setupMessageHandlers = () => {
-  // 处理语音识别结果（用户说的话）
-  wsStore.onMessage('processing', (data) => {
-    if (data.data.recognizedText) {
-      // 添加用户消息，但不包含音频（因为这是用户说的话）
-      chatStore.addUserMessage(data.data.recognizedText, '语音消息')
-    }
-  })
-
-  // 处理AI响应（AI的回答，包含音频）
-  wsStore.onMessage('response', (data) => {
-    if (data.data.text) {
-      // 从响应中获取音频数据
-      const audioData = data.data.audioData // 假设服务器返回base64编码的音频数据
-      let audioUrl = null
-      
-      if (audioData) {
-        // 将base64数据转换为Blob URL
-        try {
-          const audioBlob = base64ToBlob(audioData, 'audio/webm')
-          audioUrl = URL.createObjectURL(audioBlob)
-        } catch (error) {
-          console.error('音频数据转换失败:', error)
-        }
-      }
-      
-      // 添加AI回复消息，包含音频URL
-      //这里已经得到了AI的响应回复信息1了！！！！！ 
-      chatStore.addCharacterMessage(data.data.text, data.data.emotion, audioUrl)
-      //标记2
-      // 触发自定义事件，传递AI回复的文本和音频
-      const event = new CustomEvent('voice-response', {
-        detail: {
-          text: data.data.text,
-          audioUrl: audioUrl
-        }
-      })
-      window.dispatchEvent(event)
-      
-      // 重置处理状态
-      isProcessing.value = false
-      chatStore.setTyping(false)
-    }
-  })
-
-  // 处理错误消息
-  wsStore.onMessage('error', (data) => {
-    const errorMsg = data.data?.message || '服务器处理错误'
-    ElMessage.error(errorMsg)
-    isProcessing.value = false
-    chatStore.setTyping(false)
-  })
-
-  // 处理连接状态变化
-  wsStore.onMessage('connection_ack', (data) => {
-    ElMessage.success('服务器连接确认')
-  })
+  // 处理语音识别结果和AI响应
+  window.addEventListener('voice-response', handleVoiceResponse)
+  
+  // 监听WebSocket连接状态
+  if (voiceStore.wsConnected) {
+    wsConnected.value = true
+  }
 }
 
-// 处理语音输入（AI的回复） 标记1
-const handleVoiceInput = (text: string, audioUrl?: string) => {
-  console.log('收到AI语音回复:')
-  console.log('AI回复文本:', text)
-  console.log('AI回复音频:', audioUrl ? '有' : '无')
+// 处理AI语音回复事件
+const handleVoiceResponse = (event: CustomEvent) => {
+  const { text, audioUrl, emotion } = event.detail
   
-  if (!text.trim() || !currentCharacter.value) return
+  console.log('收到AI回复:', { text, audioUrl, emotion })
   
-  try {
-    // 添加角色回复消息到聊天记录
-    // chatStore.addCharacterMessage(text, currentEmotion.value, audioUrl)
-    //此处
-    // 如果有回复的语音，自动播放
+  if (text) {
+    // 添加AI回复消息
+    chatStore.addCharacterMessage(text, emotion || 'neutral', audioUrl)
+    
+    // 如果有音频且启用了语音播放，自动播放
     if (audioUrl && voiceStore.config.enabled) {
       setTimeout(async () => {
         try {
@@ -239,47 +185,59 @@ const handleVoiceInput = (text: string, audioUrl?: string) => {
         }
       }, 500)
     }
-  } catch (error) {
-    console.error('处理AI语音回复失败:', error)
-    ElMessage.error('处理AI语音回复失败，请重试')
+    
+    // 停止输入状态
+    chatStore.setTyping(false)
   }
+}
+
+// 处理用户语音输入（录音结束后的识别文本）
+const handleVoiceInput = async (recognizedText: string, audioUrl?: string) => {
+  console.log('用户语音输入:', { recognizedText, audioUrl })
+  
+  if (!recognizedText.trim() || !currentCharacter.value || !chatStore.currentSession) {
+    return
+  }
+  
+  try {
+    // 添加用户语音消息
+    await chatStore.addUserMessage(recognizedText, '语音消息', audioUrl)
+    
+    // 发送消息到AI处理
+    await sendToAI(recognizedText)
+  } catch (error) {
+    console.error('处理语音输入失败:', error)
+    ElMessage.error('处理语音输入失败，请重试')
+    chatStore.setTyping(false)
+  }
+}
+
+// 处理录音开始
+const handleVoiceStart = () => {
+  console.log('开始录音')
+}
+
+// 处理录音结束
+const handleVoiceEnd = () => {
+  console.log('录音结束，等待处理...')
+  chatStore.setTyping(true)
 }
 
 // 发送文本消息
 const sendMessage = async () => {
-  if (!inputMessage.value.trim() || !currentCharacter.value) return
+  if (!inputMessage.value.trim() || !currentCharacter.value || !chatStore.currentSession) {
+    return
+  }
+  
+  const messageText = inputMessage.value.trim()
+  inputMessage.value = '' // 立即清空输入框
   
   try {
-    chatStore.setTyping(true)
-    
     // 添加用户消息
-    chatStore.addUserMessage(inputMessage.value)
+    await chatStore.addUserMessage(messageText)
     
-    // 通过 WebSocket 发送文本消息
-    if (wsStore.isConnected) {
-      wsStore.send({
-        type: 'text',
-        data: {
-          text: inputMessage.value,
-          characterId: currentCharacter.value.id,
-          emotion: currentEmotion.value
-        },
-        timestamp: Date.now(),
-        messageId: wsStore.generateMessageId(),
-        audioType: voiceStore.config.voiceType
-      })
-      
-      // 等待AI回复
-      await waitForAIResponse()
-    } else {
-      // 如果没有WebSocket连接，模拟AI回复
-      setTimeout(() => {
-        chatStore.addCharacterMessage(`这是对"${inputMessage.value}"的模拟回复`)
-        chatStore.setTyping(false)
-      }, 1000)
-    }
-    
-    inputMessage.value = ''
+    // 发送消息到AI处理
+    await sendToAI(messageText)
   } catch (error) {
     console.error('发送消息失败:', error)
     ElMessage.error('发送消息失败，请重试')
@@ -287,18 +245,28 @@ const sendMessage = async () => {
   }
 }
 
-// 等待AI回复
-const waitForAIResponse = (): Promise<void> => {
-  return new Promise((resolve) => {
-    const checkResponse = () => {
-      if (!chatStore.isTyping) {
-        resolve()
-      } else {
-        setTimeout(checkResponse, 100)
-      }
-    }
-    checkResponse()
-  })
+// 发送消息到AI处理
+const sendToAI = async (text: string) => {
+  if (!voiceStore.wsConnected) {
+    ElMessage.error('WebSocket未连接，无法发送消息')
+    return
+  }
+  
+  chatStore.setTyping(true)
+  console.log("当前会话iD为：",chatStore.currentSession)
+  try {
+    // 通过语音store的WebSocket发送文本消息
+    voiceStore.sendTextMessage(
+      text,
+      currentCharacter.value!.id,
+      currentEmotion.value,
+      chatStore.currentSession
+    )
+  } catch (error) {
+    console.error('发送AI消息失败:', error)
+    ElMessage.error('发送消息失败，请重试')
+    chatStore.setTyping(false)
+  }
 }
 
 // 场景变更处理
@@ -310,7 +278,6 @@ const handleSceneChange = (scene: Scene) => {
 // 清空聊天
 const clearChat = () => {
   chatStore.clearSession()
-  chatMessagesStore.clearMessages()
   ElMessage.success('对话已清空')
 }
 
@@ -321,40 +288,60 @@ const goHome = () => {
 
 // 初始化函数
 const initialize = async () => {
-  const characterId = route.params.characterId as string
-  if (characterId) {
-    const character = characterStore.getCharacterById(characterId)
-    if (character) {
-      characterStore.setCurrentCharacter(character)
-      chatStore.createSession(characterId)
-      
-      // 设置默认场景
-      const scenes = sceneStore.getScenesForCharacter(characterId)
-      if (scenes.length > 0) {
-        sceneStore.setScene(scenes[0]!)
-      }
-    } else {
-      router.push('/')
-      return
-    }
+  const userId = localStorage.getItem('userId')
+  console.log(`Chat界面获取到userId ${userId}`)
+  const characterId = characterStore.currentCharacter?.id || route.params.characterId as string 
+  
+  if (!characterId) {
+    ElMessage.error('未指定角色')
+    router.push('/hall')
+    return
   }
-
-  // 设置WebSocket消息处理器
-  setupMessageHandlers()
-
-  // 连接WebSocket（可选，根据需要连接）
-  // try {
-  //   await wsStore.connect()
-  //   ElMessage.success('已连接到聊天服务器')
-  // } catch (error) {
-  //   console.warn('WebSocket连接失败，将使用模拟模式:', error)
-  // }
-
-  // 初始化语音功能
+  
   try {
+    // 确保角色数据存在
+    let character = characterStore.currentCharacter
+    if (!character || character.id !== characterId) {
+      character = characterStore.getCharacterById(characterId)
+      if (!character) {
+        ElMessage.error('角色不存在')
+        router.push('/hall')
+        return
+      }
+    }
+    
+    // 创建对话会话
+    // const session = await chatStore.createSession(userId, characterId)
+    // console.log('会话创建成功:', session)
+    //进入聊天页面，得先判断，currentSession当前会话ID是否为null，如果为null说明是新会话，不为bull就是就对话
+    if(chatStore.currentSession === null){
+      //获得后端返回的sessionID
+      const sessionId = await chatStore.createSession(userId, characterId)
+      //sessionId保存在前端，每次发送信息进行携带
+      chatStore.currentSession = sessionId.id;
+      console.log('会话创建成功: 获得SessionId值为', chatStore.currentSession)
+    }
+    
+    // 设置默认场景
+    const scenes = sceneStore.getScenesForCharacter(characterId)
+    if (scenes.length > 0) {
+      sceneStore.setScene(scenes[0])
+    }
+    
+    // 连接WebSocket
+    await voiceStore.connectWebSocket()
+    wsConnected.value = voiceStore.wsConnected
+    
+    // 设置消息处理器
+    setupMessageHandlers()
+    
+    // 初始化语音功能
     await voiceStore.fetchVoiceList()
+    
+    ElMessage.success('对话初始化成功')
   } catch (error) {
-    console.error('语音列表获取失败:', error)
+    console.error('初始化失败:', error)
+    ElMessage.error('初始化失败，请重试')
   }
 }
 
@@ -364,12 +351,18 @@ onMounted(() => {
 
 onUnmounted(() => {
   // 清理资源
-  wsStore.disconnect()
+
+  window.removeEventListener('voice-response', handleVoiceResponse)
+  voiceStore.disconnectWebSocket()
   chatStore.setTyping(false)
+  chatStore.clearSession()
+  //聊天结束将sessionId制空：
+
 })
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .chat-view {
   height: 100vh;
   display: grid;
@@ -529,66 +522,6 @@ onUnmounted(() => {
   height: 44px;
 }
 
-/* 配置面板 */
-.config-panel {
-  border: none;
-  background: transparent;
-}
-
-.config-panel :deep(.el-collapse-item) {
-  border: none;
-  background: transparent;
-}
-
-.config-panel :deep(.el-collapse-item__header) {
-  height: 48px;
-  line-height: 48px;
-  background: transparent;
-  border: none;
-  color: black;
-  padding: 0 24px;
-  font-size: 14px;
-}
-
-.config-panel :deep(.el-collapse-item__content) {
-  padding: 0 24px 20px 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.config-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.config-grid {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-}
-
-.config-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: minmax(100px, auto);
-  gap: 20px;
-}
-
-.config-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.config-item label {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
-  font-weight: 500;
-}
-
 /* 响应式设计 */
 @media (max-width: 1024px) {
   .floating-header,
@@ -622,11 +555,6 @@ onUnmounted(() => {
   
   .unified-input-area {
     padding: 16px 20px;
-  }
-  
-  .config-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
   }
 }
 

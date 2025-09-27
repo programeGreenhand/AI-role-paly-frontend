@@ -93,11 +93,14 @@ import { useVoiceStore } from '../../stores/voice'
 import { useAudioRecordingStore } from '../../stores/audioRecordingStore'
 import { useWebSocketStore } from '../../stores/webSocketStore'
 import { useChatMessagesStore } from '../../stores/chatMessagesStore'
+import { useChatStore } from '../../stores/chat'
 
+const chats = useChatStore()
 const voiceStore = useVoiceStore()
 const audioStore = useAudioRecordingStore()
 const wsStore = useWebSocketStore()
 const chatStore = useChatMessagesStore()
+
 
 // 本地状态
 const isProcessing = ref(false)
@@ -193,11 +196,12 @@ const handleStopRecording = async (): Promise<void> => {
   }
 }
 
-// 发送音频到服务器
+// 发送音频到服务器   这里是发送语音到后端！！！！
 const sendAudioToServer = (blob: Blob): Promise<void> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     
+    //这么高级？？？文件读取的时候自动转为base64?
     reader.onload = () => {
       try {
         const base64Data = (reader.result as string).split(',')[1]
@@ -206,7 +210,8 @@ const sendAudioToServer = (blob: Blob): Promise<void> => {
           type: 'audio',
           data: {
             audioData: base64Data,
-            format: 'webm',
+            format: 'map3',
+            sessionId:chats.currentSession
           },
           timestamp: Date.now(),
           messageId: wsStore.generateMessageId(),

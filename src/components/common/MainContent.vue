@@ -77,7 +77,7 @@ const filteredCharacters = computed(() => {
 
 const handleCharacterSelect = (character: Character) => {
   characterStore.setCurrentCharacter(character)
-  router.push(`/chat/${character.id}`)
+  router.push(`/chat`)
 }
 
 

@@ -10,6 +10,22 @@ const apiClient = axios.create({
   
 })
 
+apiClient.interceptors.request.use(
+    config=>{
+    // 可以在这里添加token等认证信息
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+
+    //@ts-ignore
+    error=>{
+        Promise.reject()
+    }
+)
+
 export class VoiceAPI {
   async getVoiceList(): Promise<VoiceItem[]> {
     try {

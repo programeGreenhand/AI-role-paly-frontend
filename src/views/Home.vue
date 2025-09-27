@@ -21,6 +21,7 @@
   <el-button @click="clickme9">取消收藏</el-button>
   <el-button @click="clickme10">创建对话会话</el-button>
   <el-button @click="clickme11">获取会话消息</el-button>
+  <el-button @click="clickme12">获取角色信息</el-button>
 
   <el-drawer  
     v-model="drawer"   
@@ -49,15 +50,15 @@
 
       <!-- 内容列表 -->
       <div class="content-list" >
-        <div v-for="item in character.characters" :key="item.id" class="list-item" @click="gotoRoleChat(item.id)">
+        <div v-for="item in session" :key="item.id" class="list-item" @click="gotoRoleChat(item)">
           <el-avatar 
             :size="40"
             :src="getroleImage(item.id)"
             
           />
           <div class="item-info">
-            <span class="item-name">{{ item.name }}</span>
-            <span class="item-time">2小时前</span>
+            <span class="item-name">{{ item.title}}</span>
+            <span class="item-time">{{ diffTime(item.last_message_at) }}小时前</span>
           </div>
 
 
@@ -99,11 +100,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCharacterStore } from '../stores/character'
 import axios from 'axios'
-const character = useCharacterStore()
+import server from '../api/session'
+import type { Character } from '../types/character'
+import { useChatStore } from '../stores/chat'
+const character = useCharacterStore()  
+const current_character = ref<Character>()
+//获取会话列表
+const session = ref(null);
+
 const router = useRouter()
 const searchQuery = ref('')
 const drawer = ref(false)
@@ -112,74 +120,98 @@ const getroleImage = (id:string) => {
   return new URL(`../assets/charactor/${id}/role/avatar.jpg`, import.meta.url).href;
 };
 
-const gotoRoleChat = function(id:string){
-  router.push(`/chat/${id}`)
+//这里进入的是历史会话，历史会话不需要进入就创建session，而是直接读取session
+const gotoRoleChat = async function(item){
+  //这里进去就不创建会话！！！！
+//   const characterId = "0fdb0471-0d0c-49ed-9164-4631426a2379";
+// // 使用模板字符串将变量直接嵌入URL路径
+//   const response = await axios.get(`http://localhost:8081/api/characters/${characterId}`);
+//   console.log(response.data)
+  console.log(`角色信息: ${item.character_id}`)
+  console.log(`信息: ${item.title}`)
+  const response = await server.get(`/api/characters/${item.character_id}`);
+  console.log("这个是响应结果 角色：",response.data)
+  current_character.value = response.data
+  console.log(current_character.value.name)
+  // console.log(`进入该角色聊天:${current_character.name}`)
+  character.setCurrentCharacter(current_character.value)
+  //进入会话前，先设置currentSessionid:
+  const chatStore = useChatStore();
+  chatStore.currentSession = item.id
+  router.push(`/chat`)
+}
+
+const diffTime = function(lastModify){
+  const now = new Date().getTime()
+  let last = new  Date(lastModify).getTime()
+  return Math.ceil((now - last)/(1000*60*60))
 }
 
 ////测试按钮
 const clickme = async ()=>{
-  const response = await axios.get('http://localhost:8081/api/scenes');
+  const response = await server.get('/api/scenes');
   console.log(response.data)
 }
 
 const clickme1 = async ()=>{
-  const response = await axios.get('http://localhost:8081/api/characters/public');
+  const response = await server.get('/api/characters/public');
   console.log(response.data)
 }
 
 const clickme3 = async ()=>{
-  const userId = '550e8400-e29b-41d4-a716-446655440000';
-// 使用模板字符串将变量直接嵌入URL路径
-  const response = await axios.get(`http://localhost:8081/api/user/${userId}/sessions`);
+  const userId = localStorage.getItem('userId');
+// 使用模板字符串将变量直接嵌入URL路径 /api/user/:userId/sessions
+  const response = await server.get(`/api/user/${userId}/sessions`);
   console.log(response.data)
 }
 
 const clickme4 = async ()=>{
-  const userId = '550e8400-e29b-41d4-a716-446655440000';
+  const userId = localStorage.getItem('userId');
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await axios.get(`http://localhost:8081/api/user/${userId}/favorites`);
+  const response = await server.get(`/api/user/${userId}/favorites`);
   console.log(response.data)
 }
 
 const clickme5 = async ()=>{
-  const userId = '550e8400-e29b-41d4-a716-446655440000';
+  const userId = localStorage.getItem('userId');
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await axios.get(`http://localhost:8081/api/user/${userId}/characters`);
+  const response = await server.get(`/api/user/${userId}/characters`);
   console.log(response.data)
 }
 
 const clickme6 = async ()=>{
-  const response = await axios.get('http://localhost:8081/api/characters/public');
+  const response = await server.get('/api/characters/public');
   console.log(response.data)
 }
 
 const clickme7 = async ()=>{
-  const response = await axios.get('http://localhost:8081/api/characters/custom');  //有问题
+  const response = await server.get('/api/characters/custom');  //有问题
   console.log(response.data)
 }
 
 const clickme8 = async ()=>{
-  const characterId = '0a269f10-3df4-489f-8ccb-4ae278f98455';
+  const userId = localStorage.getItem('userId');
+  const characterId = '1cc32b86-8802-43a0-b16e-ae80ecd19074';
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await axios.post(`http://localhost:8081/api/user/:userId/favorites/${characterId}`);
+  const response = await server.post(`/api/user/${userId}/favorites/${characterId}`);
   console.log(response.data)
 }
 
 
 const clickme9 = async ()=>{
-  const userId = '550e8400-e29b-41d4-a716-446655440000';
-   const characterId = '0a269f10-3df4-489f-8ccb-4ae278f98455'
+  const userId = localStorage.getItem('userId');
+   const characterId = '1cc32b86-8802-43a0-b16e-ae80ecd19074'
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await axios.delete(`http://localhost:8081/api/user/${userId}/favorites/${characterId}`);
+  const response = await server.delete(`/api/user/${userId}/favorites/${characterId}`);
   console.log(response.data)
 }
 
 const clickme10 = async ()=>{
-  const userId = '550e8400-e29b-41d4-a716-446655440000';
-// 使用模板字符串将变量直接嵌入URL路径 characterId, sceneId, title
-  const response = await axios.post(`http://localhost:8081/api/user/${userId}/sessions`,{
-    "characterId": "0a269f10-3df4-489f-8ccb-4ae278f98455",
-    "sceneId": "00bf1ea0-1380-4c98-8279-cb76cd7e8f2f",
+  const userId = localStorage.getItem('userId');
+// 使用模板字符串将变量直接嵌入URL路径 characterId, sceneId, title 创建对话会话
+  const response = await server.post(`/api/user/${userId}/sessions`,{
+    "characterId": "1cc32b86-8802-43a0-b16e-ae80ecd19074",
+    "sceneId": "0a6d74a4-5687-477b-b2bc-57b08642e5a2",
     'title':'hello world ni hao ya'
   });
   console.log(response.data)
@@ -187,14 +219,32 @@ const clickme10 = async ()=>{
 
 
 const clickme11 = async ()=>{
-  const sessionId = 1;
+  const sessionId = "0a6d74a4-5687-477b-b2bc-57b08642e5a2";
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await axios.get(`http://localhost:8081/api/sessions/${sessionId}/messages`);
+  const response = await server.get(`/api/sessions/${sessionId}/messages`);
   console.log(response.data)
 }
 
 
+const clickme12 = async ()=>{
+  const characterId = "1cc32b86-8802-43a0-b16e-ae80ecd19074";
+// 使用模板字符串将变量直接嵌入URL路径
+  const response = await server.get(`/api/characters/${characterId}`);
+  console.log(response.data)
+}
 
+
+// <el-button @click="clickme">展示场景列表</el-button>
+//   <el-button @click="clickme1">展示广场</el-button>
+//   <el-button @click="clickme3">个人对话历史</el-button>
+//   <el-button @click="clickme4">获取收藏AI</el-button>
+//   <el-button @click="clickme5">获取自建AI</el-button>
+//   <el-button @click="clickme6">自建AI广场</el-button>
+//   <el-button @click="clickme7">收藏智能体</el-button>
+//   <el-button @click="clickme8">收藏智能体</el-button>
+//   <el-button @click="clickme9">取消收藏</el-button>
+//   <el-button @click="clickme10">创建对话会话</el-button>
+//   <el-button @click="clickme11">获取会话消息</el-button>
 
 
 
@@ -242,6 +292,16 @@ const goShoppingTrolley = () => {
   drawer.value = false
 }
 
+//进入该页面就读取当前用户的历史会话
+onMounted(async ()=>{
+  const userId = localStorage.getItem('userId');
+ 
+  //使用模板字符串将变量直接嵌入URL路径 /api/user/:userId/sessions   查询用户的对话历史
+  const response = await server.get(`/api/user/${userId}/sessions`);
+  session.value = response.data
+  //通过session中得characterId 来获取角色信息:/api/characters/:characterId
+  
+})
 
 </script>
 

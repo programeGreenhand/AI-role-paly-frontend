@@ -11,19 +11,19 @@
     <div class="toolbar-section">
       <div class="tabs-container">
         <el-tabs v-model="activeTab" class="custom-tabs">
-          <el-tab-pane label="文件管理" name="files">
+          <el-tab-pane label="智能体收藏" name="favorites">
             <template #label>
               <span class="tab-label">
                 <i class="el-icon-folder"></i>
-                智能体
+                智能体收藏
               </span>
             </template>
           </el-tab-pane>
-          <el-tab-pane label="内容写作" name="writing">
+          <el-tab-pane label="自建智能体" name="custom">
             <template #label>
               <span class="tab-label">
                 <i class="el-icon-edit"></i>
-                聊天记录
+                自建智能体
               </span>
             </template>
           </el-tab-pane>
@@ -49,11 +49,11 @@
       <!-- 桌面端布局 -->
       <div class="cards-grid desktop-view" >
         <el-card 
-          v-for="agent in character.characters" 
+          v-for="agent in characterLists" 
           :key="agent.id"
           class="user-card"
           shadow="always"
-          @click="gotoRoleChat(agent.id)"
+          @click="gotoRoleChat(agent)"
         >
           
           <div class="card-content">
@@ -85,15 +85,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useCharacterStore } from '../stores/character'
 import { useRouter } from 'vue-router';
-import { getCharacterList } from '../api/character';
 import type { Character } from '../types/character';
+import axios from 'axios';
+import server from '../api/session';
 
 const characterLists = ref<Character[]>()
 const searchQuery = ref('');
-const activeTab = ref('files');
+const activeTab = ref('favorites');
 const currentSlide = ref(0);
 const character = useCharacterStore()
 const router = useRouter()
@@ -101,6 +102,29 @@ const router = useRouter()
 const getroleImage = (id:string) => {
   return new URL(`../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
 };
+
+watch(activeTab, async (newTab) => {
+
+  //   GET  /api/user/:userId/favorites - 获取用户收藏的智能体
+  // GET  /api/user/:userId/characters - 获取用户自建的智能体
+  
+  try {
+    const userId = localStorage.getItem('userId'); 
+    if (newTab === 'favorites') {
+      const response = await server.get(`/api/user/${userId}/favorites`)
+      characterLists.value = response.data
+      console.log('收藏智能体数据:', response.data)
+      // 这里处理收藏数据，比如更新对应的响应式变量
+    } else if (newTab === 'custom') {
+      const response = await server.get(`/api/user/${userId}/characters`)
+      characterLists.value = response.data
+      console.log('自建智能体数据:', response.data)
+      // 这里处理自建数据
+    }
+  } catch (error) {
+    console.error(`获取${newTab === 'favorites' ? '收藏' : '自建'}数据失败:`, error)
+  }
+}, { immediate: true }) // 设置immediate: true使得组件创建时立即执行一次
 
 
 
@@ -174,21 +198,13 @@ const handleScroll = (event: Event) => {
   }
 };
 
-const gotoRoleChat = (characterId: string) => {
-  router.push(`/chat/${characterId}`)
+const gotoRoleChat = (Role) => {
+  console.log("进入该角色聊天:",Role)
+  character.setCurrentCharacter(Role)
+  router.push(`/chat`)
 };
 
-//获取角色列表数据
-const LoadingCharacterList = async () => {
-  try {
-    const data = await getCharacterList(localStorage.getItem('userId') || '');
-    characterLists.value = [...data];
-    character.loadCharacterList(characterLists.value || [])
-    console.log('角色列表加载成功:', characterLists.value);
-  } catch (error) {
-    console.error('获取角色列表失败:', error);
-  }
-};
+
 
 // 初始化滚动事件
 onMounted(() => {
@@ -208,7 +224,7 @@ onUnmounted(() => {
 onMounted(()=>{
   //根据用户请求加载所拥有角色的信息：
   //初始化该页面的时候
-  LoadingCharacterList()
+
 })
 </script>
 

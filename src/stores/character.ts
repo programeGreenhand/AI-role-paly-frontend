@@ -85,6 +85,7 @@ export const useCharacterStore = defineStore('character', () => {
   ])
 
   const setCurrentCharacter = (character: Character) => {
+
     currentCharacter.value = character
   }
 

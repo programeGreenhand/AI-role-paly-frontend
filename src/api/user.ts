@@ -12,6 +12,7 @@ api.interceptors.request.use(
   config => {
     // 可以在这里添加token等认证信息
     const token = localStorage.getItem('token')
+    console.log('登录获取到token',token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -26,8 +27,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => {
     const res = response.data
-    
-    
+   
+    localStorage.setItem('token',res.data.token)
     return res.data
   },
   error => {
@@ -52,8 +53,8 @@ export function registerUser(data: {
 }
 
 // 获取用户信息
-export function getUserInfo() {
-  return api.get('/user/info')
+export function getUserId() {
+  return api.get('/user/Id')
 }
 
 // 退出登录

@@ -27,7 +27,7 @@ const isPlaying = ref(false)
 
 const togglePlay = async () => {
   if (isPlaying.value) return
-  
+  //这里也有？？、
   try {
     isPlaying.value = true
     await voiceStore.speak(props.text, props.voice!)

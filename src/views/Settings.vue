@@ -55,11 +55,27 @@
                   </el-radio-group>
                 </el-form-item>
                 
-                <el-form-item label="消息历史">
-                  <el-button @click="clearAllHistory" type="danger">
-                    清空所有对话历史
-                  </el-button>
-                </el-form-item>
+                <!-- <el-form-item label="添加场景">
+                  <el-form :model="self_scene">
+                    <el-form-item label="场景名">
+                      <el-input v-model="self_scene.name" placeholder="场景名"></el-input>
+                    </el-form-item>
+                    <el-form-item label="描述">
+                      <el-input v-model="self_scene.description" placeholder="描述"></el-input>
+                    </el-form-item>
+                    <el-form-item label="背景描述">
+                      <el-input v-model="self_scene.background_prompt" placeholder="背景描述"></el-input>
+                    </el-form-item>
+                    <el-form-item label="背景图">
+                      <el-upload action="">
+                        <el-button type=""></el-button>
+                      </el-upload>
+                    </el-form-item>
+                    <el-form-item label="风格">
+                      <el-input v-model="self_scene.category" placeholder="风格"></el-input>
+                    </el-form-item>
+                  </el-form>
+                </el-form-item> -->
               </el-form>
             </el-card>
           </el-tab-pane>
@@ -70,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref,watch } from 'vue'
+import { onMounted, ref,watch,reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useVoiceStore } from '../stores/voice'
 import { useCharacterStore } from '../stores/character'
@@ -81,6 +97,7 @@ import { ElMessage,ElMessageBox } from 'element-plus'
 import { useThemeStore } from '../stores/theme'
 import { voiceAPI } from '../api/voice'
 import type { VoiceItem } from '../types/voice'
+import type { Scene } from '../stores/scene'
 import axios from 'axios'
 const router = useRouter()
 const voiceStore = useVoiceStore()
@@ -90,6 +107,7 @@ const themeStore = useThemeStore()
 const activeTab = ref('voice')
 const themeMode = ref('light-blue')
 const lists = ref<VoiceItem[]>([])
+const self_scene = reactive<Scene>(null)
 
 watch(themeMode, (newMode) => {
   themeStore.setWhatColor(newMode);
@@ -101,8 +119,8 @@ watch(themeMode, (newMode) => {
 
 const handleCreateCharacter = (character: CustomCharacter) => {
   characterStore.addCustomCharacter(character) //此处只是存储在前端本地
-  //推送角色信息：
-  const userId = '550e8400-e29b-41d4-a716-446655440000';
+  //推送角色信息：POST /api/user/:userId/characters - 创建自建智能体
+  const userId = localStorage.getItem('userId');
   const res = axios.post(`http://localhost:8081/api/user/${userId}/characters`, character)
   ElMessage.success('自定义角色创建成功！')
 }
@@ -129,7 +147,7 @@ const goHome = () => {
 
 const voiceConfig = ref<VoiceItem>({} as VoiceItem); // 不再初始化为 undefined，提供一个空对象（根据你的 VoiceItem 类型调整）
 
-// 监听语音配置变化 (如果需要)
+// 监听语音配置变化 (如果需要) //这一出使用到了/stores/voice.ts --- api/websocket
 watch(voiceConfig, (newConfig) => {
   voiceStore.updateConfig(newConfig);
   // 保存到localStorage

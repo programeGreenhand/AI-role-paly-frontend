@@ -22,6 +22,7 @@ export interface WSTextMessage extends WSMessage {
     text: string
     characterId: string
     emotion?: string
+    sessionId:string
   }
 }
 

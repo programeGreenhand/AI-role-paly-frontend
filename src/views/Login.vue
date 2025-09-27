@@ -4,14 +4,16 @@ import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 //@ts-ignore
 import { loginUser } from '../api/user'
-
+import {AuthStore} from '../stores/user'
+import type { User } from '../types/user'
 const router = useRouter()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+const auth = AuthStore()
 
-const loginForm = reactive({
-  username: '',
-  password: '',
+const loginForm = reactive<User>({
+  userName: '',
+  passwordHash: '',
   remember: false
 })
 
@@ -37,8 +39,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         // @ts-ignore
         const res = await loginUser(loginForm)
         console.log('登录成功:', loginForm)
+        console.log("获得用户:",res)
+        localStorage.setItem("userId",res.userId)
+       
+        auth.saveUser(loginForm)
         // 登录成功后跳转
-        router.push('/detection')
+        router.push('/hall')
       } catch (error) {
         console.error('登录失败:', error)
       } finally {

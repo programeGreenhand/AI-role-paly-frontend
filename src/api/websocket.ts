@@ -1,6 +1,6 @@
 // import type { WSMessage, WSAudioMessage, WSTextMessage, VoiceConfig } from '../types/websocket'
 import type { WSMessage, WSAudioMessage, WSTextMessage,  } from '../types/websocket'
-
+import { useChatStore } from '../stores/chat'
 export class ChatWebSocket {
   private ws: WebSocket | null = null
   private wsUrl: string
@@ -12,7 +12,10 @@ export class ChatWebSocket {
 
   constructor(wsUrl: string) {
     this.wsUrl = wsUrl
+    
   }
+
+  
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -80,21 +83,21 @@ export class ChatWebSocket {
   onMessage(handler: (message: WSMessage) => void): () => void {
     const id = Math.random().toString(36)
     this.messageHandlers.set(id, handler)
-    
+    const chatStore = useChatStore()
     // 返回取消监听的函数
     return () => {
       this.messageHandlers.delete(id)
     }
   }
 
-  sendAudio(audioData: string, format: string = 'wav'): void {
+  sendAudio(audioData: string, format: string = 'wav',sessionId:string): void {
     if (!this.isConnected()) {
       throw new Error('WebSocket not connected')
     }
 
     const message: WSAudioMessage = {
       type: 'audio',
-      data: { audioData, format },
+      data: { audioData, format,sessionId },
       timestamp: Date.now(),
       messageId: this.generateMessageId()
     }
@@ -102,16 +105,17 @@ export class ChatWebSocket {
     this.ws!.send(JSON.stringify(message))
   }
 
-  sendText(text: string, characterId: string, emotion?: string): void {
+  sendText(text: string, characterId: string, emotion?: string,sessionId:string): void {
     if (!this.isConnected()) {
       throw new Error('WebSocket not connected')
     }
 
     const message: WSTextMessage = {
       type: 'text',
-      data: { text, characterId, emotion },
+      data: { text, characterId, emotion, sessionId},
       timestamp: Date.now(),
-      messageId: this.generateMessageId()
+      messageId: this.generateMessageId(),
+
     }
 
     this.ws!.send(JSON.stringify(message))
