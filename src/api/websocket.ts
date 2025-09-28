@@ -10,10 +10,11 @@ export class ChatWebSocket {
   private reconnectDelay = 1000
   private messageHandlers: Map<string, (message: WSMessage) => void> = new Map()
   private isConnecting = false
+  private voiceStore: ReturnType<typeof useVoiceStore>
 
   constructor(wsUrl: string) {
     this.wsUrl = wsUrl
-    
+    this.voiceStore = useVoiceStore()
   }
 
   
@@ -97,15 +98,16 @@ export class ChatWebSocket {
     
      const voiceStore = useVoiceStore()
     const chatStore = useChatStore()
-    const sessionId = chatStore.currentSession.id
-    console.log('txt sessionId',sessionId)
+    const sessionId = chatStore.currentSession.id || JSON.parse(localStorage.getItem('sessionId')).id
+    const voiceType = localStorage.getItem('selectedVoiceType')
+    console.log('sendAudio sessionId',sessionId)
     if (!this.isConnected()) {
       throw new Error('WebSocket not connected')
     }
 
     const message: WSAudioMessage = {
       type: 'audio',
-      data: { audioData, format,sessionId,voiceType:voiceStore.config.voiceType },
+      data: { audioData, format,sessionId,voiceType:voiceType },
       timestamp: Date.now(),
       messageId: this.generateMessageId()
     }
@@ -114,17 +116,18 @@ export class ChatWebSocket {
   }
 
   sendText(text: string, characterId: string, emotion?: string): void {
-     const voiceStore = useVoiceStore()
+    
     const chatStore = useChatStore()
-    const sessionId = chatStore.currentSession.id
-    console.log('audio sessionId',sessionId)
+    const sessionId = chatStore.currentSession.id || JSON.parse(localStorage.getItem('sessionId')).id
+    const voiceType = localStorage.getItem('selectedVoiceType')
+    console.log('sendTxtAudio sessionId',sessionId)
     if (!this.isConnected()) {
       throw new Error('WebSocket not connected')
     }
 
     const message: WSTextMessage = {
       type: 'text',
-      data: { text, characterId, emotion, sessionId,voiceType:voiceStore.config.voiceType},
+      data: { text, characterId, emotion, sessionId,voiceType:voiceType},
       timestamp: Date.now(),
       messageId: this.generateMessageId(),
 

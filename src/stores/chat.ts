@@ -114,12 +114,12 @@ server.interceptors.response.use(
   // 保存消息到后端
   const saveMessage = async (message: Omit<Message, 'id' | 'created_at'>): Promise<Message | null> => {
     try {
-      if (!currentSession.value?.id) {
+      if (!JSON.parse(localStorage.getItem('sessionId')).id) {
         console.error('当前会话ID不存在');
         return null;
       }
 
-      const response = await server.post(`/sessions/${currentSession.value.id}/messages`, {
+      const response = await server.post(`/sessions/${JSON.parse(localStorage.getItem('sessionId')).id}/messages`, {
         sender: message.sender,
         content: message.content,
         message_type: message.message_type,

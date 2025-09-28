@@ -44,10 +44,12 @@
     <!-- 音色选择 -->
     <div v-if="voiceStore.voiceList.length > 0" class="voice-selector">
       <el-select
-        v-model="voiceStore.config.voiceType"
+        v-model="voiceType"
         placeholder="选择音色"
         size="small"
         style="width: 150px"
+        :value="voiceType"
+        @change="handleVoiceTypeChange"
       >
         <el-option
           v-for="voice in voiceStore.voiceList"
@@ -83,17 +85,31 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Microphone, VideoPause, Loading } from '@element-plus/icons-vue'
 import { useVoiceStore } from '../../stores/voice'
-import { useChatStore } from '../../stores/chat'
 
 const voiceStore = useVoiceStore()
-const chatStore = useChatStore()
-
-// 本地状态
 const errorMessage = ref('')
+const voiceType = ref('')
+
+const handleVoiceTypeChange = (value: string) => {
+  voiceType.value = value
+  localStorage.setItem('selectedVoiceType', value)
+  console.log('音色变化!!!', value)
+}
+
+// 可以保留 watch 作为备用监听
+watch(voiceType, (newValue) => {
+  console.log('watch 监听到音色变化:', newValue)
+})
+
+const emit = defineEmits<{
+  voiceInput: [text: string, audioUrl?: string]
+  voiceStart: []
+  voiceEnd: []
+}>()
 
 // 连接 WebSocket
 const handleConnect = async (): Promise<void> => {
@@ -126,6 +142,7 @@ const handleStartRecording = async (): Promise<void> => {
 
   try {
     await voiceStore.startRecording()
+    emit('voiceStart')
     errorMessage.value = ''
     ElMessage.info('录音已开始，请开始说话...')
   } catch (error) {
@@ -155,41 +172,26 @@ const handleStopRecording = async (): Promise<void> => {
   if (!voiceStore.isRecording) return
 
   voiceStore.stopRecording()
+  emit('voiceEnd')
   ElMessage.info('录音已停止，正在处理音频...')
 }
 
 // 设置消息处理器
 const setupMessageHandlers = () => {
-  // 处理语音识别结果
+  // 处理语音识别结果 - 只监听用户语音输入
   window.addEventListener('user-voice-input', (event: any) => {
     const { text, audioUrl } = event.detail
     if (text) {
       emit('voiceInput', text, audioUrl)
     }
   })
-
-  // 处理AI响应
-  window.addEventListener('voice-response', (event: any) => {
-    const { text, audioUrl } = event.detail
-    emit('voiceInput', text, audioUrl)
-  })
 }
-
-const emit = defineEmits<{
-  voiceInput: [text: string, audioUrl?: string]
-}>()
 
 onMounted(async () => {
   try {
-    // 设置消息处理器
     setupMessageHandlers()
-    
-    // 连接 WebSocket
     await handleConnect()
-    
-    // 获取语音列表
     await voiceStore.fetchVoiceList()
-    
   } catch (error) {
     console.error('语音功能初始化失败:', error)
     ElMessage.error('语音功能初始化失败')
@@ -197,17 +199,13 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  // 清理事件监听器
   window.removeEventListener('user-voice-input', () => {})
-  window.removeEventListener('voice-response', () => {})
-  
-  // 清理资源
   voiceStore.disconnectWebSocket()
 })
 </script>
 
 <style scoped>
-/* 样式保持不变，与之前相同 */
+/* 样式保持不变 */
 .voice-recorder {
   display: flex;
   flex-direction: column;
@@ -355,7 +353,6 @@ onUnmounted(() => {
   50% { height: 20px; }
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .voice-recorder {
     padding: 12px;

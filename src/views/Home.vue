@@ -10,7 +10,7 @@
     />
   </div>
 
-  <el-button @click="clickme">展示场景列表</el-button>
+  <!-- <el-button @click="clickme">展示场景列表</el-button>
   <el-button @click="clickme1">展示广场</el-button>
   <el-button @click="clickme3">个人对话历史</el-button>
   <el-button @click="clickme4">获取收藏AI</el-button>
@@ -21,7 +21,7 @@
   <el-button @click="clickme9">取消收藏</el-button>
   <el-button @click="clickme10">创建对话会话</el-button>
   <el-button @click="clickme11">获取会话消息</el-button>
-  <el-button @click="clickme12">获取角色信息</el-button>
+  <el-button @click="clickme12">获取角色信息</el-button> -->
 
   <el-drawer  
     v-model="drawer"   

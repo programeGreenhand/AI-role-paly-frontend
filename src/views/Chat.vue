@@ -314,6 +314,10 @@ const initialize = async () => {
       //sessionId保存在前端，每次发送信息进行携带
       chatStore.currentSession.id = sessionId.id;
       console.log('会话创建成功: 获得SessionId值为', chatStore.currentSession.id)
+      localStorage.setItem('sessionId',JSON.stringify(sessionId))
+    }else{
+      const item = localStorage.getItem('sessionId')
+      console.log('这是旧对话: 获得SessionId值为', chatStore.currentSession.id || JSON.parse(item).id )
     }
     
     // 设置默认场景
