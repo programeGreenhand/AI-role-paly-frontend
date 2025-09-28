@@ -36,6 +36,7 @@ export interface WSResponseMessage extends WSMessage {
     text: string
     audioUrl?: string
     emotion?: string
+    audioData?:string
   }
 }
 

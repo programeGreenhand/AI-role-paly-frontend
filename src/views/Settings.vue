@@ -99,6 +99,7 @@ import { voiceAPI } from '../api/voice'
 import type { VoiceItem } from '../types/voice'
 import type { Scene } from '../stores/scene'
 import axios from 'axios'
+import server from '../api/session'
 const router = useRouter()
 const voiceStore = useVoiceStore()
 const characterStore = useCharacterStore()
@@ -121,7 +122,7 @@ const handleCreateCharacter = (character: CustomCharacter) => {
   characterStore.addCustomCharacter(character) //此处只是存储在前端本地
   //推送角色信息：POST /api/user/:userId/characters - 创建自建智能体
   const userId = localStorage.getItem('userId');
-  const res = axios.post(`http://localhost:8081/api/user/${userId}/characters`, character)
+  const res = server.post(`/api/user/${userId}/characters`, character)
   ElMessage.success('自定义角色创建成功！')
 }
 

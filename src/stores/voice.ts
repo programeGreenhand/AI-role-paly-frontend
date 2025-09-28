@@ -108,9 +108,9 @@ export const useVoiceStore = defineStore('voice', () => {
   })
   window.dispatchEvent(event)
 
-   if (message.data.audioUrl) {
+   if (message.data.audioData) {
       try {
-        await playAudio(message.data.audioUrl)
+        await playAudio(message.data.audioData)
         console.log('音频播放完成')
       } catch (error) {
         console.error('音频播放失败:', error)
@@ -118,16 +118,6 @@ export const useVoiceStore = defineStore('voice', () => {
       }
     }
   
-  // 自动播放音频
-  if (message.data.audioUrl) {
-    try {
-      await playAudio(message.data.audioUrl)
-      console.log('音频播放完成')
-    } catch (error) {
-      console.error('音频播放失败:', error)
-      error.value = '音频播放失败: ' + (error instanceof Error ? error.message : '未知错误')
-    }
-  }
 }
 
   const handleErrorMessage = (message: WSMessage) => {
@@ -311,98 +301,35 @@ export const useVoiceStore = defineStore('voice', () => {
   // 播放音频
   // 播放音频 - 支持 base64 和 URL
 // 播放音频 - 增强版本，处理各种格式
-const playAudio = (audioSource: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    console.log('播放音频，源数据长度:', audioSource.length)
-    console.log('源数据前50字符:', audioSource.substring(0, 50))
-    
-    let audioUrl = audioSource
-    let shouldRevokeUrl = false
-    
-    try {
-      // 处理各种音频数据格式
-      if (audioSource.startsWith('//')) {
-        // 处理以 // 开头的 base64 数据
-        console.log('处理以 // 开头的音频数据')
-        const mimeType = 'audio/wav' // 默认假设为 wav 格式
-        audioUrl = `data:${mimeType};base64,${audioSource.substring(2)}`
-        shouldRevokeUrl = true
-      } else if (!audioSource.startsWith('data:') && !audioSource.startsWith('http') && !audioSource.startsWith('blob:')) {
-        // 处理纯 base64 数据（没有前缀）
-        console.log('处理纯 base64 音频数据')
-        const mimeType = 'audio/wav' // 默认假设为 wav 格式
-        audioUrl = `data:${mimeType};base64,${audioSource}`
-        shouldRevokeUrl = true
-      } else if (audioSource.startsWith('data:')) {
-        // 已经是 data URL，直接使用
-        console.log('使用现有的 data URL')
-        shouldRevokeUrl = false
-      } else {
-        // HTTP URL 或 blob URL
-        console.log('使用 URL:', audioSource)
-        shouldRevokeUrl = false
-      }
-      
-      console.log('最终音频 URL 前100字符:', audioUrl.substring(0, 100))
-      
-      const audio = new Audio(audioUrl)
-      
-      audio.onloadeddata = () => {
-        console.log('音频数据加载完成')
-        console.log('音频时长:', audio.duration)
-        console.log('音频格式:', audio.src.substring(0, 50))
-      }
-      
-      audio.oncanplay = () => {
-        console.log('音频可以播放')
-      }
-      
-      audio.oncanplaythrough = () => {
-        console.log('音频可以流畅播放')
-      }
-      
-      audio.onended = () => {
-        console.log('音频播放结束')
-        if (shouldRevokeUrl && audioUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(audioUrl)
-        }
-        resolve()
-      }
-      
-      audio.onerror = (error) => {
-        console.error('音频播放错误:', error)
-        console.error('音频错误详情:', audio.error)
-        if (shouldRevokeUrl && audioUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(audioUrl)
-        }
-        reject(new Error(`音频播放失败: ${audio.error?.message || '未知错误'}`))
-      }
-      
-      audio.onstalled = () => {
-        console.warn('音频数据加载停滞')
-      }
-      
-      // 处理自动播放
-      const playPromise = audio.play()
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('音频开始播放成功')
-          })
-          .catch(error => {
-            console.error('自动播放被阻止:', error)
-            // 提供用户交互后重试的选项
-            reject(new Error('播放被浏览器阻止，请点击页面后重试'))
-          })
-      }
-      
-    } catch (error) {
-      console.error('音频播放初始化失败:', error)
-      reject(new Error('音频播放初始化失败'))
+const playAudio = (base64Data) => {
+  try {
+    // 检查是否为完整的 Data URL
+    let pureBase64 = base64Data;
+    if (base64Data.includes(',')) {
+      pureBase64 = base64Data.split(',')[1];
     }
-  })
-}
+
+    // 验证 Base64 格式（正则去除非字母数字字符）
+    const sanitized = pureBase64.replace(/[^A-Za-z0-9+/=]/g, '');
+    if (sanitized.length % 4 !== 0) {
+      throw new Error("Base64 字符串长度无效");
+    }
+
+    // 解码并播放
+    const byteCharacters = atob(sanitized);
+    const byteArrays = new Uint8Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteArrays[i] = byteCharacters.charCodeAt(i);
+    }
+    const blob = new Blob([byteArrays], { type: 'audio/wav' });
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+    audio.play().catch(e => console.error("播放失败:", e));
+  } catch (error) {
+    console.error("Base64 解码失败:", error);
+    // 显示用户友好的错误提示
+  }
+};
 
   // 更新配置
   const updateConfig = (newConfig: Partial<VoiceConfig>) => {

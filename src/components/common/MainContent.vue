@@ -24,21 +24,21 @@
       <div class="features-section">
         <h2>功能特色</h2>
         <el-row :gutter="20">
-          <el-col :span="8">
+          <el-col :xs="24" :sm="24" :md="8" :lg="8">
             <el-card class="feature-card">
               <el-icon size="40" color="#409EFF"><ChatDotSquare /></el-icon>
               <h3>智能对话</h3>
               <p>与AI角色进行自然流畅的对话交流</p>
             </el-card>
           </el-col>
-          <el-col :span="8">
+          <el-col :xs="24" :sm="24" :md="8" :lg="8">
             <el-card class="feature-card">
               <el-icon size="40" color="#67C23A"><Microphone /></el-icon>
               <h3>语音交互</h3>
               <p>支持语音输入和语音回复，沉浸式体验</p>
             </el-card>
           </el-col>
-          <el-col :span="8">
+          <el-col :xs="24" :sm="24" :md="8" :lg="8">
             <el-card class="feature-card">
               <el-icon size="65" color="#E6A23C"><Setting /></el-icon>
               <h3>个性定制</h3>

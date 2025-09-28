@@ -162,19 +162,19 @@ const setupMessageHandlers = () => {
 
 // 处理AI语音回复事件
 const handleVoiceResponse = (event: CustomEvent) => {
-  const { text, audioUrl, emotion } = event.detail
+  const { text, audioUrl, emotion,audioData } = event.detail
   
   console.log('收到AI回复:', { text, audioUrl, emotion })
   
   if (text) {
     // 添加AI回复消息
-    chatStore.addCharacterMessage(text, emotion || 'neutral', audioUrl)
+    chatStore.addCharacterMessage(text, emotion || 'neutral', audioData)
     
     // 如果有音频且启用了语音播放，自动播放
-    if (audioUrl && voiceStore.config.enabled) {
+    if (audioData && voiceStore.config.enabled) {
       setTimeout(async () => {
         try {
-          await voiceStore.playAudio(audioUrl)
+          await voiceStore.playAudio(audioData)
         } catch (error) {
           console.error('播放AI回复音频失败:', error)
         }
