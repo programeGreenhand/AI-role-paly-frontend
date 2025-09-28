@@ -1,7 +1,7 @@
-🎤 智能语音对话系统 - 后端服务
+# AI角色对话系统
 ✨ 让对话更自然，让交流更智能 - 基于 WebSocket 的实时语音交互后端引擎
 
-🚀 快速开始
+## 🚀 快速开始
 📋 前置要求
 Node.js 16.0+
 
@@ -13,179 +13,176 @@ npm 或 yarn
 
 🛠️ 安装与运行
 bash
-# 1. 克隆项目
-git clone <your-repo-url>
-cd voice-chat-backend
+# --- 后端服务
+## 1. 克隆项目
+git clone git@github.com:programeGreenhand/AI-role-paly-backend.git
+cd AI-role-paly-backend
 
-# 2. 安装依赖
+## 2. 安装依赖
 npm install
 
-# 3. 配置环境变量
-cp .env.example .env
-# 编辑 .env 文件，配置你的服务器设置
+## 3. 启动开发服务器
+node server.js
 
-# 4. 启动开发服务器
+# --- 前端服务
+git clone git@github.com:programeGreenhand/AI-role-paly-frontend.git
+cd AI-role-paly-frontend
+
+## 2. 安装依赖
+npm install
+
+## 3. 启动开发服务器
 npm run dev
 
-# 5. 或者构建生产版本
-npm run build
-npm start
-🎯 核心功能
-🎙️ 实时语音录制 - 支持浏览器原生录音
+# 🎯 核心功能
+1.🎙️ 实时语音录制与对话 - 支持浏览器原生录音
 
-🔄 WebSocket 双向通信 - 低延迟实时数据传输
+2.💬 多模式对话支持 - 可选文本对话/语音对话
 
-🎵 多音色支持 - 动态切换语音合成音色
+3.🎭 智能角色系统 - 🤖 角色收藏与管理 🎨 角色自定义创建
 
-💬 智能会话管理 - 多轮对话上下文维护
+4.🔄 WebSocket 双向通信 - 低延迟实时数据传输
 
-📱 响应式设计 - 完美适配桌面与移动端
+5.🎵 多音色支持 - 动态切换语音合成音色
 
-🏗️ 架构设计
-📦 模块规格
-1. WebSocket 通信层 (ChatWebSocket)
-typescript
-🌐 核心职责：管理实时双向通信
+6.💬 智能会话管理 - 多轮对话上下文维护，精准记忆聊天记录，继续聊天是问题
+
+7.📱 响应式设计 - 完美适配桌面与移动端
+
+8.🎨 优美界面设计 - 🏞️ 沉浸式场景系统 🌄 多场景切换 🌟 沉浸式对话体验
+
+# 🏗️ 架构设计
+## 📦 模块规格
+### 1. WebSocket 通信层 
+#### typescript
+##### 🌐 核心职责：管理实时双向通信
+
 ├── 📡 连接管理（自动重连、心跳检测）
+
 ├── 📨 消息路由（音频/文本消息分发）
+
 ├── 🔄 状态同步（连接状态、会话管理）
+
 └── 🛡️ 错误处理（网络异常、数据校验）
-2. 语音处理层 (VoiceStore)
-typescript
-🎤 核心职责：语音输入输出处理
+
+### 2. 语音处理层
+#### typescript
+##### 🎤 核心职责：语音输入输出处理
 ├── ⏺️ 录音控制（开始/停止/状态管理）
+
 ├── 🔊 音频处理（格式转换、数据编码）
+
 ├── 🎚️ 音色配置（动态切换、参数管理）
+
 └── 📊 状态指示（录音中、处理中、错误状态）
-3. 会话管理层 (ChatStore)
-typescript
-💬 核心职责：对话上下文维护
+### 3. 会话管理层
+#### typescript
+##### 💬 核心职责：对话上下文维护
 ├── 🆔 会话标识（唯一会话ID生成）
+
 ├── 📝 消息历史（对话记录存储）
-├── 🎭 角色管理（角色ID、情感参数）
+
 └── 🔄 上下文维护（多轮对话记忆）
-🔗 数据流架构
-text
-🎤 用户语音输入
-    ↓
-🔊 VoiceStore (录音处理)
-    ↓  
-🌐 ChatWebSocket (音频数据传输)
-    ↓
-🖥️ 后端语音服务 (ASR + TTS)
-    ↓
-🌐 ChatWebSocket (文本+音频返回)  
-    ↓
-💬 ChatStore (会话更新)
-    ↓
-🔊 VoiceStore (音频播放)
-    ↓  
-👂 用户听到回复
-🎨 消息协议设计
-📨 音频消息格式
-typescript
-interface WSAudioMessage {
-  type: 'audio'
-  messageId: string
-  timestamp: number
-  data: {
-    audioData: string      // Base64编码的音频数据
-    format: string         // 音频格式 (webm/wav)
-    sessionId: string      // 会话标识
-    voiceType: string      // 🎵 音色类型
-  }
-}
-📝 文本消息格式
-typescript
-interface WSTextMessage {
-  type: 'text'
-  messageId: string
-  timestamp: number  
-  data: {
-    text: string          // 输入文本
-    characterId: string   // 角色标识
-    emotion?: string      // 🎭 情感参数
-    sessionId: string     // 会话标识
-    voiceType: string     // 🎵 音色类型
-  }
-}
-👥 团队分工
-模块	负责人	主要职责
-🎤 语音处理	Alex	录音控制、音频编解码、音色管理
-🌐 网络通信	Taylor	WebSocket连接、消息协议、错误处理
-💬 会话管理	Jordan	会话维护、上下文管理、状态同步
-🎨 前端集成	Casey	Vue组件、用户交互、响应式设计
-🎥 Demo 演示
-🎬 演示亮点
-🎙️ 实时语音对话 - 按住说话，松开发送
+### 4. 角色管理层
+#### typescript
+##### 🎤 核心职责：语音输入输出处理
+├── ⏺️ 角色收藏（开始/停止/状态管理）
 
-🎵 动态音色切换 - 下拉选择不同音色
+└── 🔊 角色自定义（格式转换、数据编码）
 
-🔗 智能重连机制 - 网络中断自动恢复
+## 🔗 数据流架构
+### text
+#### 🎤/📕 用户语音/文本输入 → 🔊 VoiceStore (录音处理) → 🌐 ChatWebSocket (音频数据传输) → 🖥️ 后端语音服务 (ASR + TTS) 
+ #### → 🌐 ChatWebSocket (文本+音频返回) → 💬 ChatStore (会话更新) → 🔊 VoiceStore (音频播放) → 👂 用户听到回复
 
-📱 多端适配 - 桌面端与移动端完美体验
+## 🎨 消息协议设计
+### 🎯 字段说明
+#### 🔧 基础信息
+| 字段 | 类型 | 描述 
+|-------|-------|-------|
+| type | audio | 消息类型标识 |
+| messageId | string | 唯一消息ID，格式: msg_{timestamp}_{random} | 
+| timestamp | number | Unix时间戳(毫秒) | 
 
-⚡ 低延迟响应 - 流畅的对话交互体验
+#### 🔊 音频数据 (Audio Data)
+| 字段 |	类型 | 格式 | 描述
+|-------|-------|-------|-------|
+| audioData | string | Base64 | 编码后的音频二进制数据，支持data URL格式 |
+| format | string | webm 、 wav 、 mp3 | 音频容器格式，推荐使用 webm |
+| sessionId | string | UUID | 关联的对话会话标识符 |
+| voiceType | string | 七牛云音色ID | 用于TTS回复的音色类型 |
 
-🎯 使用场景
-在线客服 - 智能语音客服系统
 
-语音助手 - 个人语音助理应用
+# 👥 团队分工
 
-语言学习 - 语音对话练习平台
+| 模块 | 负责人 | 主要职责 |
+|-------|-------|-------|
+| 语音处理 | 余加福 | 录音控制、音频编解码、音色管理 |
+| 网络通信 | 程宇 | WebSocket连接、消息协议、错误处理 |
+| 会话管理 | 余加福 | 会话维护、上下文管理、状态同步、提示词构建、对话场景设计与实现 |
+| 角色管理 | 程宇 | 角色管理功能设计、角色场景背景设计 |
+| 前端集成 | 余加福 | Vue组件、用户交互设计、响应式设计 |
+| 登录注册 | 程宇 | 系统登入登出、登入状态的控制设计 |
 
-娱乐聊天 - 智能角色语音互动
+# 🎥 Demo 演示
 
-🔧 技术栈
-前端框架: Vue 3 + TypeScript
+## 🎬 演示亮点
 
-状态管理: Pinia
+#### 🎙️ 实时语音对话 - 按住说话，松开发送
 
-UI组件: Element Plus
+#### 🎵 动态音色切换 - 下拉选择不同音色
 
-实时通信: WebSocket
+#### 🔗 智能重连机制 - 网络中断自动恢复
 
-构建工具: Vite
+#### 📱 多端适配 - 桌面端与移动端完美体验
 
-语音处理: Web Audio API
+#### ⚡ 低延迟响应 - 流畅的对话交互体验
 
-📈 性能指标
-🚀 连接建立: < 100ms
+# 🎯 使用场景
 
-🎙️ 语音延迟: < 200ms
+#### 语音助手 - 个人语音助理应用
 
-🔄 端到端响应: < 1s
+#### 语言学习 - 语音对话练习平台
 
-📊 并发支持: 1000+ 连接
+#### 娱乐聊天 - 智能角色语音互动
 
-🤝 贡献指南
-我们欢迎所有形式的贡献！请阅读我们的 贡献指南 开始参与。
+# 🔧 技术栈
+## 前端框架: Vue 3 + TypeScript + pinia + Element-plus 
 
-🍴 Fork 本项目
+#### 状态管理: Pinia
 
-🌿 创建功能分支 (git checkout -b feature/AmazingFeature)
+#### UI组件: Element Plus
 
-💾 提交更改 (git commit -m 'Add some AmazingFeature')
+#### 实时通信: WebSocket
 
-📤 推送到分支 (git push origin feature/AmazingFeature)
+#### 构建工具: Vite
 
-🔃 开启 Pull Request
+#### 语音录制: Web Audio API
 
-📄 许可证
-本项目采用 MIT 许可证 - 查看 LICENSE 文件了解详情。
+# 📈 性能指标
+#### 🚀 连接建立: < 100ms
 
-🆘 支持
-遇到问题？请：
+#### 🎙️ 语音延迟: < 200ms
 
-📖 查看 常见问题解答
+#### 🔄 端到端响应: < 1s
 
-🐛 提交 Issue
+#### 📊 并发支持: 1000+ 连接
 
-💬 加入我们的 Discussions
+# 🤝 贡献指南
+### 我们欢迎所有形式的贡献！请阅读我们的 贡献指南 开始参与。
+
+
+
+## 🆘 支持
+#### 遇到问题？请联系该邮箱: yujiafushinc@163.com
+
+#### 🐛 提交 Issue
+
+#### 💬 加入我们的 Discussions
 
 <div align="center">
-⭐ 如果这个项目对你有帮助，请给我们一个 star！ ⭐
+ ⭐ 如果这个项目对你有帮助，请给我们一个 star！ ⭐
 
-让智能语音对话触手可及 🎤✨
+ 让智能语音对话触手可及 🎤✨
 
 </div>
