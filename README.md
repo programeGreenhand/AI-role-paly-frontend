@@ -125,7 +125,7 @@ npm run dev
 | 前端集成 | 余加福 | Vue组件、用户交互设计、响应式设计 |
 | 登录注册 | 程宇 | 系统登入登出、登入状态的控制设计 |
 
-# 🎥 Demo 演示
+# 🎥 Demo 演示 demo链接 https://www.bilibili.com/video/BV1XYnozUE7C/?vd_source=0d3465ca3e8304b42e54780a38cc2a75
 
 ## 🎬 演示亮点
 
