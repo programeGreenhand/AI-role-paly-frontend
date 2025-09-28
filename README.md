@@ -15,7 +15,8 @@ npm 或 yarn
 bash
 # --- 后端服务
 ## 1. 克隆项目
-git clone git@github.com:programeGreenhand/AI-role-paly-backend.git
+git clone [git@github.com:programeGreenhand/AI-role-paly-backend.git](https://github.com/C-Yu010124/AI-role-play-backend.git)
+
 cd AI-role-paly-backend
 
 ## 2. 安装依赖
@@ -126,8 +127,11 @@ npm run dev
 | 登录注册 | 程宇 | 系统登入登出、登入状态的控制设计 |
 
 # 🎥 Demo 演示
-### 👉https://www.bilibili.com/video/BV1XYnozUE7C/?vd_source=0d3465ca3e8304b42e54780a38cc2a75
+### 👉https://www.bilibili.com/video/BV1XYnozUE7C/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75
 
+###多端展示！！！
+
+### 👉https://www.bilibili.com/video/BV1zknZzaEKn/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75
 ## 🎬 演示亮点
 
 #### 🎙️ 实时语音对话 - 按住说话，松开发送👆
