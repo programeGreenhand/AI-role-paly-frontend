@@ -19,12 +19,6 @@ git clone https://github.com/C-Yu010124/AI-role-play-backend.git
 
 cd AI-role-paly-backend
 
-## 2. 安装依赖
-npm install
-
-## 3. 启动开发服务器
-node server.js
-
 # --- 前端服务 
 ## 前端代码源码详见master
 git clone git@github.com:programeGreenhand/AI-role-paly-frontend.git
