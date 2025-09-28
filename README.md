@@ -15,7 +15,7 @@ npm 或 yarn
 bash
 # --- 后端服务
 ## 1. 克隆项目
-git clone [git@github.com:programeGreenhand/AI-role-paly-backend.git](https://github.com/C-Yu010124/AI-role-play-backend.git)
+git clone https://github.com/C-Yu010124/AI-role-play-backend.git
 
 cd AI-role-paly-backend
 
@@ -28,6 +28,7 @@ node server.js
 # --- 前端服务 
 ## 前端代码源码详见master
 git clone git@github.com:programeGreenhand/AI-role-paly-frontend.git
+
 cd AI-role-paly-frontend
 
 ## 2. 安装依赖
@@ -172,6 +173,14 @@ npm run dev
 #### 构建工具: Vite
 
 #### 语音录制: Web Audio API
+
+## 后端框架: Springboot + Mybatis-plus + mysql + websocket 
+
+#### 数据库操作: Mybatis-plus
+
+#### 对话存储: mysql
+
+#### 实时通信: WebSocket
 
 # 📈 性能指标
 #### 🚀 连接建立: 快
