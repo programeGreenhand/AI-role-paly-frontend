@@ -126,7 +126,7 @@ npm run dev
 | 登录注册 | 程宇 | 系统登入登出、登入状态的控制设计 |
 
 # 🎥 Demo 演示
-###https://www.bilibili.com/video/BV1XYnozUE7C/?vd_source=0d3465ca3e8304b42e54780a38cc2a75
+### 👉https://www.bilibili.com/video/BV1XYnozUE7C/?vd_source=0d3465ca3e8304b42e54780a38cc2a75
 
 ## 🎬 演示亮点
 
