@@ -180,8 +180,8 @@ npm run dev
 #### 🐛 提交 Issue
 
 #### 💬 加入我们的 Discussions
-# 详细文档请查看该飞书文档 
-# https://acng2aaaai4l.feishu.cn/wiki/UqETwAJjjiDjNdk0w8Lcr4yPn8g?from=from_copylink
+# 详细文档请查看
+
 
 <div align="center">
  ⭐ 如果这个项目对你有帮助，请给我们一个 star！ ⭐
