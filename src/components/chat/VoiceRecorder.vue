@@ -1,12 +1,9 @@
 <template>
   <div class="voice-recorder">
-    <!-- 录音按钮 -->
+    <!-- 录音按钮 - 改为点击开始/结束录音 -->
     <el-button
       :type="voiceStore.isRecording ? 'danger' : 'primary'"
-      @mousedown="handleStartRecording"
-      @mouseup="handleStopRecording"
-      @touchstart="handleStartRecording"
-      @touchend="handleStopRecording"
+      @click="toggleRecording"
       circle
       size="large"
       class="record-button"
@@ -32,7 +29,7 @@
       <div class="wave-form">
         <div class="wave-bar" v-for="i in 5" :key="i"></div>
       </div>
-      <span class="recording-text">松开发送语音</span>
+      <span class="recording-text">点击结束录音</span>
     </div>
 
     <!-- 处理状态指示器 -->
@@ -94,15 +91,9 @@ const voiceStore = useVoiceStore()
 const errorMessage = ref('')
 const voiceType = ref('')
 
-const handleVoiceTypeChange = (value: string) => {
-  voiceType.value = value
-  localStorage.setItem('selectedVoiceType', value)
-  console.log('音色变化!!!', value)
-}
-
-// 可以保留 watch 作为备用监听
 watch(voiceType, (newValue) => {
-  console.log('watch 监听到音色变化:', newValue)
+  localStorage.setItem('selectedVoiceType', newValue)
+  console.log('音色变化!!!',newValue)
 })
 
 const emit = defineEmits<{
@@ -110,6 +101,47 @@ const emit = defineEmits<{
   voiceStart: []
   voiceEnd: []
 }>()
+
+const toggleRecording = async (): Promise<void> => {
+  if (voiceStore.isRecording) {
+    // Stop recording
+    voiceStore.stopRecording()
+    emit('voiceEnd')
+    ElMessage.info('录音已停止，正在处理音频...')
+  } else {
+    // Start recording
+    if (!voiceStore.wsConnected) {
+      ElMessage.warning('请先连接到服务器')
+      return
+    }
+
+    if (voiceStore.isProcessing) {
+      ElMessage.warning('正在处理上一个请求，请稍候...')
+      return
+    }
+
+    try {
+      await voiceStore.startRecording()
+      emit('voiceStart')
+      errorMessage.value = ''
+      ElMessage.info('录音已开始，请开始说话...')
+    } catch (error) {
+      // ... error handling remains the same
+    }
+  }
+}
+
+const handleStartRecording = async (): Promise<void> => {
+  if (!voiceStore.isRecording) {
+    toggleRecording()
+  }
+}
+
+const handleStopRecording = async (): Promise<void> => {
+  if (voiceStore.isRecording) {
+    toggleRecording()
+  }
+}
 
 // 连接 WebSocket
 const handleConnect = async (): Promise<void> => {
@@ -129,52 +161,52 @@ const handleConnect = async (): Promise<void> => {
 }
 
 // 开始录音
-const handleStartRecording = async (): Promise<void> => {
-  if (!voiceStore.wsConnected) {
-    ElMessage.warning('请先连接到服务器')
-    return
-  }
+// const handleStartRecording = async (): Promise<void> => {
+//   if (!voiceStore.wsConnected) {
+//     ElMessage.warning('请先连接到服务器')
+//     return
+//   }
 
-  if (voiceStore.isProcessing) {
-    ElMessage.warning('正在处理上一个请求，请稍候...')
-    return
-  }
+//   if (voiceStore.isProcessing) {
+//     ElMessage.warning('正在处理上一个请求，请稍候...')
+//     return
+//   }
 
-  try {
-    await voiceStore.startRecording()
-    emit('voiceStart')
-    errorMessage.value = ''
-    ElMessage.info('录音已开始，请开始说话...')
-  } catch (error) {
-    let errorMsg = '无法访问麦克风'
-    if (error instanceof Error) {
-      switch(error.name) {
-        case 'NotAllowedError':
-          errorMsg = '麦克风访问权限被拒绝，请允许浏览器访问麦克风'
-          break
-        case 'NotFoundError':
-          errorMsg = '未找到麦克风设备'
-          break
-        case 'NotSupportedError':
-          errorMsg = '浏览器不支持录音功能'
-          break
-        default:
-          errorMsg = `录音错误: ${error.message}`
-      }
-    }
-    errorMessage.value = errorMsg
-    ElMessage.error(errorMsg)
-  }
-}
+//   try {
+//     await voiceStore.startRecording()
+//     emit('voiceStart')
+//     errorMessage.value = ''
+//     ElMessage.info('录音已开始，请开始说话...')
+//   } catch (error) {
+//     let errorMsg = '无法访问麦克风'
+//     if (error instanceof Error) {
+//       switch(error.name) {
+//         case 'NotAllowedError':
+//           errorMsg = '麦克风访问权限被拒绝，请允许浏览器访问麦克风'
+//           break
+//         case 'NotFoundError':
+//           errorMsg = '未找到麦克风设备'
+//           break
+//         case 'NotSupportedError':
+//           errorMsg = '浏览器不支持录音功能'
+//           break
+//         default:
+//           errorMsg = `录音错误: ${error.message}`
+//       }
+//     }
+//     errorMessage.value = errorMsg
+//     ElMessage.error(errorMsg)
+//   }
+// }
 
-// 停止录音
-const handleStopRecording = async (): Promise<void> => {
-  if (!voiceStore.isRecording) return
+// // 停止录音
+// const handleStopRecording = async (): Promise<void> => {
+//   if (!voiceStore.isRecording) return
 
-  voiceStore.stopRecording()
-  emit('voiceEnd')
-  ElMessage.info('录音已停止，正在处理音频...')
-}
+//   voiceStore.stopRecording()
+//   emit('voiceEnd')
+//   ElMessage.info('录音已停止，正在处理音频...')
+// }
 
 // 设置消息处理器
 const setupMessageHandlers = () => {

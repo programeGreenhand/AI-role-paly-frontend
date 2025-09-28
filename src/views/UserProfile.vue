@@ -33,7 +33,7 @@
       <div class="search-container">
         <el-input
           v-model="searchQuery"
-          placeholder="搜索用户资料..."
+          placeholder="搜索智能体..."
           class="search-input"
           clearable
         >
@@ -47,18 +47,16 @@
     <!-- 内容区域 -->
     <div class="content-section">
       <!-- 桌面端布局 -->
-      <div class="cards-grid desktop-view" >
+      <div class="cards-grid desktop-view" v-if="!isMobile">
         <el-card 
-          v-for="agent in characterLists" 
+          v-for="agent in filteredAgents" 
           :key="agent.id"
           class="user-card"
           shadow="always"
           @click="gotoRoleChat(agent)"
         >
-          
           <div class="card-content">
-            <!-- <el-image src="/src/assets/charactor/harry-potter/role/avatar.jpg"/> -->
-            <el-image :src=getroleImage(agent.id) />
+            <el-image :src="getroleImage(agent.id)" />
             <div class="info-item" >
               <i class="el-icon-location"></i>
               <span class="info-value">
@@ -68,16 +66,53 @@
               </span>
             </div>
           </div>
-
         </el-card>
       </div>
       
-      
+      <!-- 移动端布局 - 水平滚动 -->
+      <div class="mobile-view" v-if="isMobile">
+        <div class="mobile-scroll-container">
+          <div class="cards-scroll-wrapper" ref="scrollContainer" @scroll="handleScroll">
+            <div class="cards-scroll-track">
+              <el-card 
+                v-for="agent in filteredAgents" 
+                :key="agent.id"
+                class="user-card mobile-card"
+                shadow="always"
+                @click="gotoRoleChat(agent)"
+              >
+                <div class="card-content">
+                  <el-image :src="getroleImage(agent.id)" />
+                  <div class="info-item" >
+                    <i class="el-icon-location"></i>
+                    <span class="info-value">
+                      <h3>
+                        <strong>{{ agent.name }}</strong>
+                      </h3>
+                    </span>
+                  </div>
+                </div>
+              </el-card>
+            </div>
+          </div>
+          
+          <!-- 滚动指示器 -->
+          <div class="scroll-indicator" v-if="filteredAgents.length > 0">
+            <div 
+              v-for="(_, index) in Math.ceil(filteredAgents.length / cardsPerView)" 
+              :key="index"
+              class="indicator-dot"
+              :class="{ active: Math.floor(currentSlide / cardsPerView) === index }"
+              @click="scrollToSlide(index * cardsPerView)"
+            ></div>
+          </div>
+        </div>
+      </div>
       
       <!-- 空状态 -->
-      <div v-if="filteredUsers.length === 0" class="empty-state">
+      <div v-if="filteredAgents.length === 0" class="empty-state">
         <i class="el-icon-search"></i>
-        <h3>没有找到匹配的用户</h3>
+        <h3>没有找到匹配的智能体</h3>
         <p>尝试调整搜索条件</p>
       </div>
     </div>
@@ -89,113 +124,87 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useCharacterStore } from '../stores/character'
 import { useRouter } from 'vue-router';
 import type { Character } from '../types/character';
-import axios from 'axios';
 import server from '../api/session';
 
-const characterLists = ref<Character[]>()
+const characterLists = ref<Character[]>([])
 const searchQuery = ref('');
 const activeTab = ref('favorites');
 const currentSlide = ref(0);
 const character = useCharacterStore()
 const router = useRouter()
+const isMobile = ref(false);
+const cardsPerView = ref(1);
+const scrollContainer = ref<HTMLElement | null>(null);
+
+// 检测是否为移动设备
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768;
+  // 根据屏幕宽度计算每个视图中可以显示的卡片数量
+  if (window.innerWidth <= 480) {
+    cardsPerView.value = 1;
+  } else if (window.innerWidth <= 768) {
+    cardsPerView.value = 2;
+  } else {
+    cardsPerView.value = 3;
+  }
+};
 
 const getroleImage = (id:string) => {
   return new URL(`../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
 };
 
 watch(activeTab, async (newTab) => {
-
-  //   GET  /api/user/:userId/favorites - 获取用户收藏的智能体
-  // GET  /api/user/:userId/characters - 获取用户自建的智能体
-  
   try {
     const userId = localStorage.getItem('userId'); 
     if (newTab === 'favorites') {
       const response = await server.get(`/api/user/${userId}/favorites`)
       characterLists.value = response.data
       console.log('收藏智能体数据:', response.data)
-      // 这里处理收藏数据，比如更新对应的响应式变量
     } else if (newTab === 'custom') {
       const response = await server.get(`/api/user/${userId}/characters`)
       characterLists.value = response.data
       console.log('自建智能体数据:', response.data)
-      // 这里处理自建数据
     }
   } catch (error) {
     console.error(`获取${newTab === 'favorites' ? '收藏' : '自建'}数据失败:`, error)
   }
-}, { immediate: true }) // 设置immediate: true使得组件创建时立即执行一次
+}, { immediate: true })
 
-
-
-// 扩展的用户数据
-const source = ref([
-  { 
-    id: 1, 
-    name: '张三', 
-    email: 'zhangsan@example.com',
-    phone: '138-0000-0001',
-    department: '技术部'
-  },
-  { 
-    id: 2, 
-    name: '李四', 
-    email: 'lisi@example.com',
-    phone: '138-0000-0002',
-    department: '产品部'
-  },
-  { 
-    id: 3, 
-    name: '王五', 
-    email: 'wangwu@example.com',
-    phone: '138-0000-0003',
-    department: '设计部'
-  },
-  { 
-    id: 4, 
-    name: '赵六', 
-    email: 'zhaoliu@example.com',
-    phone: '138-0000-0004',
-    department: '运营部'
-  },
-  { 
-    id: 5, 
-    name: '孙七', 
-    email: 'sunqi@example.com',
-    phone: '138-0000-0005',
-    department: '市场部'
-  },
-  { 
-    id: 6, 
-    name: '周八', 
-    email: 'zhouba@example.com',
-    phone: '138-0000-0006',
-    department: '人事部'
-  }
-]);
-
-// 搜索过滤
-const filteredUsers = computed(() => {
+// 筛选智能体
+const filteredAgents = computed(() => {
   if (!searchQuery.value) {
-    return source.value;
+    return characterLists.value || [];
   }
-  return source.value.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    user.department.toLowerCase().includes(searchQuery.value.toLowerCase())
+  return (characterLists.value || []).filter(agent => 
+    agent.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
 
 // 处理移动端滚动
 const handleScroll = (event: Event) => {
-  const scrollContainer = event.target as HTMLElement;
-  const scrollLeft = scrollContainer.scrollLeft;
-  const cardWidth = scrollContainer.querySelector('.mobile-card')?.clientWidth || 350;
-  const newSlide = Math.round(scrollLeft / cardWidth);
+  const container = event.target as HTMLElement;
+  const scrollLeft = container.scrollLeft;
+  const cardWidth = container.querySelector('.mobile-card')?.clientWidth || 300;
+  const cardMargin = 16; // 卡片间距
+  const newSlide = Math.round(scrollLeft / (cardWidth + cardMargin));
   
   if (newSlide !== currentSlide.value) {
     currentSlide.value = newSlide;
   }
+};
+
+// 滚动到指定卡片
+const scrollToSlide = (slideIndex: number) => {
+  if (!scrollContainer.value) return;
+  
+  const cardWidth = scrollContainer.value.querySelector('.mobile-card')?.clientWidth || 300;
+  const cardMargin = 16; // 卡片间距
+  const scrollPosition = slideIndex * (cardWidth + cardMargin);
+  
+  scrollContainer.value.scrollTo({
+    left: scrollPosition,
+    behavior: 'smooth'
+  });
 };
 
 const gotoRoleChat = (Role) => {
@@ -204,28 +213,26 @@ const gotoRoleChat = (Role) => {
   router.push(`/chat`)
 };
 
-
-
-// 初始化滚动事件
+// 初始化
 onMounted(() => {
-  const scrollContainer = document.querySelector('.cards-scroll-wrapper');
-  if (scrollContainer) {
-    scrollContainer.addEventListener('scroll', handleScroll);
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  
+  const container = document.querySelector('.cards-scroll-wrapper');
+  if (container) {
+    scrollContainer.value = container as HTMLElement;
+    container.addEventListener('scroll', handleScroll);
   }
 });
 
 onUnmounted(() => {
-  const scrollContainer = document.querySelector('.cards-scroll-wrapper');
-  if (scrollContainer) {
-    scrollContainer.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('resize', checkMobile);
+  
+  const container = document.querySelector('.cards-scroll-wrapper');
+  if (container) {
+    container.removeEventListener('scroll', handleScroll);
   }
 });
-
-onMounted(()=>{
-  //根据用户请求加载所拥有角色的信息：
-  //初始化该页面的时候
-
-})
 </script>
 
 <style scoped>
@@ -251,12 +258,6 @@ onMounted(()=>{
   font-weight: 700;
   color: #2c3e50;
   margin: 0 0 0.5rem 0;
-}
-
-.page-subtitle {
-  font-size: 1.1rem;
-  color: #7f8c8d;
-  margin: 0;
 }
 
 /* 工具栏区域 */
@@ -309,10 +310,6 @@ onMounted(()=>{
 
 /* 桌面端布局 */
 .desktop-view {
-  display: block;
-}
-
-.cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
@@ -336,6 +333,7 @@ onMounted(()=>{
   -ms-overflow-style: none; /* IE and Edge */
   padding-bottom: 1rem;
   margin-bottom: 1rem;
+  -webkit-overflow-scrolling: touch; /* 增加iOS滚动体验 */
 }
 
 .cards-scroll-wrapper::-webkit-scrollbar {
@@ -350,6 +348,7 @@ onMounted(()=>{
 
 .mobile-card {
   min-width: 300px;
+  width: 300px;
   flex-shrink: 0;
 }
 
@@ -358,7 +357,7 @@ onMounted(()=>{
   display: flex;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 .indicator-dot {
@@ -367,6 +366,7 @@ onMounted(()=>{
   border-radius: 50%;
   background: #dcdfe6;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .indicator-dot.active {
@@ -380,6 +380,7 @@ onMounted(()=>{
   overflow: hidden;
   transition: all 0.3s ease;
   border: none;
+  cursor: pointer;
 }
 
 .user-card:hover {
@@ -387,72 +388,18 @@ onMounted(()=>{
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
-.user-card :deep(.el-card__header) {
-  color: white;
-  padding: 1rem;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: white;
-}
-
-.user-basic-info {
-  flex: 1;
-}
-
-.user-name {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.user-id {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
 .card-content {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .info-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-top: 0.75rem;
   padding: 0.5rem;
   border-radius: 6px;
   background: #f8f9fa;
-}
-
-.info-item:last-child {
-  margin-bottom: 0;
-}
-
-.info-item i {
-  color: #667eea;
-  width: 16px;
-}
-
-.info-label {
-  font-weight: 600;
-  color: #2c3e50;
-  min-width: 40px;
 }
 
 .info-value {
@@ -460,15 +407,9 @@ onMounted(()=>{
   flex: 1;
 }
 
-.user-card :deep(.el-card__footer) {
-  background: #f8f9fa;
-  padding: 1rem;
-}
-
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
+.info-value h3 {
+  margin: 0;
+  font-size: 1.1rem;
 }
 
 /* 空状态 */
@@ -499,10 +440,6 @@ onMounted(()=>{
   .user-profile-container {
     padding: 1.5rem;
   }
-  
-  .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
 }
 
 @media (max-width: 768px) {
@@ -517,6 +454,7 @@ onMounted(()=>{
   .toolbar-section {
     flex-direction: column;
     align-items: stretch;
+    padding: 1rem;
   }
   
   .search-input {
@@ -531,29 +469,6 @@ onMounted(()=>{
   .mobile-view {
     display: block;
   }
-  
-  .mobile-card {
-    min-width: 280px;
-  }
-  
-  .card-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
-  }
-  
-  .card-actions {
-    flex-direction: column;
-  }
-  
-  .card-actions .el-button {
-    width: 100%;
-    margin: 0 0 0.5rem 0;
-  }
-  
-  .card-actions .el-button:last-child {
-    margin-bottom: 0;
-  }
 }
 
 @media (max-width: 480px) {
@@ -566,25 +481,16 @@ onMounted(()=>{
   }
   
   .toolbar-section {
-    padding: 1rem;
+    padding: 0.75rem;
   }
   
   .mobile-card {
     min-width: 260px;
+    width: 260px;
   }
   
-  .info-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-  
-  .info-label {
+  .tabs-container {
     min-width: auto;
-  }
-  
-  .cards-scroll-track {
-    padding: 0 0.5rem;
   }
 }
 </style>

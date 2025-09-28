@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed, onMounted } from 'vue'
 import type { Message } from '../../types/chat'
 import type { Character } from '../../types/character'
 import MessageBubble from './MessageBubble.vue'
@@ -68,12 +68,27 @@ const getMessageKey = (message: Message) => {
   return `msg_${content.substring(0, 10)}_${timestamp}`
 }
 
-const scrollToBottom = () => {
+// 改进的滚动到底部函数
+const scrollToBottom = (force = false) => {
   nextTick(() => {
     if (chatContainerRef.value) {
-      chatContainerRef.value.scrollTop = chatContainerRef.value.scrollHeight
+      const container = chatContainerRef.value
+      const isNearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 100
+      
+      // 如果用户在底部附近或强制滚动，则滚动到底部
+      if (isNearBottom || force) {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        })
+      }
     }
   })
+}
+
+// 强制滚动到底部（用于新消息）
+const forceScrollToBottom = () => {
+  scrollToBottom(true)
 }
 
 const handlePlayAudio = async (message: Message) => {
@@ -138,21 +153,38 @@ const speakWithWebAPI = (text: string) => {
 // 监听消息变化，自动滚动到底部
 watch(() => props.messages, (newMessages, oldMessages) => {
   if (newMessages && oldMessages && newMessages.length !== oldMessages.length) {
-    scrollToBottom()
+    // 新消息时强制滚动到底部
+    setTimeout(() => {
+      forceScrollToBottom()
+    }, 100)
   }
 }, { deep: true })
 
 // 监听输入状态变化
 watch(() => props.isTyping, (newVal, oldVal) => {
-  if (oldVal && !newVal) {
-    // 当停止输入时滚动到底部
-    setTimeout(scrollToBottom, 100)
+  if (newVal && !oldVal) {
+    // 开始输入时滚动到底部
+    setTimeout(() => {
+      forceScrollToBottom()
+    }, 100)
+  } else if (oldVal && !newVal) {
+    // 停止输入时滚动到底部
+    setTimeout(() => {
+      forceScrollToBottom()
+    }, 200)
   }
 })
 
-// 初始化时滚动到底部
-nextTick(() => {
-  scrollToBottom()
+// 组件挂载时滚动到底部
+onMounted(() => {
+  nextTick(() => {
+    forceScrollToBottom()
+  })
+})
+
+// 暴露滚动方法给父组件
+defineExpose({
+  scrollToBottom: forceScrollToBottom
 })
 </script>
 
