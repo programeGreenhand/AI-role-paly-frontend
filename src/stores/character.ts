@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Character, CustomCharacter } from '../types/character'
+import { createCharacter } from '../api/character'
 
 export const useCharacterStore = defineStore('character', () => {
   const characters = ref<Character[]>([
@@ -98,12 +99,33 @@ export const useCharacterStore = defineStore('character', () => {
   };
 
   //这里添加新角色！！！！！
-  const addCustomCharacter = (character: CustomCharacter) => {
-    customCharacters.value.push({
-      ...character,
-      id: `custom-${Date.now()}`,
-      isCustom: true
-    })
+  const addCustomCharacter = async (character: CustomCharacter) => {
+    try {
+      // 获取当前用户ID
+      const userId = character.created_by || localStorage.getItem('userId')
+      if (!userId) {
+        throw new Error('用户未登录，无法创建角色')
+      }
+      
+      // 调用后端API创建角色
+      const response = await createCharacter(character, userId)
+      
+      // 如果后端返回成功，将角色添加到本地列表
+      if (response && response.success) {
+        const newCharacter = {
+          ...character,
+          id: response.data?.characterId || `custom-${Date.now()}`,
+          isCustom: true
+        }
+        customCharacters.value.push(newCharacter)
+        return newCharacter
+      } else {
+        throw new Error(response?.message || '创建角色失败')
+      }
+    } catch (error) {
+      console.error('创建角色失败:', error)
+      throw error
+    }
   }
 
   const getCharacterById = (id: string) => {

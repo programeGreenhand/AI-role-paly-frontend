@@ -6,47 +6,71 @@
       </el-form-item>
       
       <el-form-item label="角色描述" prop="description">
-        <el-input
-          v-model="customCharacter.description"
-          type="textarea"
-          placeholder="描述角色的基本信息"
+        <el-input 
+          v-model="customCharacter.description" 
+          type="textarea" 
           :rows="3"
+          placeholder="输入角色描述" 
         />
       </el-form-item>
       
+      <el-form-item label="头像URL" prop="avatar_url">
+        <el-input v-model="customCharacter.avatar_url" placeholder="输入角色头像URL" />
+      </el-form-item>
+      
       <el-form-item label="角色背景" prop="background">
-        <el-input
-          v-model="customCharacter.background"
-          type="textarea"
-          placeholder="角色的详细背景故事"
-          :rows="4"
+        <el-input 
+          v-model="customCharacter.background" 
+          type="textarea" 
+          :rows="3"
+          placeholder="输入角色背景故事" 
         />
       </el-form-item>
       
       <el-form-item label="性格特征" prop="personality">
-        <el-tag
-          v-for="trait in customCharacter.personality"
-          :key="trait"
-          closable
-          @close="removeTrait(trait)"
-          class="trait-tag"
-        >
-          {{ trait }}
-        </el-tag>
-        <el-input
-          v-if="showTraitInput"
-          ref="traitInputRef"
-          v-model="newTrait"
-          size="small"
-          @keyup.enter="addTrait"
-          @blur="addTrait"
-          class="trait-input"
-        />
-        <el-button v-else size="small" @click="showAddTrait">+ 添加特征</el-button>
+        <div class="personality-tags">
+          <el-tag 
+            v-for="(trait, index) in customCharacter.personality" 
+            :key="index" 
+            closable 
+            @close="removeTrait(trait)"
+          >
+            {{ trait }}
+          </el-tag>
+          <el-input
+            v-if="showTraitInput"
+            ref="traitInputRef"
+            v-model="newTrait"
+            size="small"
+            @keyup.enter="addTrait"
+            @blur="addTrait"
+            class="trait-input"
+            placeholder="输入性格特征"
+          />
+          <el-button v-else size="small" @click="showAddTrait">+ 添加特征</el-button>
+        </div>
       </el-form-item>
       
-      <el-form-item label="语音风格">
-        <el-select v-model="customCharacter.voice" placeholder="选择语音风格">
+      <el-form-item label="性格特征" prop="personality">
+        <el-input 
+          v-model="customCharacter.personality" 
+          type="textarea" 
+          :rows="2"
+          placeholder="输入角色性格特征（如：温柔、幽默、理性等）" 
+        />
+      </el-form-item>
+      
+      <el-form-item label="角色背景" prop="background">
+        <el-input 
+          v-model="customCharacter.background" 
+          type="textarea" 
+          :rows="3"
+          placeholder="输入角色背景故事" 
+        />
+      </el-form-item>
+      
+      <el-form-item label="语音类型">
+        <el-select v-model="customCharacter.voice_type" placeholder="选择语音类型">
           <el-option label="温和" value="gentle" />
           <el-option label="活泼" value="energetic" />
           <el-option label="沉稳" value="calm" />
@@ -64,22 +88,39 @@
       </el-form-item>
       
       <el-form-item label="技能设置">
-        <div v-for="(skill, index) in customCharacter.skills" :key="index" class="skill-item">
-          <el-input
-            v-model="skill.name"
-            placeholder="技能名称"
-            size="small"
-            class="skill-name"
-          />
-          <el-input
-            v-model="skill.description"
-            placeholder="技能描述"
-            size="small"
-            class="skill-desc"
-          />
-          <el-button size="small" type="danger" @click="removeSkill(index)">删除</el-button>
-        </div>
-        <el-button size="small" @click="addSkill">添加技能</el-button>
+        <el-input 
+          v-model="customCharacter.skills" 
+          type="textarea" 
+          :rows="2"
+          placeholder="输入角色技能，用逗号分隔（如：编程,写作,绘画）" 
+        />
+      </el-form-item>
+      
+      <el-form-item label="情感倾向">
+        <el-input 
+          v-model="customCharacter.emotional_tendency" 
+          type="textarea" 
+          :rows="2"
+          placeholder="输入角色情感倾向（如：乐观、悲观、中性等）" 
+        />
+      </el-form-item>
+      
+      <el-form-item label="系统提示词">
+        <el-input 
+          v-model="customCharacter.system_prompt" 
+          type="textarea" 
+          :rows="3"
+          placeholder="输入系统提示词（可选，默认为角色背景）" 
+        />
+      </el-form-item>
+      
+      <el-form-item label="是否公开">
+        <el-switch v-model="customCharacter.is_public" />
+        <span style="margin-left: 8px;">{{ customCharacter.is_public ? '公开' : '私有' }}</span>
+      </el-form-item>
+      
+      <el-form-item label="作者">
+        <el-input v-model="customCharacter.author" placeholder="输入作者名称（可选）" />
       </el-form-item>
       
       <el-form-item>
@@ -92,82 +133,75 @@
 
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
-import type { CustomCharacter } from '../../types/character'
+import { ElMessage } from 'element-plus'
+import { AuthStore } from '../../stores/user'
+import { useCharacterStore } from '../../stores/character'
 
 const emit = defineEmits<{
-  create: [character: CustomCharacter]
+  create: [character: any]
 }>()
 
 const formRef = ref()
-const traitInputRef = ref()
-const showTraitInput = ref(false)
-const newTrait = ref('')
 
-const customCharacter = reactive<CustomCharacter>({
-  isCustom: true,
+// 初始化store
+const userStore = AuthStore()
+const characterStore = useCharacterStore()
+
+// 根据后端API字段定义角色数据
+const customCharacter = reactive({
   name: '',
   description: '',
+  avatar_url: '',
+  personality: '',
   background: '',
-  personality: [],
-  voice: '',
+  voice_type: '',
   theme: '',
-  skills: [],
-  emotionalTendency: {
-    default: 'neutral',
-    happy: 0.3,
-    sad: 0.2,
-    angry: 0.1,
-    excited: 0.3,
-    calm: 0.4
-  }
+  skills: '',
+  emotional_tendency: '',
+  system_prompt: '',
+  is_custom: true,
+  is_public: false,
+  author: '',
+  created_by: ''
 })
 
 const rules = {
   name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-  description: [{ required: true, message: '请输入角色描述', trigger: 'blur' }],
-  background: [{ required: true, message: '请输入角色背景', trigger: 'blur' }],
-  personality: [{ required: true, message: '请至少添加一个性格特征', trigger: 'change' }]
+  description: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
 }
 
-const showAddTrait = () => {
-  showTraitInput.value = true
-  nextTick(() => {
-    traitInputRef.value?.focus()
-  })
-}
-
-const addTrait = () => {
-  if (newTrait.value && !customCharacter.personality?.includes(newTrait.value)) {
-    customCharacter.personality?.push(newTrait.value)
-  }
-  newTrait.value = ''
-  showTraitInput.value = false
-}
-
-const removeTrait = (trait: string) => {
-  const index = customCharacter.personality?.indexOf(trait)
-  if (index! > -1) {
-    customCharacter.personality?.splice(index!, 1)
-  }
-}
-
-const addSkill = () => {
-  customCharacter.skills?.push({
-    name: '',
-    description: '',
-    trigger: []
-  })
-}
-
-const removeSkill = (index: number) => {
-  customCharacter.skills?.splice(index, 1)
-}
-
-const createCharacter = () => {
-  formRef.value?.validate((valid: boolean) => {
+const createCharacter = async () => {
+  formRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      emit('create', { ...customCharacter })
-      resetForm()
+      try {
+        // 准备角色数据，确保与后端API字段完全匹配
+        const characterData = {
+          name: customCharacter.name,
+          description: customCharacter.description,
+          avatar_url: customCharacter.avatar_url || null,
+          personality: customCharacter.personality || null,
+          background: customCharacter.background || null,
+          voice_type: customCharacter.voice_type || null,
+          theme: customCharacter.theme || null,
+          skills: customCharacter.skills ? customCharacter.skills.split(',').map(skill => skill.trim()) : [],
+          emotional_tendency: customCharacter.emotional_tendency || {},
+          system_prompt: customCharacter.system_prompt || customCharacter.background,
+          is_custom: true,
+          is_public: customCharacter.is_public || false,
+          author: customCharacter.author || userStore.currentUser?.username || 'Custom',
+          created_by: userStore.currentUser?.id || null
+        }
+        
+        // 调用API创建角色
+        await characterStore.addCustomCharacter(characterData)
+        
+        ElMessage.success('角色创建成功！')
+        emit('create', characterData)
+        resetForm()
+      } catch (error) {
+        console.error('创建角色失败:', error)
+        ElMessage.error('创建角色失败，请重试')
+      }
     }
   })
 }
@@ -176,11 +210,16 @@ const resetForm = () => {
   formRef.value?.resetFields()
   customCharacter.name = ''
   customCharacter.description = ''
+  customCharacter.avatar_url = ''
+  customCharacter.personality = ''
   customCharacter.background = ''
-  customCharacter.personality = []
-  customCharacter.skills = []
-  customCharacter.voice = ''
+  customCharacter.voice_type = ''
   customCharacter.theme = ''
+  customCharacter.skills = ''
+  customCharacter.emotional_tendency = ''
+  customCharacter.system_prompt = ''
+  customCharacter.is_public = false
+  customCharacter.author = ''
 }
 </script>
 
@@ -189,9 +228,11 @@ const resetForm = () => {
   max-width: 600px;
 }
 
-.trait-tag {
-  margin-right: 8px;
-  margin-bottom: 8px;
+.personality-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .trait-input {

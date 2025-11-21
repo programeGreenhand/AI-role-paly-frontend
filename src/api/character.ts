@@ -34,13 +34,13 @@ server.interceptors.response.use(
     }
 )
 
-export function createCharacter(data:Character){
-    return server.post('/api/character/create',data)
+export function createCharacter(data:Character, userId:string){
+    return server.post(`/api/user/${userId}/characters`,data)
 }
 
 //修改为根据每个用户的id来获取所拥有的角色
-export function getCharacterList(){
-    return server.get<Character[]>(`/api/character/list`)
+export function getCharacterList(userId:string){
+    return server.get<Character[]>(`/api/user/${userId}/characters`)
 }
 
 //导出这个server
