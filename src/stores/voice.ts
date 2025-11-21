@@ -94,31 +94,21 @@ export const useVoiceStore = defineStore('voice', () => {
   }
 
   const handleResponseMessage = async (message: WSResponseMessage) => {
-  console.log('处理AI回复消息:', message.data)
-  
-  isProcessing.value = false
-  
-  // 触发AI回复事件
-  const event = new CustomEvent('voice-response', {
-    detail: {
-      text: message.data.text,
-      audioUrl: message.data.audioUrl,
-      emotion: message.data.emotion
-    }
-  })
-  window.dispatchEvent(event)
-
-   if (message.data.audioData) {
-      try {
-        await playAudio(message.data.audioData)
-        console.log('音频播放完成')
-      } catch (error) {
-        console.error('音频播放失败:', error)
-        error.value = '音频播放失败: ' + (error instanceof Error ? error.message : '未知错误')
+    console.log('处理AI回复消息:', message.data)
+    
+    isProcessing.value = false
+    
+    // 触发AI回复事件（音频播放将在自定义事件处理中统一处理）
+    const event = new CustomEvent('voice-response', {
+      detail: {
+        text: message.data.text,
+        audioUrl: message.data.audioUrl,
+        emotion: message.data.emotion,
+        audioData: message.data.audioData
       }
-    }
-  
-}
+    })
+    window.dispatchEvent(event)
+  }
 
   const handleErrorMessage = (message: WSMessage) => {
     isProcessing.value = false
