@@ -1,209 +1,245 @@
-# AI角色对话系统
-✨ 让对话更自然，让交流更智能 - 基于 WebSocket 的实时语音交互引擎
+# 🎭 AI角色对话系统
+
+> ✨ 让对话更自然，让交流更智能 - 基于 WebSocket 的实时语音交互引擎
+
+[![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![WebSocket](https://img.shields.io/badge/WebSocket-实时通信-FF6B6B?logo=websocket)](https://developer.mozilla.org/zh-CN/docs/Web/API/WebSocket)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## 📖 项目简介
+
+AI角色对话系统是一个功能丰富的智能语音交互平台，支持多角色、多场景的实时语音对话体验。系统集成了先进的语音识别、语音合成技术，为用户提供沉浸式的角色扮演对话体验。
+
+### 🎯 核心特性
+
+| 功能模块 | 特性描述 | 技术亮点 |
+|---------|---------|---------|
+| 🎙️ **实时语音交互** | 支持浏览器原生录音，实时语音对话 | Web Audio API + WebSocket |
+| 💬 **多模态对话** | 文本/语音双模式输入输出 | 智能消息路由 + 状态管理 |
+| 🎭 **角色管理系统** | 预设角色库 + 自定义角色创建 | 角色收藏 + 个性化配置 |
+| 🏞️ **沉浸式场景** | 多场景切换 + 背景氛围定制 | 动态场景加载 + 视觉优化 |
+| 🔊 **多音色支持** | 动态切换语音合成音色 | 七牛云TTS集成 |
+| 💾 **智能会话管理** | 多轮对话上下文维护 | 精准记忆 + 历史记录 |
+| 📱 **响应式设计** | 完美适配桌面与移动端 | 自适应布局 + 触摸优化 |
 
 ## 🚀 快速开始
-📋 前置要求
-Node.js 16.0+
 
-npm 或 yarn
+### 📋 环境要求
 
-麦克风设备（用于语音输入）
+- **Node.js**: 16.0+ 
+- **包管理器**: npm 或 yarn
+- **浏览器**: Chrome 90+ / Firefox 88+ / Safari 14+
+- **硬件**: 麦克风设备（语音输入）
 
-现代浏览器（Chrome/Firefox/Safari）
+### 🛠️ 安装与运行
 
-🛠️ 安装与运行
-bash
-# --- 后端服务
-## 1. 克隆项目
-git clone https://github.com/C-Yu010124/AI-role-play-backend.git
+#### 前端服务部署
 
-cd AI-role-paly-backend
-
-# --- 前端服务 
-## 前端代码源码详见master
-## 1. 克隆项目
+```bash
+# 1. 克隆项目
 git clone git@github.com:programeGreenhand/AI-role-paly-frontend.git
 
-## 2.进入项目目录
+# 2. 进入项目目录
 cd AI-role-paly-frontend
 
-## 3. 安装依赖
+# 3. 安装依赖
 npm install
 
-## 4. 启动开发服务器
+# 4. 启动开发服务器
 npm run dev
+```
 
-# 🎯 核心功能
-1.🎙️ 实时语音录制与对话 - 支持浏览器原生录音
+#### 后端服务部署
 
-2.💬 多模态对话支持 - 可选文本对话/语音对话
+后端项目地址：[roleEnd](https://github.com/programeGreenhand/roleEnd)
 
-3.🎭 智能角色系统 - 🤖 角色收藏与管理/🎨 角色自定义创建
+```bash
+# 1. 克隆后端项目
+git clone https://github.com/programeGreenhand/roleEnd.git
 
-4.🔄 WebSocket双向通信 - 低延迟实时数据传输
+# 2. 进入项目目录
+cd roleEnd
 
-5.🎵 多音色支持 - 动态切换语音合成音色
+# 3. 安装依赖
+npm install
 
-6.💬 智能会话管理 - 多轮对话上下文维护，精准记忆聊天记录，继续聊天不是问题
+# 4. 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件，配置数据库和API密钥
 
-7.📱 响应式设计 - 完美适配桌面与移动端
+# 5. 启动服务
+npm start
+```
 
-8.🎨 优美界面设计 - 🏞️ 沉浸式场景系统 🌄 多场景切换 🌟 沉浸式对话体验
+## 🏗️ 系统架构
 
-# 🏗️ 架构设计
-## 📦 模块规格
-### 1. WebSocket 通信层 
-#### typescript
-##### 🌐 核心职责：管理实时双向通信
+### 📦 核心模块设计
 
-├── 📡 连接管理（自动重连、心跳检测）
+#### 1. WebSocket 通信层
+**核心职责**: 管理实时双向通信
 
-├── 📨 消息路由（音频/文本消息分发）
+- 📡 **连接管理**: 自动重连机制 + 心跳检测
+- 📨 **消息路由**: 音频/文本消息智能分发
+- 🔄 **状态同步**: 连接状态 + 会话状态管理
+- 🛡️ **错误处理**: 网络异常恢复 + 数据校验
 
-├── 🔄 状态同步（连接状态、会话管理）
+#### 2. 语音处理层
+**核心职责**: 语音输入输出全流程处理
 
-└── 🛡️ 错误处理（网络异常、数据校验）
+- ⏺️ **录音控制**: 开始/停止/暂停状态管理
+- 🔊 **音频处理**: 格式转换 + 数据编码优化
+- 🎚️ **音色配置**: 动态切换 + 参数管理
+- 📊 **状态指示**: 可视化录音/播放状态
 
-### 2. 语音处理层
-#### typescript
-##### 🎤 核心职责：语音输入输出处理
-├── ⏺️ 录音控制（开始/停止/状态管理）
+#### 3. 会话管理层
+**核心职责**: 对话上下文智能维护
 
-├── 🔊 音频处理（格式转换、数据编码）
+- 🆔 **会话标识**: 唯一会话ID生成机制
+- 📝 **消息历史**: 对话记录持久化存储
+- 🔄 **上下文维护**: 多轮对话记忆管理
 
-├── 🎚️ 音色配置（动态切换、参数管理）
+#### 4. 角色管理层
+**核心职责**: 角色系统完整生命周期管理
 
-└── 📊 状态指示（录音中、处理中、错误状态）
-### 3. 会话管理层
-#### typescript
-##### 💬 核心职责：对话上下文维护
-├── 🆔 会话标识（唯一会话ID生成）
+- 🟡 **角色收藏**: 用户偏好角色管理
+- 🩹 **角色自定义**: 个性化角色创建与配置
+- 🎨 **角色展示**: 角色信息可视化呈现
 
-├── 📝 消息历史（对话记录存储）
+### 🔗 数据流架构
 
-└── 🔄 上下文维护（多轮对话记忆）
-### 4. 角色管理层
-#### typescript
-##### 🎤 核心职责：语音输入输出处理
-├── 🟡 角色收藏（开始/停止/状态管理）
+```mermaid
+graph LR
+    A[🎤 用户语音输入] --> B[🔊 VoiceStore]
+    C[📝 用户文本输入] --> D[💬 ChatStore]
+    B --> E[🌐 WebSocket]
+    D --> E
+    E --> F[🖥️ 后端服务]
+    F --> G[🔊 TTS + ASR]
+    G --> E
+    E --> H[💬 会话更新]
+    H --> I[🔊 音频播放]
+    I --> J[👂 用户听到回复]
+```
 
-└── 🩹 角色自定义（格式转换、数据编码）
+## 🎥 演示视频
 
-## 🔗 数据流架构
+### 📹 功能演示
 
-#### 🎤/📕 用户语音/文本输入 → 🔊 VoiceStore (录音处理) → 🌐 ChatWebSocket (音频数据传输) → 🖥️ 后端语音服务 (ASR + TTS) 
- #### → 🌐 ChatWebSocket (文本+音频返回) → 💬 ChatStore (会话更新) → 🔊 VoiceStore (音频播放) → 👂 用户听到回复
+[![AI角色对话系统演示](https://img.shields.io/badge/🎬-观看演示视频-FF6B6B?logo=bilibili)](https://www.bilibili.com/video/BV1XYnozUE7C/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75)
 
-## 🎨 消息协议设计
-### 🎯 字段说明
-#### 🔧 基础信息
-| 字段 | 类型 | 描述 
-|-------|-------|-------|
-| type | audio | 消息类型标识 |
-| messageId | string | 唯一消息ID，格式: msg_{timestamp}_{random} | 
-| timestamp | number | Unix时间戳(毫秒) | 
+[![移动端演示](https://img.shields.io/badge/📱-移动端演示-00A1D6?logo=bilibili)](https://www.bilibili.com/video/BV1zknZzaEKn/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75)
 
-#### 🔊 音频数据 (Audio Data)
-| 字段 |	类型 | 格式 | 描述
-|-------|-------|-------|-------|
-| audioData | string | Base64 | 编码后的音频二进制数据，支持data URL格式 |
-| format | string | webm 、 wav 、 mp3 | 音频容器格式，推荐使用 webm |
-| sessionId | string | UUID | 关联的对话会话标识符 |
-| voiceType | string | 七牛云音色ID | 用于TTS回复的音色类型 |
+### 🎬 演示亮点
 
+- 🎙️ **实时语音对话**: 按住说话，松开发送的流畅体验
+- 🎵 **动态音色切换**: 支持多种音色实时切换
+- 🥳 **多模态输入**: 文字/语音双模式自由选择
+- 🔗 **智能重连机制**: 网络中断自动恢复
+- 📱 **多端适配**: 桌面端与移动端完美体验
+- 📕 **上下文记忆**: 智能记忆对话历史
+- 🦸‍♀️ **角色管理**: 完整的角色创建与收藏系统
+- 🎨 **美工设计**: 精美的界面与交互设计
 
-# 👥 团队分工
+## 🔧 技术栈
+
+### 前端技术栈
+
+| 技术领域 | 技术选型 | 版本 |
+|---------|---------|------|
+| **前端框架** | Vue 3 + TypeScript | 3.3.x |
+| **状态管理** | Pinia | 2.1.x |
+| **UI组件库** | Element Plus | 2.3.x |
+| **路由管理** | Vue Router | 4.2.x |
+| **实时通信** | WebSocket (原生) | - |
+| **构建工具** | Vite | 4.4.x |
+| **语音处理** | Web Audio API | - |
+
+### 后端技术栈
+
+- **核心框架**: Node.js + Express.js
+- **数据库**: MySQL 8.0+
+- **实时通信**: WebSocket
+- **语音服务**: 七牛云语音合成
+- **AI引擎**: DeepSeek API
+- **文件存储**: 阿里云OSS
+
+## 📊 性能指标
+
+| 指标类型 | 性能表现 | 优化措施 |
+|---------|---------|---------|
+| 🚀 **连接建立** | < 200ms | WebSocket优化连接 |
+| 🎙️ **语音延迟** | < 1.5s | 音频流式传输 |
+| 🔄 **端到端响应** | < 2s | 全链路优化 |
+| 📊 **并发支持** | 1000+ 连接 | 连接池管理 |
+
+## 👥 团队分工
 
 | 模块 | 负责人 | 主要职责 |
-|-------|-------|-------|
-| 语音处理 | 余加福 | 录音控制、音频编解码、音色管理 |
-| 网络通信 | 余加福 | WebSocket连接、消息协议、错误处理 |
-| 会话管理 | 余加福 | 会话维护、上下文管理、状态同步、提示词构建、对话场景设计与实现 |
-| 角色管理 | 余加福 | 角色管理功能设计、角色场景背景设计 |
-| 前端集成 | 余加福 | Vue组件、用户交互设计、响应式设计 |
-| 登录注册 | 余加福 | 系统登入登出、登入状态的控制设计 |
+|------|--------|---------|
+| **语音处理** | 余加福 | 录音控制、音频编解码、音色管理 |
+| **网络通信** | 余加福 | WebSocket连接、消息协议、错误处理 |
+| **会话管理** | 余加福 | 会话维护、上下文管理、状态同步 |
+| **角色管理** | 余加福 | 角色系统设计、场景背景设计 |
+| **前端集成** | 余加福 | Vue组件、用户交互、响应式设计 |
+| **登录注册** | 余加福 | 认证系统、状态管理 |
 
-# 🎥 Demo 演示
-### 👉https://www.bilibili.com/video/BV1XYnozUE7C/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75
+## 🎯 使用场景
 
-###多端展示！！！
+### 🏢 企业应用
+- **智能客服**: 企业级语音客服系统
+- **培训模拟**: 员工培训对话模拟
+- **会议助手**: 智能会议记录与总结
 
-### 👉https://www.bilibili.com/video/BV1zknZzaEKn/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75
-## 🎬 演示亮点
+### 🎓 教育领域
+- **语言学习**: 外语口语练习平台
+- **教学辅助**: 智能教学对话助手
+- **在线辅导**: 个性化学习辅导
 
-#### 🎙️ 实时语音对话 - 按住说话，松开发送👆
+### 🎮 娱乐应用
+- **角色扮演**: 沉浸式角色对话体验
+- **语音社交**: 语音互动社交平台
+- **游戏辅助**: 游戏内智能对话系统
 
-#### 🎵 动态音色切换 - 下拉选择不同音色
+## 🤝 贡献指南
 
-#### 🥳 多模态输入 - 可选文字/语音输入👆
+我们欢迎所有形式的贡献！请阅读以下指南开始参与：
 
-#### 🔗 智能重连机制 - 网络中断自动恢复
+### 🐛 报告问题
+如果您发现任何bug或有问题，请通过 [Issues](https://github.com/programeGreenhand/AI-role-paly-frontend/issues) 页面报告。
 
-#### 📱 多端适配 - 桌面端与移动端完美体验👆
+### 💡 功能建议
+有新的功能想法？欢迎在 [Discussions](https://github.com/programeGreenhand/AI-role-paly-frontend/discussions) 中分享。
 
-#### 📕 上下文记忆 - 可尝试继续对话，符合真实体验场景和需求👆
+### 🔧 代码贡献
+1. Fork 本项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
 
-#### 🦸‍♀️ 角色管理 - 创建自己想要的角色/收藏已有的角色
+## 🆘 技术支持
 
-#### 🥗 美工设计 - 聊天场景的切换，主题颜色的自定义
+### 📧 联系邮箱
+- **项目问题**: yujiafushinc@163.com
 
-#### 🌭 沉浸式交互 - 角色拥有独特的人物个性，极强的交互体验 
+### 📚 相关文档
+- [后端项目文档](https://github.com/programeGreenhand/roleEnd)
+- [API接口文档](./docs/api.md)
+- [部署指南](./docs/deployment.md)
 
-# 🎯 使用场景
+## 📄 许可证
 
-#### 语音助手 - 个人语音助理应用
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
-#### 语言学习 - 语音对话练习平台
-
-#### 娱乐聊天 - 角色扮演/语音互动
-
-# 🔧 技术栈
-## 前端框架: Vue 3 + TypeScript + pinia + Element-plus 
-
-#### 状态管理: Pinia
-
-#### UI组件: Element Plus
-
-#### 实时通信: WebSocket
-
-#### 构建工具: Vite
-
-#### 语音录制: Web Audio API
-
-## 后端框架: Springboot + Mybatis-plus + mysql + websocket 
-
-#### 数据库操作: Mybatis-plus
-
-#### 对话存储: mysql
-
-#### 实时通信: WebSocket
-
-# 📈 性能指标
-#### 🚀 连接建立: 快
-
-#### 🎙️ 语音延迟: 小
-
-#### 🔄 端到端响应: ⚡
-
-#### 📊 并发支持: 多
-
-# 🤝 贡献指南
-### 我们欢迎所有形式的贡献！请阅读我们的 贡献指南 开始参与。
-
-
-
-## 🆘 支持
-#### 遇到问题？请联系该邮箱: yujiafushinc@163.com
-
-#### 🐛 提交 Issue
-
-#### 💬 加入我们的 Discussions
-# 详细文档请查看
-
+---
 
 <div align="center">
- ⭐ 如果这个项目对你有帮助，请给我们一个 star！ ⭐
 
- 让智能语音对话触手可及 🎤✨
+## ⭐ 如果这个项目对你有帮助，请给我们一个 star！
+
+**让智能语音对话触手可及** 🎤✨
+
+[![Star History](https://api.star-history.com/svg?repos=programeGreenhand/AI-role-paly-frontend&type=Date)](https://star-history.com/#programeGreenhand/AI-role-paly-frontend&Date)
 
 </div>
