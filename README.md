@@ -57,6 +57,7 @@ AI角色对话系统是一个功能丰富的智能语音交互平台，支持多
 #### 前端服务部署
 
 ```bash
+前端代码在master分支
 # 1. 克隆项目
 git clone git@github.com:programeGreenhand/AI-role-paly-frontend.git
 
