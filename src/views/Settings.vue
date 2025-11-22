@@ -1,8 +1,16 @@
 <template>
   <div class="settings-view">
+    <!-- 装饰性背景元素 -->
+    <div class="decorative-bg">
+      <div class="floating-cloud cloud-1">☁️</div>
+      <div class="floating-cloud cloud-2">✨</div>
+      <div class="floating-cloud cloud-3">🍔</div>
+      <div class="floating-cloud cloud-4">☀</div>
+      
+    </div>
+    
     <el-container>
       <el-header class="settings-header">
-      
         <el-button @click="goHome" icon="house">返回首页</el-button>
       </el-header>
 
@@ -171,7 +179,45 @@ onMounted(async ()=>{
 <style scoped>
 .settings-view {
   min-height: 100vh;
-  
+  background: var(--theme-color, linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 30%, #f5f0ff 70%, #f0fff4 100%));
+  position: relative;
+  overflow: hidden;
+}
+
+/* 装饰性背景元素 */
+.decorative-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.floating-cloud {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0.4;
+  animation: float 8s ease-in-out infinite;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+}
+
+.cloud-1 { top: 15%; left: 8%; animation-delay: 0s; color: #64b5f6; }
+.cloud-2 { top: 25%; right: 12%; animation-delay: 2s; color: #ff9a9e; }
+.cloud-3 { bottom: 35%; left: 20%; animation-delay: 4s; color: #a5d6a7; }
+.cloud-4 { bottom: 20%; right: 8%; animation-delay: 1s; color: #ffb74d; }
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg) scale(1); 
+  }
+  33% { 
+    transform: translateY(-15px) rotate(3deg) scale(1.05); 
+  }
+  66% { 
+    transform: translateY(10px) rotate(-2deg) scale(0.95); 
+  }
 }
 
 .settings-header {

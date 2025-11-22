@@ -25,11 +25,20 @@ onMounted(() => {
     // 延迟显示弹窗，确保页面加载完成
     setTimeout(() => {
       ElMessageBox.alert(
-        '为了确保系统功能正常运行，请使用HTTPS协议访问本系统。\n\n建议访问地址：https://' ,
-        'HTTPS访问提醒',
+        '✨ 欢迎来到AI角色对话系统！ ✨\n\n' +
+        '🔒 **安全提示**：为了确保语音功能正常运行，请使用HTTPS协议访问本系统。\n\n' +
+        '🚀 **立即体验**：\n' +
+        '• 建议访问地址：https://129.204.241.238/login\n' +
+        '• 登录方式：可选择自建账号，或使用测试账号\n' +
+        '• 测试账号：用户名：aaa，密码：aaa123\n\n' +
+        '🎯 **温馨提示**：\n' +
+        '• 请确保使用Chrome浏览器以获得最佳体验\n' +
+        '• 语音功能需要麦克风权限\n' +
+        '• 祝您体验愉快！ 🌟',
+        '🎈 欢迎使用AI角色对话系统',
         {
-          confirmButtonText: '确定',
-          type: 'warning',
+          confirmButtonText: '好的，开始体验！ 🎉',
+          type: 'info',
           customClass: 'https-warning-dialog',
           showClose: false
         }
@@ -165,38 +174,72 @@ onMounted(() => {
   }
 }
 
-/* HTTPS警告弹窗样式 */
+/* 淡蓝色可爱风格欢迎弹窗样式 */
 :global(.https-warning-dialog) {
-  max-width: 500px !important;
+  max-width: 520px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(100, 181, 246, 0.3) !important;
+  border: 2px solid #b3e5fc !important;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%) !important;
 }
 
 :global(.https-warning-dialog .el-message-box__header) {
-  background-color: #fdf6ec;
-  border-bottom: 1px solid #f5dab1;
+  background: linear-gradient(90deg, #64b5f6 0%, #4fc3f7 100%) !important;
+  border-bottom: 2px solid #b3e5fc !important;
+  border-radius: 14px 14px 0 0 !important;
+  padding: 15px 20px !important;
 }
 
 :global(.https-warning-dialog .el-message-box__title) {
-  color: #e6a23c;
-  font-weight: 600;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
 :global(.https-warning-dialog .el-message-box__content) {
-  padding: 20px;
-  line-height: 1.6;
-  color: #606266;
+  padding: 25px !important;
+  line-height: 1.8 !important;
+  color: #455a64 !important;
+  font-size: 15px !important;
+  background: white !important;
 }
 
 :global(.https-warning-dialog .el-message-box__message) {
-  white-space: pre-line;
+  white-space: pre-line !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+:global(.https-warning-dialog .el-message-box__btns) {
+  padding: 15px 25px 25px !important;
+  text-align: center !important;
 }
 
 :global(.https-warning-dialog .el-button--primary) {
-  background-color: #e6a23c;
-  border-color: #e6a23c;
+  background: linear-gradient(135deg, #64b5f6 0%, #4fc3f7 100%) !important;
+  border: none !important;
+  border-radius: 25px !important;
+  padding: 12px 30px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(100, 181, 246, 0.4) !important;
+  transition: all 0.3s ease !important;
 }
 
 :global(.https-warning-dialog .el-button--primary:hover) {
-  background-color: #d48806;
-  border-color: #d48806;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(100, 181, 246, 0.6) !important;
+  background: linear-gradient(135deg, #42a5f5 0%, #29b6f6 100%) !important;
+}
+
+:global(.https-warning-dialog .el-message-box__message strong) {
+  color: #64b5f6 !important;
+  font-weight: 700 !important;
+}
+
+:global(.https-warning-dialog .el-message-box__message li) {
+  margin: 8px 0 !important;
+  padding-left: 5px !important;
 }
 </style>
