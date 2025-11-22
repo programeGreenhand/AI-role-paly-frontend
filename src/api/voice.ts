@@ -1,11 +1,11 @@
 import axios from 'axios';
 import type { VoiceItem } from '../types/voice'
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8081/api'
+const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
 
 // 创建axios实例（可选，但推荐）
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: baseUrl,
   timeout: 10000, // 设置请求超时时间
   
 })

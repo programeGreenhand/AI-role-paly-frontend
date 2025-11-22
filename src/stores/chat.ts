@@ -11,10 +11,10 @@ export const useChatStore = defineStore('chat', () => {
   const currentEmotion = ref('neutral');
   
   // API 基础 URL
-  const API_BASE = 'http://localhost:8081/api';
+const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
 
   const server = axios.create({
-    baseURL:API_BASE,
+    baseURL:baseUrl,
     timeout:30000
 })
 

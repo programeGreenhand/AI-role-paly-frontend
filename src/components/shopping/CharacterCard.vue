@@ -87,9 +87,9 @@ const save = ()=>{
   
   //如果为偶数就加入收藏
   if(count.value%2 === 0){
-    server.post(`/api/user/${uerId}/favorites/${props.character.id}`)
+    server.post(`/user/${uerId}/favorites/${props.character.id}`)
   }else{//如果为奇数就取消收藏
-    server.delete(`/api/user/${uerId}/favorites/${props.character.id}`)
+    server.delete(`/user/${uerId}/favorites/${props.character.id}`)
   }
   
 }

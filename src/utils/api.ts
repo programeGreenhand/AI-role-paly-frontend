@@ -1,6 +1,6 @@
 import type { APIResponse, ChatRequest, EmotionAnalysisResponse } from '../types/api'
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:8081/api'
+const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
 
 class ChatAPI {
   async sendMessage(request: ChatRequest): Promise<APIResponse<{
@@ -9,7 +9,7 @@ class ChatAPI {
     confidence: number
   }>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/chat`, {
+      const response = await fetch(`${baseUrl}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

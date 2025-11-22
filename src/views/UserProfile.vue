@@ -157,11 +157,11 @@ watch(activeTab, async (newTab) => {
   try {
     const userId = localStorage.getItem('userId'); 
     if (newTab === 'favorites') {
-      const response = await server.get(`/api/user/${userId}/favorites`)
+      const response = await server.get(`/user/${userId}/favorites`)
       characterLists.value = response.data
       console.log('收藏智能体数据:', response.data)
     } else if (newTab === 'custom') {
-      const response = await server.get(`/api/user/${userId}/characters`)
+      const response = await server.get(`/user/${userId}/characters`)
       characterLists.value = response.data
       console.log('自建智能体数据:', response.data)
     }

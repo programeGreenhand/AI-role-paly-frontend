@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Character } from "../types/character";
-const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8081/'
+const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
 const server = axios.create({
     baseURL:baseUrl,
     timeout:30000
@@ -35,12 +35,12 @@ server.interceptors.response.use(
 )
 
 export function createCharacter(data:Character, userId:string){
-    return server.post(`/api/user/${userId}/characters`,data)
+    return server.post(`/user/${userId}/characters`,data)
 }
 
 //修改为根据每个用户的id来获取所拥有的角色
 export function getCharacterList(userId:string){
-    return server.get<Character[]>(`/api/user/${userId}/characters`)
+    return server.get<Character[]>(`/user/${userId}/characters`)
 }
 
 //导出这个server

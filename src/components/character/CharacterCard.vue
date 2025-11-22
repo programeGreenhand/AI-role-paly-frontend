@@ -31,11 +31,11 @@
       </div>
     </div>
     
-    <div class="character-actions">
+    <!-- <div class="character-actions">
       <el-button type="primary" size="small">
         开始对话
       </el-button>
-    </div>
+    </div> -->
   </el-card>
 </template>
 

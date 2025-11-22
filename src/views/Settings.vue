@@ -122,7 +122,7 @@ const handleCreateCharacter = (character: CustomCharacter) => {
   characterStore.addCustomCharacter(character) //此处只是存储在前端本地
   //推送角色信息：POST /api/user/:userId/characters - 创建自建智能体
   const userId = localStorage.getItem('userId');
-  const res = server.post(`/api/user/${userId}/characters`, character)
+  const res = server.post(`/user/${userId}/characters`, character)
   ElMessage.success('自定义角色创建成功！')
 }
 

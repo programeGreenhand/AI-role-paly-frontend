@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Character } from "../types/character";
-const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:8081/'
+const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
 const server = axios.create({
     baseURL:baseUrl,
     timeout:30000

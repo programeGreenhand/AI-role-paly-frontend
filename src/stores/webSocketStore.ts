@@ -13,7 +13,7 @@ export const useWebSocketStore = defineStore('webSocket', () => {
   let websocket: WebSocket | null = null;
   const messageHandlers = new Map<string, (data: any) => void>();
 
-  const connect = async (url: string = 'ws://localhost:8081/ws/chat'): Promise<void> => {
+  const connect = async (url: string = 'ws://129.204.241.238/ws/chat'): Promise<void> => {
     if (isConnected.value) {
       disconnect();
       return;

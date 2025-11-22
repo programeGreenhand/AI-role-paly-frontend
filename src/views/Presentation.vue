@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
@@ -12,6 +13,32 @@ const activeTab = ref(route.path.includes('register') ? 'register' : 'login')
 watch(activeTab, (newTab) => {
   router.push({ path: `/${newTab}` })
 })
+
+// 检测是否为HTTPS访问
+const showHttpsWarning = ref(false)
+
+onMounted(() => {
+  // 检查当前协议是否为HTTPS
+  if (window.location.protocol !== 'https:') {
+    showHttpsWarning.value = true
+    
+    // 延迟显示弹窗，确保页面加载完成
+    setTimeout(() => {
+      ElMessageBox.alert(
+        '为了确保系统功能正常运行，请使用HTTPS协议访问本系统。\n\n建议访问地址：https://' ,
+        'HTTPS访问提醒',
+        {
+          confirmButtonText: '确定',
+          type: 'warning',
+          customClass: 'https-warning-dialog',
+          showClose: false
+        }
+      ).then(() => {
+        showHttpsWarning.value = false
+      })
+    }, 1000)
+  }
+})
 </script>
 
 <template>
@@ -20,7 +47,7 @@ watch(activeTab, (newTab) => {
   
     <div class="login-register-card">
       <div class="card-header">
-        <h1 class="title">AI角色扮演对话</h1>
+        <h1 class="title">AI角色对话</h1>
         <div class="tabs">
           <div 
             class="tab" 
@@ -49,9 +76,9 @@ watch(activeTab, (newTab) => {
       </div>
     </div>
 
-    <router-link to="/hall">
+    <!-- <router-link to="/hall">
       <ElButton type="success" >测试版入口</ElButton>
-    </router-link>
+    </router-link> -->
 
   </div>
 </template>
@@ -65,7 +92,7 @@ watch(activeTab, (newTab) => {
   justify-content: center;
   align-items: center;
   background-color: #f5f7fa;
-  background-image: url('login.jpg') ;
+  background-image: url('/login.jpg') ;
   background-size: cover; 
   background-repeat: no-repeat;
   
@@ -136,5 +163,40 @@ watch(activeTab, (newTab) => {
     width: 90%;
     max-width: 420px;
   }
+}
+
+/* HTTPS警告弹窗样式 */
+:global(.https-warning-dialog) {
+  max-width: 500px !important;
+}
+
+:global(.https-warning-dialog .el-message-box__header) {
+  background-color: #fdf6ec;
+  border-bottom: 1px solid #f5dab1;
+}
+
+:global(.https-warning-dialog .el-message-box__title) {
+  color: #e6a23c;
+  font-weight: 600;
+}
+
+:global(.https-warning-dialog .el-message-box__content) {
+  padding: 20px;
+  line-height: 1.6;
+  color: #606266;
+}
+
+:global(.https-warning-dialog .el-message-box__message) {
+  white-space: pre-line;
+}
+
+:global(.https-warning-dialog .el-button--primary) {
+  background-color: #e6a23c;
+  border-color: #e6a23c;
+}
+
+:global(.https-warning-dialog .el-button--primary:hover) {
+  background-color: #d48806;
+  border-color: #d48806;
 }
 </style>

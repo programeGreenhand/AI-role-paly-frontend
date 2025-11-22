@@ -5,7 +5,7 @@ import { voiceAPI } from '../api/voice'
 import type { VoiceItem, AudioRecordingConfig } from '../types/voice'
 import type { WSMessage, WSResponseMessage, VoiceConfig } from '../types/websocket'
 
-const WS_URL = 'ws://localhost:8081/ws/chat'
+const WS_URL = 'wss://129.204.241.238/ws/chat'
 
 export const useVoiceStore = defineStore('voice', () => {
   // 状态

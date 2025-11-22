@@ -1,9 +1,10 @@
 // src/apis/user.ts
 import axios from 'axios'
 
+const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
 // 创建axios实例
 const api = axios.create({
-  baseURL: 'http://localhost:8081/api',
+  baseURL: baseUrl,
   timeout: 10000
 })
 

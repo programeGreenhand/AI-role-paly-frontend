@@ -70,7 +70,8 @@ watch(availableScenes, (scenes) => {
 }, { immediate: true })
 
 const clickme = async ()=>{
-  const response = await axios.get('http://localhost:8081/api/scenes');
+  const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
+  const response = await axios.get(baseUrl+'/scenes');
   lists.value = response.data.data
   console.log(response.data.data)
 }

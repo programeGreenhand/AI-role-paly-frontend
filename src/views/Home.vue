@@ -80,7 +80,7 @@
         <el-dropdown placement="top" trigger="click">
           <div class="user-info">
             <el-avatar icon="User" />
-            <span>航海王开发组</span>
+            <span>三块给买麻薯</span>
             <el-icon><ArrowUp /></el-icon>
           </div>
           <template #dropdown>
@@ -129,7 +129,7 @@ const gotoRoleChat = async function(item){
 //   console.log(response.data)
   console.log(`角色信息: ${item.character_id}`)
   console.log(`信息: ${item.title}`)
-  const response = await server.get(`/api/characters/${item.character_id}`);
+  const response = await server.get(`/characters/${item.character_id}`);
   console.log("这个是响应结果 角色：",response.data)
   current_character.value = response.data
   console.log(current_character.value.name)
@@ -149,43 +149,43 @@ const diffTime = function(lastModify){
 
 ////测试按钮
 const clickme = async ()=>{
-  const response = await server.get('/api/scenes');
+  const response = await server.get('/scenes');
   console.log(response.data)
 }
 
 const clickme1 = async ()=>{
-  const response = await server.get('/api/characters/public');
+  const response = await server.get('/characters/public');
   console.log(response.data)
 }
 
 const clickme3 = async ()=>{
   const userId = localStorage.getItem('userId');
 // 使用模板字符串将变量直接嵌入URL路径 /api/user/:userId/sessions
-  const response = await server.get(`/api/user/${userId}/sessions`);
+  const response = await server.get(`/user/${userId}/sessions`);
   console.log(response.data)
 }
 
 const clickme4 = async ()=>{
   const userId = localStorage.getItem('userId');
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await server.get(`/api/user/${userId}/favorites`);
+  const response = await server.get(`/user/${userId}/favorites`);
   console.log(response.data)
 }
 
 const clickme5 = async ()=>{
   const userId = localStorage.getItem('userId');
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await server.get(`/api/user/${userId}/characters`);
+  const response = await server.get(`/user/${userId}/characters`);
   console.log(response.data)
 }
 
 const clickme6 = async ()=>{
-  const response = await server.get('/api/characters/public');
+  const response = await server.get('/characters/public');
   console.log(response.data)
 }
 
 const clickme7 = async ()=>{
-  const response = await server.get('/api/characters/custom');  //有问题
+  const response = await server.get('/characters/custom');  //有问题
   console.log(response.data)
 }
 
@@ -193,7 +193,7 @@ const clickme8 = async ()=>{
   const userId = localStorage.getItem('userId');
   const characterId = '1cc32b86-8802-43a0-b16e-ae80ecd19074';
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await server.post(`/api/user/${userId}/favorites/${characterId}`);
+  const response = await server.post(`/user/${userId}/favorites/${characterId}`);
   console.log(response.data)
 }
 
@@ -202,7 +202,7 @@ const clickme9 = async ()=>{
   const userId = localStorage.getItem('userId');
    const characterId = '1cc32b86-8802-43a0-b16e-ae80ecd19074'
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await server.delete(`/api/user/${userId}/favorites/${characterId}`);
+  const response = await server.delete(`/user/${userId}/favorites/${characterId}`);
   console.log(response.data)
 }
 
@@ -210,7 +210,7 @@ const clickme10 = async ()=>{
   const userId = localStorage.getItem('userId');
   console.log(userId)
 // 使用模板字符串将变量直接嵌入URL路径 characterId, sceneId, title 创建对话会话
-  const response = await server.post(`/api/user/${userId}/sessions`,{
+  const response = await server.post(`/user/${userId}/sessions`,{
     "characterId": "1cc32b86-8802-43a0-b16e-ae80ecd19074",
     "sceneId": "0a6d74a4-5687-477b-b2bc-57b08642e5a2",
     'title':'hello world ni hao ya'
@@ -222,7 +222,7 @@ const clickme10 = async ()=>{
 const clickme11 = async ()=>{
   const sessionId = "0a6d74a4-5687-477b-b2bc-57b08642e5a2";
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await server.get(`/api/sessions/${sessionId}/messages`);
+  const response = await server.get(`/sessions/${sessionId}/messages`);
   console.log(response.data)
 }
 
@@ -230,7 +230,7 @@ const clickme11 = async ()=>{
 const clickme12 = async ()=>{
   const characterId = "1cc32b86-8802-43a0-b16e-ae80ecd19074";
 // 使用模板字符串将变量直接嵌入URL路径
-  const response = await server.get(`/api/characters/${characterId}`);
+  const response = await server.get(`/characters/${characterId}`);
   console.log(response.data)
 }
 
@@ -298,7 +298,7 @@ onMounted(async ()=>{
   const userId = localStorage.getItem('userId');
  
   //使用模板字符串将变量直接嵌入URL路径 /api/user/:userId/sessions   查询用户的对话历史
-  const response = await server.get(`/api/user/${userId}/sessions`);
+  const response = await server.get(`/user/${userId}/sessions`);
   session.value = response.data
   //通过session中得characterId 来获取角色信息:/api/characters/:characterId
   

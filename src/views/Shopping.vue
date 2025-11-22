@@ -87,7 +87,8 @@ const checkMobile = () => {
 onMounted(async () => {
   checkMobile()
   try {
-    const response = await axios.get('http://localhost:8081/api/characters/public')
+    const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
+    const response = await axios.get(`${baseUrl}/characters/public`)
     characters.value = response.data.data
   } catch (error) {
     console.error('获取角色数据失败:', error)
