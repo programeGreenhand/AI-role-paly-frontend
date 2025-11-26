@@ -148,12 +148,12 @@ const showQuickReplies = ref(true)
 
 // 快速回复模板
 const quickReplies = ref([
-  '告诉我更多',
-  '能解释一下吗',
-  '这怎样理解',
-  '继续讲下去',
-  '有什么建议吗',
-  '能帮我想想吗',
+  '你好鸭🦆',
+  '能再说一遍吗',
+  '你是笨蛋吗',
+  '我需要你陪我聊一会',
+  '给点你的看法吧',
+  '你的回复让我很开心',
 ])
 
 // 响应式检测
@@ -817,12 +817,18 @@ html[data-theme='dark'] .send-button:hover {
 
 /* 快速回复样式 */
 .quick-replies-section {
+  position: relative;
+  z-index: 5;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   max-height: 150px;
   overflow-y: auto;
   animation: slideUp 0.3s ease-out;
+  margin: 0 1rem;
+  border-radius: 0 0 1.25rem 1.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .quick-replies-label {
