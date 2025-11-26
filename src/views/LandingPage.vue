@@ -438,17 +438,114 @@ const goToLogin = () => {
 }
 
 /* 响应式设计 */
+@media (max-width: 1200px) {
+  .navbar {
+    padding: 0 30px;
+  }
+
+  .logo-text {
+    font-size: 64px;
+  }
+
+  .login-btn {
+    padding: 12px 40px;
+    font-size: 15px;
+  }
+
+  .features-section {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    padding: 50px 30px 30px;
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar {
+    padding: 0 25px;
+    height: 55px;
+  }
+
+  .nav-left {
+    font-size: 20px;
+  }
+
+  .nav-menu {
+    gap: 25px;
+  }
+
+  .nav-item {
+    font-size: 13px;
+  }
+
+  .logo-text {
+    font-size: 56px;
+  }
+
+  .brand-tagline {
+    font-size: 16px;
+  }
+
+  .brand-section {
+    margin-bottom: 50px;
+  }
+
+  .features-section {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 25px;
+    padding: 40px 25px 25px;
+  }
+
+  .feature-card {
+    padding: 15px;
+  }
+
+  .feature-icon {
+    font-size: 35px;
+  }
+
+  .feature-card h3 {
+    font-size: 16px;
+  }
+
+  .feature-card p {
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 768px) {
   .navbar {
-    padding: 0 20px;
+    padding: 0 15px;
+    height: 50px;
+  }
+
+  .nav-left {
+    font-size: 18px;
   }
 
   .nav-menu {
     display: none;
   }
 
+  .nav-right {
+    gap: 15px;
+  }
+
+  .login-link {
+    font-size: 12px;
+  }
+
+  .theme-icon {
+    font-size: 18px;
+  }
+
   .logo-text {
     font-size: 48px;
+  }
+
+  .logo-circle {
+    width: 65px;
+    height: 65px;
+    border-width: 2px;
   }
 
   .brand-tagline {
@@ -456,7 +553,20 @@ const goToLogin = () => {
   }
 
   .brand-section {
-    margin-bottom: 40px;
+    margin-bottom: 35px;
+  }
+
+  .action-section {
+    gap: 12px;
+  }
+
+  .login-btn {
+    padding: 11px 35px;
+    font-size: 14px;
+  }
+
+  .subtitle {
+    font-size: 13px;
   }
 
   .background-grid {
@@ -464,24 +574,214 @@ const goToLogin = () => {
   }
 
   .features-section {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 40px 20px 20px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 35px 15px 15px;
+  }
+
+  .feature-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .feature-card h3 {
+    font-size: 15px;
+    margin: 0 0 8px;
+  }
+
+  .feature-card p {
+    font-size: 12px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+  .navbar {
+    padding: 0 12px;
+    height: 45px;
+    justify-content: space-between;
+  }
+
+  .nav-left {
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  .nav-right {
+    gap: 10px;
+  }
+
+  .login-link {
+    font-size: 11px;
+  }
+
+  .theme-icon {
+    font-size: 16px;
+  }
+
+  .center-content {
+    padding: 0 15px;
+  }
+
   .logo-text {
     font-size: 40px;
+    letter-spacing: 2px;
+  }
+
+  .logo-circle {
+    width: 55px;
+    height: 55px;
+    border-width: 2px;
+  }
+
+  .brand-tagline {
+    font-size: 13px;
+  }
+
+  .brand-section {
+    margin-bottom: 30px;
   }
 
   .login-btn {
-    padding: 12px 32px;
-    font-size: 14px;
+    padding: 10px 30px;
+    font-size: 13px;
+    border-radius: 25px;
+  }
+
+  .subtitle {
+    font-size: 12px;
   }
 
   .background-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .features-section {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 30px 12px 12px;
+  }
+
+  .feature-card {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .feature-card h3 {
+    font-size: 14px;
+    margin: 0 0 6px;
+  }
+
+  .feature-card p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 10px;
+  }
+
+  .nav-left {
+    font-size: 14px;
+  }
+
+  .logo-text {
+    font-size: 36px;
+  }
+
+  .logo-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .brand-section {
+    margin-bottom: 25px;
+  }
+
+  .login-btn {
+    padding: 9px 28px;
+    font-size: 12px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+  }
+
+  .background-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .features-section {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 25px 10px 10px;
+  }
+
+  .feature-card {
+    padding: 8px;
+  }
+
+  .feature-icon {
+    font-size: 26px;
+    margin-bottom: 6px;
+  }
+
+  .feature-card h3 {
+    font-size: 13px;
+  }
+
+  .feature-card p {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0 8px;
+  }
+
+  .nav-left {
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+
+  .logo-text {
+    font-size: 32px;
+  }
+
+  .brand-tagline {
+    font-size: 12px;
+  }
+
+  .login-btn {
+    padding: 8px 24px;
+    font-size: 11px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+  }
+
+  .features-section {
+    padding: 20px 8px 8px;
+  }
+
+  .feature-card h3 {
+    font-size: 12px;
+  }
+
+  .feature-card p {
+    font-size: 9px;
   }
 }
 </style>
