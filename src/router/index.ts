@@ -13,6 +13,12 @@ const routes = [
     name: 'Landing',
     component: ()=>import('../views/LandingPage.vue'),
   },
+
+  {
+    path:'/login',
+    //重定向
+    redirect:'/'
+  },
   
   // 登录/注册页面
   {
@@ -81,13 +87,20 @@ const router = createRouter({
   routes
 })
 
-// router.beforeEach((to,from,next)=>{
-//   if(!localStorage.getItem('islogin')){
-//     next('/login')
-//   }else{
-//     next()
-//   }
-//   next()
-// })
+// 路由守卫：保护需要认证的路由
+router.beforeEach((to, from, next) => {
+  // 检查用户是否登录
+  const isLoggedIn = localStorage.getItem('userId')
+  
+  
+  // 如果未登录且尝试访问需要认证的页面（/hall），重定向到首页
+  if (!isLoggedIn && to.meta.authRequire) {
+    next('/')
+  }
+  // 其他情况正常继续
+  else {
+    next()
+  }
+})
 
 export default router
