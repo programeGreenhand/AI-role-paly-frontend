@@ -1,5 +1,25 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
 
+:root {
+  /* 亮色主题变量 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --border-color: #e0e6ed;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme='dark'] {
+  /* 暗色主题变量 */
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --text-primary: #e8e8e8;
+  --text-secondary: #b8b8b8;
+  --border-color: #2a2a3e;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -9,9 +29,9 @@
 body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
-  color: #333;
-  background-color: var(--theme-color, #ffffff);  
-  /* 找了半天错在哪里？原来是应错了css文件，还有就是:root到底是啥，他的样式优先级比body高？ */
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .fade-enter-active,

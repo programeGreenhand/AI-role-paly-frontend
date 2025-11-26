@@ -7,9 +7,11 @@
 <script setup lang="ts">
 import { computed, onMounted} from 'vue'
 import { useCharacterStore } from './stores/character'
+import { useThemeStore } from './stores/theme'
 
 
 const characterStore = useCharacterStore()
+const themeStore = useThemeStore()
 
 
 const currentTheme = computed(() => {
@@ -18,6 +20,7 @@ const currentTheme = computed(() => {
 
 onMounted(()=>{
   localStorage.setItem('islogin','true')
+  themeStore.initTheme()
 })
 
 
@@ -27,5 +30,7 @@ onMounted(()=>{
 .app-container {
   min-height: 100vh;
   transition: all 0.5s ease;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 </style>

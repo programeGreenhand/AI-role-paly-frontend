@@ -55,6 +55,24 @@
       </div>
     </div>
 
+    <!-- 快速回复模板 -->
+    <div v-if="showQuickReplies && inputMessage.trim() === ''" class="quick-replies-section">
+      <div class="quick-replies-label">快速回复</div>
+      <div class="quick-replies-grid">
+        <el-button 
+          v-for="(reply, index) in quickReplies"
+          :key="index"
+          @click="useQuickReply(reply)"
+          :disabled="chatStore.isTyping || !wsConnected"
+          type="default"
+          class="quick-reply-btn"
+          size="small"
+        >
+          {{ reply }}
+        </el-button>
+      </div>
+    </div>
+
     <!-- 底部输入面板 -->
     <div class="input-panel">
       <div class="input-container">
@@ -94,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { loadRouteLocation, useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
@@ -126,6 +144,17 @@ const inputMessage = ref('')
 const wsConnected = ref(false)
 const headerCollapsed = ref(false)
 const isMobile = ref(false)
+const showQuickReplies = ref(true)
+
+// 快速回复模板
+const quickReplies = ref([
+  '告诉我更多',
+  '能解释一下吗',
+  '这怎样理解',
+  '继续讲下去',
+  '有什么建议吗',
+  '能帮我想想吗',
+])
 
 // 响应式检测
 const checkMobile = () => {
@@ -247,6 +276,14 @@ const handleVoiceStart = () => {
 const handleVoiceEnd = () => {
   console.log('录音结束，等待处理...')
   chatStore.setTyping(true)
+}
+
+// 使用快速回复
+const useQuickReply = async (reply: string) => {
+  inputMessage.value = reply
+  await nextTick()
+  showQuickReplies.value = false
+  await sendMessage()
 }
 
 // 发送文本消息
@@ -376,6 +413,15 @@ onMounted(() => {
   }
   
   initialize()
+})
+
+// 监听输入框变化，控制快速回复显示
+watch(() => inputMessage.value, (newVal) => {
+  if (newVal.trim() === '') {
+    showQuickReplies.value = true
+  } else {
+    showQuickReplies.value = false
+  }
 })
 
 onUnmounted(() => {
@@ -718,6 +764,158 @@ onUnmounted(() => {
     padding-left: max(0.5rem, env(safe-area-inset-left));
     padding-right: max(0.5rem, env(safe-area-inset-right));
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* 暗色主题支持 */
+html[data-theme='dark'] .chat-view {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+}
+
+html[data-theme='dark'] .floating-header {
+  background: rgba(22, 33, 62, 0.4);
+  border-color: rgba(107, 182, 214, 0.2);
+}
+
+html[data-theme='dark'] .character-name {
+  color: #e8e8e8;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme='dark'] .character-desc {
+  color: #b8b8b8;
+}
+
+html[data-theme='dark'] .mobile-header-toggle .el-icon {
+  color: #b8b8b8;
+}
+
+html[data-theme='dark'] .input-container {
+  background: rgba(22, 33, 62, 0.5);
+  border-color: rgba(107, 182, 214, 0.2);
+}
+
+html[data-theme='dark'] .composer-input :deep(.el-textarea__inner) {
+  background-color: #0f0f23;
+  color: #e8e8e8;
+  border-color: rgba(107, 182, 214, 0.3);
+}
+
+html[data-theme='dark'] .composer-input :deep(.el-textarea__inner::placeholder) {
+  color: #666666;
+}
+
+html[data-theme='dark'] .send-button {
+  background-color: #4A90E2;
+  border-color: #4A90E2;
+}
+
+html[data-theme='dark'] .send-button:hover {
+  background-color: #5B9FD8;
+  border-color: #5B9FD8;
+}
+
+/* 快速回复样式 */
+.quick-replies-section {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  max-height: 150px;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+.quick-replies-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-replies-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.quick-reply-btn {
+  padding: 0.4rem 0.8rem !important;
+  font-size: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(135, 206, 235, 0.2), rgba(74, 144, 226, 0.2));
+  border: 1px solid rgba(74, 144, 226, 0.3) !important;
+  color: #333 !important;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.quick-reply-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(135, 206, 235, 0.4), rgba(74, 144, 226, 0.4)) !important;
+  border-color: rgba(74, 144, 226, 0.6) !important;
+  transform: translateY(-2px);
+}
+
+.quick-reply-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+html[data-theme='dark'] .quick-replies-section {
+  background: rgba(22, 33, 62, 0.3);
+  border-top-color: rgba(107, 182, 214, 0.2);
+}
+
+html[data-theme='dark'] .quick-replies-label {
+  color: rgba(232, 232, 232, 0.6);
+}
+
+html[data-theme='dark'] .quick-reply-btn {
+  background: linear-gradient(135deg, rgba(91, 159, 216, 0.2), rgba(58, 124, 165, 0.2));
+  border-color: rgba(107, 182, 214, 0.3) !important;
+  color: #b8b8b8 !important;
+}
+
+html[data-theme='dark'] .quick-reply-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(91, 159, 216, 0.4), rgba(58, 124, 165, 0.4)) !important;
+  border-color: rgba(107, 182, 214, 0.6) !important;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .quick-replies-section {
+    padding: 0.75rem;
+    max-height: 120px;
+  }
+
+  .quick-reply-btn {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-replies-section {
+    padding: 0.5rem;
+    max-height: 100px;
+  }
+
+  .quick-reply-btn {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 10px;
   }
 }
 </style>

@@ -46,7 +46,10 @@
       </div>
       <div class="nav-right">
         <el-button text @click="goToLogin" class="login-link glassmorphism-text">登录</el-button>
-        <el-icon class="theme-icon"><Moon /></el-icon>
+        <div class="theme-toggle" @click="toggleTheme">
+          <el-icon class="theme-icon" :class="{ hidden: themeStore.isDark }"><Moon /></el-icon>
+          <span class="theme-text" :class="{ active: themeStore.isDark }">☀️</span>
+        </div>
       </div>
     </div>
 
@@ -75,8 +78,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChatRound, Microphone, Star, Moon } from '@element-plus/icons-vue'
+import { useThemeStore } from '../stores/theme'
 
 const router = useRouter()
+const themeStore = useThemeStore()
 
 // 使用天蓝色系的渐变背景
 const backgroundImages = ref([
@@ -96,6 +101,10 @@ const backgroundImages = ref([
 
 const goToLogin = () => {
   router.push('/presentation/login')
+}
+
+const toggleTheme = () => {
+  themeStore.toggleTheme()
 }
 </script>
 
@@ -783,5 +792,50 @@ const goToLogin = () => {
   .feature-card p {
     font-size: 9px;
   }
+}
+
+/* 主题切换 */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  width: 30px;
+  height: 30px;
+}
+
+.theme-icon {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.theme-icon.hidden {
+  opacity: 0;
+  transform: scale(0.8) rotate(-180deg);
+  pointer-events: none;
+}
+
+.theme-text {
+  font-size: 20px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  transform: scale(0.8) rotate(180deg);
+  pointer-events: none;
+}
+
+.theme-text.active {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  pointer-events: auto;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
 }
 </style>
