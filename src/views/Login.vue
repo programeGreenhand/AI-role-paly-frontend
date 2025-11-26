@@ -43,7 +43,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         localStorage.setItem("userId",res.userId)
        
         auth.saveUser(loginForm)
-        // 登录成功后跳转
+        // 登录成功后跳转到主页（MainContent）
         router.push('/hall')
       } catch (error) {
         console.error('登录失败:', error)

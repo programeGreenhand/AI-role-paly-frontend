@@ -7,10 +7,17 @@ import Settings from '../views/Settings.vue'
 
 
 const routes = [
+  // 首页入口
   {
-    path:'/',
+    path: '/',
+    name: 'Landing',
+    component: ()=>import('../views/LandingPage.vue'),
+  },
+  
+  // 登录/注册页面
+  {
+    path:'/presentation',
     component:()=>import('../views/Presentation.vue'),
-    redirect:'/login',
     children:[
       {
         path:'login',
@@ -26,6 +33,7 @@ const routes = [
     ]
   },
 
+  // 主应用页面
   {
     path: '/hall',
     name: 'Home',
@@ -57,6 +65,8 @@ const routes = [
       }
     ]
   },
+  
+  // 聊天页面
   {
     path: '/chat',
     name: 'Chat',

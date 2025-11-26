@@ -81,7 +81,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       loading.value = true
       try {
         // 实际项目中应调用API注册
-        const res = await registerUser(registerForm)
+        // const res = await registerUser(registerForm)
         console.log('注册成功:', registerForm)
         // 注册成功后跳转到登录页
         router.push('/login')

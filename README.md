@@ -47,38 +47,30 @@ AI角色对话系统是一个功能丰富的智能语音交互平台，支持多
 
 ### 📋 环境要求
 
-| 组件 | 版本要求 | 说明 |
-|------|---------|------|
-| **Node.js** | 16.0+ | JavaScript 运行时环境 |
-| **包管理器** | npm 8.x+ 或 yarn 1.22+ | 依赖包管理工具 |
-| **浏览器** | Chrome 90+ / Firefox 88+ / Safari 14+ | 现代浏览器支持 |
-| **硬件设备** | 麦克风设备 | 语音输入功能必需 |
+- **Node.js**: 16.0+ 
+- **包管理器**: npm 或 yarn
+- **浏览器**: Chrome 90+ / Firefox 88+ / Safari 14+
+- **硬件**: 麦克风设备（语音输入）
 
 ### 🛠️ 安装与运行
 
-#### 🖥️ 前端服务部署
+#### 前端服务部署
 
 ```bash
-# 1. 克隆前端项目
+# 1. 克隆项目
 git clone git@github.com:programeGreenhand/AI-role-paly-frontend.git
 
 # 2. 进入项目目录
 cd AI-role-paly-frontend
 
-# 3. 安装项目依赖
+# 3. 安装依赖
 npm install
-# 或使用 yarn
-yarn install
 
 # 4. 启动开发服务器
 npm run dev
-# 或使用 yarn
-yarn dev
 ```
 
-> 💡 **提示**: 开发服务器启动后，访问 http://localhost:5173 查看应用
-
-#### 🖥️ 后端服务部署
+#### 后端服务部署
 
 后端项目地址：[roleEnd](https://github.com/programeGreenhand/roleEnd)
 
@@ -93,46 +85,12 @@ cd roleEnd
 npm install
 
 # 4. 配置环境变量
-cp .env.example .env
-# 编辑 .env 文件，配置以下关键参数：
-# - 数据库连接信息
-# - 七牛云语音合成密钥
-# - DeepSeek API密钥
-# - 阿里云OSS配置
+cp server.env.example server.env.production
+# 编辑 server.env.production 文件，配置数据库和API密钥
 
 # 5. 启动服务
 npm start
-# 或使用 PM2 进行进程管理
-npm install -g pm2
-pm2 start ecosystem.config.js
 ```
-
-### 🔧 生产环境部署
-
-#### 前端构建
-
-```bash
-# 构建生产版本
-npm run build
-
-# 构建产物位于 dist/ 目录
-```
-
-#### 后端部署
-
-```bash
-# 使用 PM2 管理进程
-pm2 start ecosystem.config.js --env production
-
-# 查看服务状态
-pm2 status
-```
-
-### 🧪 测试验证
-
-1. **前端验证**: 访问 http://localhost:5173 检查界面加载
-2. **后端验证**: 检查 API 服务是否正常启动
-3. **功能测试**: 测试语音录制、角色切换等核心功能
 
 ## 🏗️ 系统架构
 
@@ -186,54 +144,31 @@ graph LR
 
 ## 🎥 演示视频
 
-### 📹 功能演示
-
 <div align="center">
 
-### 🎬 桌面端完整演示
-[![AI角色对话系统演示](https://img.shields.io/badge/🎬-桌面端完整演示-FF6B6B?logo=bilibili&style=for-the-badge)](https://www.bilibili.com/video/BV1XYnozUE7C/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75)
+### 📹 功能演示视频
 
-### 📱 移动端适配演示
-[![移动端演示](https://img.shields.io/badge/📱-移动端适配演示-00A1D6?logo=bilibili&style=for-the-badge)](https://www.bilibili.com/video/BV1zknZzaEKn/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75)
+| 演示类型 | 视频链接 | 演示内容 |
+|---------|---------|---------|
+| 🎬 **桌面端演示** | [![AI角色对话系统演示](https://img.shields.io/badge/🎬-观看桌面端演示-FF6B6B?logo=bilibili&style=for-the-badge)](https://www.bilibili.com/video/BV1XYnozUE7C/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75) | 完整功能展示 + 技术细节 |
+| 📱 **移动端演示** | [![移动端演示](https://img.shields.io/badge/📱-观看移动端演示-00A1D6?logo=bilibili&style=for-the-badge)](https://www.bilibili.com/video/BV1zknZzaEKn/?spm_id_from=333.1387.homepage.video_card.click&vd_source=0d3465ca3e8304b42e54780a38cc2a75) | 多端适配 + 用户体验 |
 
 </div>
 
 ### 🎬 演示亮点
 
-| 功能模块 | 演示内容 | 技术实现 |
+| 功能亮点 | 详细描述 | 技术实现 |
 |---------|---------|---------|
 | 🎙️ **实时语音对话** | 按住说话，松开发送的流畅体验 | Web Audio API + 流式传输 |
-| 🎵 **动态音色切换** | 支持多种音色实时切换 | 七牛云TTS多音色支持 |
-| 🥳 **多模态输入** | 文字/语音双模式自由选择 | 智能输入路由机制 |
-| 🔗 **智能重连机制** | 网络中断自动恢复 | WebSocket心跳检测 |
-| 📱 **多端适配** | 桌面端与移动端完美体验 | 响应式CSS + 触摸优化 |
-| 📕 **上下文记忆** | 智能记忆对话历史 | 会话状态持久化 |
-| 🦸‍♀️ **角色管理** | 完整的角色创建与收藏系统 | 角色属性动态配置 |
+| 🎵 **动态音色切换** | 支持多种音色实时切换 | 七牛云TTS + 参数配置 |
+| 🥳 **多模态输入** | 文字/语音双模式自由选择 | 智能消息路由 + 状态管理 |
+| 🔗 **智能重连机制** | 网络中断自动恢复 | WebSocket心跳检测 + 重连策略 |
+| 📱 **多端适配** | 桌面端与移动端完美体验 | 响应式设计 + 触摸优化 |
+| 📕 **上下文记忆** | 智能记忆对话历史 | 会话管理 + 上下文维护 |
+| 🦸‍♀️ **角色管理** | 完整的角色创建与收藏系统 | 角色收藏 + 个性化配置 |
 | 🎨 **美工设计** | 精美的界面与交互设计 | Element Plus + 自定义主题 |
 
-### 🎯 演示重点
-
-1. **🎤 语音交互流程**
-   - 录音开始/结束状态管理
-   - 音频数据实时传输
-   - TTS语音合成播放
-
-2. **💬 多模态对话**
-   - 文本输入与语音输入无缝切换
-   - 对话历史智能维护
-   - 上下文关联响应
-
-3. **🎭 角色系统**
-   - 预设角色库浏览
-   - 自定义角色创建
-   - 角色收藏管理
-
-4. **� 多端体验**
-   - 桌面端完整功能展示
-   - 移动端触摸优化
-   - 响应式布局适配
-
-## �� 技术栈
+## 🔧 技术栈
 
 ### 🖥️ 前端技术栈
 
@@ -317,72 +252,25 @@ graph LR
 ### 🐛 报告问题
 如果您发现任何bug或有问题，请通过 [Issues](https://github.com/programeGreenhand/AI-role-paly-frontend/issues) 页面报告。
 
-**报告模板要求：**
-- 清晰描述问题现象
-- 提供复现步骤
-- 包含相关截图或日志
-- 说明期望的行为
-
 ### 💡 功能建议
 有新的功能想法？欢迎在 [Discussions](https://github.com/programeGreenhand/AI-role-paly-frontend/discussions) 中分享。
 
-**功能建议包含：**
-- 功能需求描述
-- 使用场景说明
-- 技术实现建议
-- 预期效果评估
-
 ### 🔧 代码贡献
-
-#### 开发流程
-1. **Fork 本项目**
-2. **创建特性分支** (`git checkout -b feature/AmazingFeature`)
-3. **提交更改** (`git commit -m 'Add some AmazingFeature'`)
-4. **推送到分支** (`git push origin feature/AmazingFeature`)
-5. **开启 Pull Request**
-
-#### 代码规范
-- 遵循 TypeScript 编码规范
-- 添加必要的类型定义
-- 编写单元测试
-- 更新相关文档
-
-#### 提交信息规范
-- feat: 新功能
-- fix: 修复bug
-- docs: 文档更新
-- style: 代码格式调整
-- refactor: 代码重构
-- test: 测试相关
+1. Fork 本项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
 
 ## 🆘 技术支持
 
 ### 📧 联系邮箱
 - **项目问题**: yujiafushinc@163.com
-- **技术咨询**: 请提供详细的问题描述和复现步骤
 
 ### 📚 相关文档
 - [后端项目文档](https://github.com/programeGreenhand/roleEnd)
 - [API接口文档](./docs/api.md)
 - [部署指南](./docs/deployment.md)
-- [开发环境配置指南](./docs/development.md)
-
-### 🐛 常见问题
-
-#### 语音录制问题
-- **麦克风权限**: 确保浏览器已授权麦克风访问
-- **音频格式**: 检查浏览器支持的音频格式
-- **网络连接**: 确认网络连接稳定
-
-#### 连接问题
-- **WebSocket连接**: 检查防火墙设置
-- **跨域配置**: 确认后端CORS配置正确
-- **SSL证书**: 生产环境需要有效SSL证书
-
-#### 部署问题
-- **环境变量**: 确保所有环境变量正确配置
-- **端口占用**: 检查端口是否被占用
-- **依赖安装**: 确认所有依赖正确安装
 
 ## 📄 许可证
 

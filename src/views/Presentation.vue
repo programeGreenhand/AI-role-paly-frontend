@@ -11,42 +11,49 @@ const activeTab = ref(route.path.includes('register') ? 'register' : 'login')
 
 // 监听标签变化并更新路由
 watch(activeTab, (newTab) => {
-  router.push({ path: `/${newTab}` })
+  router.push({ path: `/presentation/${newTab}` })
 })
 
-// 检测是否为HTTPS访问
-const showHttpsWarning = ref(false)
+// 显示欢迎弹窗
+const showWelcomeDialog = ref(false)
 
-onMounted(() => {
-  // 检查当前协议是否为HTTPS
-  if (window.location.protocol !== 'https:') {
-    showHttpsWarning.value = true
+// 检查是否已经显示过欢迎弹窗
+const checkWelcomeStatus = () => {
+  const hasSeenWelcome = localStorage.getItem('hasSeenWelcome')
+  
+  // 如果用户没有看过欢迎弹窗，则显示
+  if (!hasSeenWelcome) {
+    showWelcomeDialog.value = true
     
     // 延迟显示弹窗，确保页面加载完成
     setTimeout(() => {
       ElMessageBox.alert(
         '✨ 欢迎来到AI角色对话系统！ ✨\n\n' +
-        '🔒 **安全提示**：为了确保语音功能正常运行，请使用HTTPS协议访问本系统。\n\n' +
-        '🚀 **立即体验**：\n' +
-        '• 建议访问地址：https://129.204.241.238/login\n' +
+        '🎯 **温馨提示**\n' +
+        '• 请确保使用Chrome浏览器以获得最佳体验\n' +
+        '• 语音功能需要麦克风权限\n\n' +
+        '🚀 **立即体验**\n' +
         '• 登录方式：可选择自建账号，或使用测试账号\n' +
         '• 测试账号：用户名：aaa，密码：aaa123\n\n' +
-        '🎯 **温馨提示**：\n' +
-        '• 请确保使用Chrome浏览器以获得最佳体验\n' +
-        '• 语音功能需要麦克风权限\n' +
-        '• 祝您体验愉快！ 🌟',
+        '🌟 祝您体验愉快！ 🌟',
         '🎈 欢迎使用AI角色对话系统',
         {
           confirmButtonText: '好的，开始体验！ 🎉',
           type: 'info',
-          customClass: 'https-warning-dialog',
+          customClass: 'welcome-dialog',
           showClose: false
         }
       ).then(() => {
-        showHttpsWarning.value = false
+        showWelcomeDialog.value = false
+        // 记录用户已经看过欢迎弹窗
+        localStorage.setItem('hasSeenWelcome', 'true')
       })
-    }, 1000)
+    }, 800)
   }
+}
+
+onMounted(() => {
+  checkWelcomeStatus()
 })
 </script>
 
@@ -175,19 +182,59 @@ onMounted(() => {
 }
 
 /* 淡蓝色可爱风格欢迎弹窗样式 */
-:global(.https-warning-dialog) {
+:global(.welcome-dialog) {
   max-width: 520px !important;
   border-radius: 16px !important;
   box-shadow: 0 10px 30px rgba(100, 181, 246, 0.3) !important;
   border: 2px solid #b3e5fc !important;
   background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%) !important;
+  font-family: 'Microsoft YaHei', sans-serif !important;
 }
 
-:global(.https-warning-dialog .el-message-box__header) {
+:global(.welcome-dialog .el-message-box__header) {
   background: linear-gradient(90deg, #64b5f6 0%, #4fc3f7 100%) !important;
   border-bottom: 2px solid #b3e5fc !important;
   border-radius: 14px 14px 0 0 !important;
   padding: 15px 20px !important;
+}
+
+:global(.welcome-dialog .el-message-box__title) {
+  color: white !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+}
+
+:global(.welcome-dialog .el-message-box__content) {
+  padding: 20px 25px !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: #333 !important;
+}
+
+:global(.welcome-dialog .el-message-box__message) {
+  text-align: left !important;
+  white-space: pre-line !important;
+}
+
+:global(.welcome-dialog .el-message-box__btns) {
+  padding: 0 25px 20px !important;
+  text-align: center !important;
+}
+
+:global(.welcome-dialog .el-button) {
+  background: linear-gradient(90deg, #64b5f6 0%, #4fc3f7 100%) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  color: white !important;
+  font-weight: 500 !important;
+  padding: 10px 24px !important;
+  transition: all 0.3s ease !important;
+}
+
+:global(.welcome-dialog .el-button:hover) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.4) !important;
 }
 
 :global(.https-warning-dialog .el-message-box__title) {

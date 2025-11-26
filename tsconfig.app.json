@@ -9,33 +9,7 @@
     "noUnusedParameters": false,
     "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": false,
-    "noUncheckedSideEffectImports": false,
-    
-    /* 禁用严格类型检查 */
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "allowUmdGlobalAccess": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmitOnError": false,
-    "noImplicitAny": false,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "exactOptionalPropertyTypes": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "noImplicitOverride": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": false
+    "noUncheckedSideEffectImports": false
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 }
