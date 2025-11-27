@@ -80,6 +80,14 @@ const routes = [
     
   },
   
+  // 记忆翻牌游戏页面
+  {
+    path: '/game/memory',
+    name: 'MemoryGame',
+    component: () => import('../views/MemoryGame.vue'),
+    meta: { authRequire: true }
+  },
+  
 ]
 
 const router = createRouter({

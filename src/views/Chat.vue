@@ -148,7 +148,7 @@ const showQuickReplies = ref(true)
 
 // 快速回复模板
 const quickReplies = ref([
-  '你好鸭🦆',
+  '你好鸭',
   '能再说一遍吗',
   '你是笨蛋吗',
   '我需要你陪我聊一会',
@@ -369,14 +369,14 @@ const initialize = async () => {
     }
     
     // 处理会话逻辑
-    if(chatStore.currentSession === null){
-      const sessionId = await chatStore.createSession(userId, characterId)
-      chatStore.currentSession.id = sessionId.id
-      console.log('会话创建成功: 获得SessionId值为', chatStore.currentSession.id)
-      localStorage.setItem('sessionId',JSON.stringify(sessionId))
+    if(chatStore.currentSession === null || !chatStore.currentSession.id){
+      const session = await chatStore.createSession(userId, characterId)
+      console.log('会话创建成功: 获得SessionId值为', session.id)
+      localStorage.setItem('sessionId',JSON.stringify(session))
     } else {
-      const item = localStorage.getItem('sessionId')
-      console.log('这是旧对话: 获得SessionId值为', chatStore.currentSession.id || JSON.parse(item).id )
+      console.log('这是旧对话: 获得SessionId值为', chatStore.currentSession.id)
+      // 确保localStorage中的sessionId与当前会话一致
+      localStorage.setItem('sessionId',JSON.stringify(chatStore.currentSession))
     }
     
     // 设置默认场景

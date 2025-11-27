@@ -47,6 +47,30 @@
           </el-col>
         </el-row>
       </div>
+
+      <div class="game-section">
+        <h2>互动游戏</h2>
+        <el-card class="game-card">
+          <div class="game-content">
+            <div class="game-info">
+              <el-icon size="50" color="#F56C6C"><Gamepad /></el-icon>
+              <div class="game-details">
+                <h3>记忆翻牌游戏</h3>
+                <p>测试你的记忆力，挑战最佳成绩！</p>
+              </div>
+            </div>
+            <el-button 
+              @click="startGame" 
+              type="primary" 
+              size="large"
+              class="start-game-btn"
+            >
+              <el-icon><PlayCircle /></el-icon>
+              开始游戏
+            </el-button>
+          </div>
+        </el-card>
+      </div>
     </el-main>
   </div>
 </template>
@@ -80,6 +104,10 @@ const handleCharacterSelect = (character: Character) => {
   router.push(`/chat`)
 }
 
+// 开始游戏
+const startGame = () => {
+  router.push(`/game/memory`)
+}
 
 </script>
 
