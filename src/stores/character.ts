@@ -1,80 +1,12 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Character, CustomCharacter } from '../types/character'
+import { getPublicCharacterList } from '../api/character'
 
 export const useCharacterStore = defineStore('character', () => {
-  const characters = ref<Character[]>([
-    {
-      id: 'harry-potter',
-      name: '哈利·波特',
-      avatar: '/avatars/harry.jpg',
-      description: '霍格沃茨的年轻巫师，勇敢而忠诚',
-      personality: ['勇敢', '忠诚', '善良', '冲动'],
-      background: '在霍格沃茨魔法学校学习的年轻巫师，拥有与伏地魔对抗的传奇经历',
-      voice: 'harry-voice',
-      theme: 'magic',
-      skills: [
-        {
-          name: '魔法知识',
-          description: '了解各种魔法咒语和魔法世界的知识',
-          trigger: ['魔法', '咒语', '霍格沃茨', '魁地奇']
-        },
-        {
-          name: '冒险经历',
-          description: '分享在霍格沃茨的冒险故事',
-          trigger: ['冒险', '伏地魔', '邓布利多', '赫敏']
-        },
-        {
-          name: '友谊建议',
-          description: '基于与朋友的经历给出建议',
-          trigger: ['朋友', '友谊', '帮助', '困难']
-        }
-      ],
-      emotionalTendency: {
-        default: 'determined',
-        happy: 0.3,
-        sad: 0.1,
-        angry: 0.2,
-        excited: 0.4,
-        calm: 0.3
-      }
-    },
-    {
-      id: 'socrates',
-      name: '苏格拉底',
-      avatar: '/avatars/socrates.jpg',
-      description: '古希腊哲学家，智慧的化身',
-      personality: ['智慧', '好奇', '谦逊', '理性'],
-      background: '古希腊著名哲学家，以苏格拉底式对话法闻名',
-      voice: 'socrates-voice',
-      theme: 'philosophy',
-      skills: [
-        {
-          name: '哲学思辨',
-          description: '通过提问引导思考深层问题',
-          trigger: ['为什么', '如何', '什么是', '思考']
-        },
-        {
-          name: '智慧启发',
-          description: '用古希腊智慧启发现代问题',
-          trigger: ['智慧', '知识', '真理', '美德']
-        },
-        {
-          name: '逻辑分析',
-          description: '帮助理清思路和逻辑',
-          trigger: ['逻辑', '推理', '分析', '证明']
-        }
-      ],
-      emotionalTendency: {
-        default: 'wise',
-        happy: 0.4,
-        sad: 0.1,
-        angry: 0.1,
-        excited: 0.2,
-        calm: 0.6
-      }
-    }
-  ])
+  const characters = ref<Character[]>([])
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
 
   const customCharacters = ref<CustomCharacter[]>([])
   const currentCharacter = ref<Character | null>(null)
@@ -84,8 +16,31 @@ export const useCharacterStore = defineStore('character', () => {
     ...customCharacters.value.filter(c => c.name && c.personality)
   ])
 
-  const setCurrentCharacter = (character: Character) => {
+  // 从数据库加载公共角色数据
+  const loadCharactersFromDatabase = async () => {
+    isLoading.value = true
+    error.value = null
+    
+    try {
+      // 使用公共角色接口，不需要用户登录
+      const response = await getPublicCharacterList()
+      if (response && Array.isArray(response)) {
+        characters.value = response
+      } else {
+        // 如果后端返回的数据结构不同，可能需要调整
+        characters.value = response.data || response.characters || []
+      }
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : '加载角色数据失败'
+      console.error('加载角色数据失败:', err)
+      // 如果加载失败，可以保持空数组，避免硬编码角色
+      characters.value = []
+    } finally {
+      isLoading.value = false
+    }
+  }
 
+  const setCurrentCharacter = (character: Character) => {
     currentCharacter.value = character
   }
 
@@ -115,9 +70,12 @@ export const useCharacterStore = defineStore('character', () => {
     customCharacters,
     currentCharacter,
     allCharacters,
+    isLoading,
+    error,
     setCurrentCharacter,
     addCustomCharacter,
     getCharacterById,
-    loadCharacterList
+    loadCharacterList,
+    loadCharactersFromDatabase
   }
 })

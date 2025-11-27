@@ -6,9 +6,8 @@
     shadow="hover"
   >
     <div class="character-avatar">
-      <img :src=getroleImage(character.id) :alt="character.name" />
-       <!-- <img src='../../' :alt="character.name" /> -->
-      <div class="character-status" :class="`status-${character.emotionalTendency?.default || 'neutral'}`"></div>
+      <img :src="character.avatar_url || getroleImage(character.id)" :alt="character.name" />
+      <div class="character-status" :class="`status-${character.emotional_tendency?.default || 'neutral'}`"></div>
     </div>
     
     <div class="character-info">
@@ -17,7 +16,7 @@
       
       <div class="character-personality">
         <el-tag
-          v-for="trait in character.personality?.slice(0, 3)"
+          v-for="trait in getPersonalityTraits(character.personality)?.slice(0, 3)"
           :key="trait"
           size="small"
           class="personality-tag"
@@ -26,9 +25,7 @@
         </el-tag>
       </div>
       
-      <div class="character-skills">
-        <small>技能：{{ character.skills?.map(s => s.name).join('、') }}</small>
-      </div>
+      
     </div>
     
     <!-- <div class="character-actions">
@@ -45,9 +42,34 @@ import type { Character } from '../../types/character'
 
 const getroleImage = (id:string) => {
   const url =  new URL(`../../assets/charactor/${id}/role/avatar.jpg`, import.meta.url).href;
-
   return url
 };
+
+// 将personality字符串转换为数组
+const getPersonalityTraits = (personality: string | string[] | undefined) => {
+  if (!personality) return []
+  if (Array.isArray(personality)) return personality
+  // 如果是逗号分隔的字符串，转换为数组
+  if (personality.includes(',')) {
+    return personality.split(',').map(trait => trait.trim())
+  }
+  // 如果是单个字符串，返回数组
+  return [personality]
+}
+
+// 获取技能名称
+const getSkillNames = (skills: string[] | any[] | undefined) => {
+  if (!skills) return []
+  if (Array.isArray(skills)) {
+    // 如果是字符串数组，直接返回
+    if (skills.length > 0 && typeof skills[0] === 'string') {
+      return skills
+    }
+    // 如果是对象数组，提取name属性
+    return skills.map(skill => skill.name || skill)
+  }
+  return []
+}
 
 defineProps<{
   character: Character

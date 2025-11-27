@@ -43,5 +43,9 @@ export function getCharacterList(userId:string){
     return server.get<Character[]>(`/user/${userId}/characters`)
 }
 
+export function getPublicCharacterList(){
+    return server.get<Character[]>(`/characters/public`)
+}
+
 //导出这个server
 export default server
