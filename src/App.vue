@@ -1,6 +1,7 @@
 <template>
   <div id="app" :class="['app-container', currentTheme]">
     <router-view />
+    <GlobalTour />
   </div>
 </template>
 
@@ -8,6 +9,7 @@
 import { computed, onMounted} from 'vue'
 import { useCharacterStore } from './stores/character'
 import { useThemeStore } from './stores/theme'
+import GlobalTour from './components/common/GlobalTour.vue'
 
 
 const characterStore = useCharacterStore()

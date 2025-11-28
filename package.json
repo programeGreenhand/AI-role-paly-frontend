@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@duannx/vue-client-only": "^1.0.3",
     "axios": "^1.12.2",
     "element-plus": "^2.11.3",
     "js-audio-recorder": "^1.0.7",

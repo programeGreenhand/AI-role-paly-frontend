@@ -18,6 +18,7 @@
         <CharacterSelector
           :characters="filteredCharacters"
           @select="handleCharacterSelect"
+          class="character-cards-container"
         />
       </div>
 
@@ -61,7 +62,7 @@
               class="game-button"
               @click="goToMemoryGame"
             >
-              开始游戏
+              <span style="color: black;">开始游戏</span>
             </el-button>
           </div>
         </el-card>
@@ -77,6 +78,13 @@ import { useCharacterStore } from '../../stores/character'
 import CharacterSelector from '../character/CharacterSelector.vue'
 import type { Character } from '../../types/character'
 import { VideoPlay } from '@element-plus/icons-vue'
+// 在任何组件中启动引导
+// import { useTourStore } from '../../stores/tour'
+
+// const tourStore = useTourStore()
+
+// // 开始引导
+// tourStore.startTour()
 
 const router = useRouter()
 const characterStore = useCharacterStore()
