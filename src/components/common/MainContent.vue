@@ -52,7 +52,7 @@
         <h2>趣味小游戏</h2>
         <el-card class="game-card">
           <div class="game-content">
-            <el-icon size="60" color="#F56C6C"><VideoPlay /></el-icon>
+            <el-icon size="60" color="#F56C6C" @click="goToMemoryGame"><VideoPlay /></el-icon>
             <h3>记忆卡片挑战</h3>
             <p>测试你的记忆力，匹配相同的角色卡片！</p>
             <el-button 
@@ -206,8 +206,8 @@ const goToMemoryGame = () => {
   max-width: 400px;
   margin: 0 auto;
   border-radius: 16px;
-  background: rgb(209, 237, 240);
-  color: white;
+  background: white;
+  color: black;
   text-align: center;
   padding: 30px;
 }

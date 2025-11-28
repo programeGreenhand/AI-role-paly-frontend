@@ -56,7 +56,7 @@
           @click="gotoRoleChat(agent)"
         >
           <div class="card-content">
-            <el-image :src="getroleImage(agent.id)" />
+            <el-image :src="getroleImage(agent)" />
             <div class="info-item" >
               <i class="el-icon-location"></i>
               <span class="info-value">
@@ -82,7 +82,7 @@
                 @click="gotoRoleChat(agent)"
               >
                 <div class="card-content">
-                  <el-image :src="getroleImage(agent.id)" />
+                  <el-image :src="getroleImage(agent)" />
                   <div class="info-item" >
                     <i class="el-icon-location"></i>
                     <span class="info-value">
@@ -149,8 +149,30 @@ const checkMobile = () => {
   }
 };
 
-const getroleImage = (id:string) => {
-  return new URL(`../assets/charactor/${id}/role/index.jpg`, import.meta.url).href;
+const getroleImage = (character: Character) => {
+  // 优先使用角色自带的avatar_url
+  if (character.avatar_url) {
+    return character.avatar_url;
+  }
+  
+  // 如果角色有id，尝试使用本地图片
+  if (character.id) {
+    try {
+      // 尝试加载角色头像
+      return new URL(`../assets/charactor/${character.id}/role/avatar.jpg`, import.meta.url).href;
+    } catch (error) {
+      // 如果头像不存在，尝试使用index.jpg
+      try {
+        return new URL(`../assets/charactor/${character.id}/role/index.jpg`, import.meta.url).href;
+      } catch (error) {
+        // 如果都没有，返回默认图片
+        return '/avatars/default.jpg';
+      }
+    }
+  }
+  
+  // 默认图片
+  return '/avatars/default.jpg';
 };
 
 watch(activeTab, async (newTab) => {

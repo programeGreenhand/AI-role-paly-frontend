@@ -116,6 +116,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { loadRouteLocation, useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
+import axios from 'axios'
 
 // 导入 Pinia stores
 import { useCharacterStore } from '../stores/character'
@@ -145,6 +146,7 @@ const wsConnected = ref(false)
 const headerCollapsed = ref(false)
 const isMobile = ref(false)
 const showQuickReplies = ref(true)
+const lists = ref(null) // 场景列表数据
 
 // 快速回复模板
 const quickReplies = ref([
@@ -177,13 +179,20 @@ const currentEmotion = computed(() => chatStore.currentEmotion)
 const backgroundImageUrl = ref('http://onepiece-spiderman.oss-cn-shenzhen.aliyuncs.com/scene/gudaishuyuan.jpg')
 
 // 动态背景图片
-const handleSceneChange = (scene:any) => {
-  console.log(scene)
-  sceneStore.setScene(scene)
-  if (scene) {
-    backgroundImageUrl.value = scene
+const handleSceneChange = (sceneUrl:any) => {
+  console.log('场景切换:', sceneUrl)
+  // 场景选择器传递的是image_url，直接设置背景图
+  if (sceneUrl) {
+    backgroundImageUrl.value = sceneUrl
+    // 尝试从场景列表中查找对应的场景对象并设置
+    if (lists && lists.value) {
+      const sceneObj = lists.value.find((s: any) => s.image_url === sceneUrl)
+      if (sceneObj) {
+        sceneStore.setScene(sceneObj)
+        ElMessage.success(`已切换到场景: ${sceneObj.name}`)
+      }
+    }
   }
-  ElMessage.success(`已切换到场景: ${scene.name}`)
 }
 
 // 语音响应处理（避免重复）
@@ -379,10 +388,27 @@ const initialize = async () => {
       console.log('这是旧对话: 获得SessionId值为', chatStore.currentSession.id || JSON.parse(item).id )
     }
     
-    // 设置默认场景
-    const scenes = sceneStore.getScenesForCharacter(characterId)
-    if (scenes.length > 0) {
-      sceneStore.setScene(scenes[0])
+    // 获取场景数据并设置默认背景图
+    const baseUrl = import.meta.env.VITE_BASE_URL || '/api'
+    try {
+      const response = await axios.get(baseUrl+'/scenes')
+      lists.value = response.data.data
+      
+      // 如果有场景数据，设置第一个场景为默认
+      if (lists.value && lists.value.length > 0) {
+        const defaultScene = lists.value[0]
+        backgroundImageUrl.value = defaultScene.image_url || backgroundImageUrl.value
+        sceneStore.setScene(defaultScene)
+        console.log('设置默认场景:', defaultScene)
+      }
+    } catch (error) {
+      console.error('获取场景数据失败:', error)
+      // 如果API获取失败，使用本地场景数据
+      const scenes = sceneStore.getScenesForCharacter(characterId)
+      if (scenes.length > 0) {
+        sceneStore.setScene(scenes[0])
+        backgroundImageUrl.value = scenes[0].background_image || scenes[0].image_url || backgroundImageUrl.value
+      }
     }
     
     // 连接WebSocket

@@ -50,7 +50,7 @@
 
       <!-- 内容列表 -->
       <div class="content-list" >
-        <div v-for="item in session" :key="item.id" class="list-item" @click="gotoRoleChat(item)">
+        <div v-for="item in filteredSessions" :key="item.id" class="list-item" @click="gotoRoleChat(item)">
           <el-avatar 
             :size="40"
             :src="getroleImage(item.id)"
@@ -269,12 +269,15 @@ const drawerSize = computed(() => {
   return '320px'
 })
 
-// 模拟数据和过滤
-const mockData = Array.from({length: 15}, (_, i) => i + 1)
-const filteredList = computed(() => {
-  if (!searchQuery.value) return mockData
-  return mockData.filter(item => 
-    `哈利波特${item}`.includes(searchQuery.value)
+// 会话搜索过滤
+const filteredSessions = computed(() => {
+  if (!session.value) return []
+  if (!searchQuery.value) return session.value
+  
+  const query = searchQuery.value.toLowerCase()
+  return session.value.filter(session => 
+    session.title?.toLowerCase().includes(query) ||
+    session.character_name?.toLowerCase().includes(query)
   )
 })
 

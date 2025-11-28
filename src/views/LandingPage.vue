@@ -39,10 +39,10 @@
         <span class="nav-logo">SoulCompanion</span>
       </div>
       <div class="nav-menu">
-        <a href="javascript:void(0)" class="nav-item">首页</a>
+        <!-- <a href="javascript:void(0)" class="nav-item">首页</a>
         <a href="javascript:void(0)" class="nav-item">角色广场</a>
         <a href="javascript:void(0)" class="nav-item">我的对话</a>
-        <a href="javascript:void(0)" class="nav-item">关于我们</a>
+        <a href="javascript:void(0)" class="nav-item">关于我们</a> -->
       </div>
       <div class="nav-right">
         <el-button text @click="goToLogin" class="login-link glassmorphism-text">登录</el-button>

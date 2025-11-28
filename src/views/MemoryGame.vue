@@ -208,7 +208,7 @@ onMounted(() => {
 <style scoped>
 .memory-game-container {
   min-height: 100vh;
-  background: rgb(160, 215, 235);
+  background: white;
   padding: 20px;
 }
 
@@ -217,7 +217,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 0;
-  color: white;
+  color: black;
 }
 
 .back-button {
@@ -343,18 +343,18 @@ onMounted(() => {
 
 .character-name {
   font-weight: bold;
-  color: #333;
+  color: black;
   text-align: center;
   font-size: 0.9rem;
 }
 
 .memory-card.matched .card-back {
   background: linear-gradient(45deg, #67C23A, #E6A23C);
-  color: white;
+  color: black;
 }
 
 .memory-card.matched .character-name {
-  color: white;
+  color: black;
 }
 
 .game-over {

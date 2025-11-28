@@ -60,8 +60,14 @@ const filteredCharacters = computed(() => {
   }
   return characters.value.filter(character => 
     character.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    character.category.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    character.tags.some(tag => tag.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    character.author?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    character.description?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    character.personality?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    (Array.isArray(character.skills) && character.skills.some(skill => 
+      typeof skill === 'string' 
+        ? skill.toLowerCase().includes(searchQuery.value.toLowerCase())
+        : skill.name?.toLowerCase().includes(searchQuery.value.toLowerCase())
+    ))
   )
 })
 
