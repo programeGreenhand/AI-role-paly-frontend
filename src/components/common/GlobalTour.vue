@@ -75,17 +75,42 @@
 
 <script setup lang="ts">
 import { useTourStore } from '../../stores/tour'
-import { watch, onMounted, onUnmounted, nextTick, ref } from 'vue'
+import { watch, onMounted, onUnmounted, nextTick, ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const tourStore = useTourStore()
 const route = useRoute()
 const isNavigating = ref(false)
 
+// 检测是否为移动设备
+const isMobile = computed(() => {
+  const match = window.matchMedia('(max-width: 480px)')
+  return match.matches
+})
+
+// 移动端优化的导航延迟
+const mobileNavDelay = computed(() => isMobile.value ? 200 : 0)
+
 const handleNext = async () => {
   isNavigating.value = true
   try {
+    // 移动端增加触摸反馈
+    if (isMobile.value) {
+      // 添加触摸反馈效果
+      const activeStep = document.querySelector('.el-tour-step.is-active')
+      if (activeStep) {
+        activeStep.classList.add('mobile-touch-feedback')
+        setTimeout(() => {
+          activeStep.classList.remove('mobile-touch-feedback')
+        }, 150)
+      }
+    }
+    
     await tourStore.nextStep()
+    // 移动端增加额外延迟以确保视图更新完成
+    if (isMobile.value) {
+      await new Promise(resolve => setTimeout(resolve, mobileNavDelay.value))
+    }
   } finally {
     isNavigating.value = false
   }
@@ -94,7 +119,22 @@ const handleNext = async () => {
 const handlePrev = async () => {
   isNavigating.value = true
   try {
+    // 移动端增加触摸反馈
+    if (isMobile.value) {
+      const activeStep = document.querySelector('.el-tour-step.is-active')
+      if (activeStep) {
+        activeStep.classList.add('mobile-touch-feedback')
+        setTimeout(() => {
+          activeStep.classList.remove('mobile-touch-feedback')
+        }, 150)
+      }
+    }
+    
     await tourStore.prevStep()
+    // 移动端增加额外延迟以确保视图更新完成
+    if (isMobile.value) {
+      await new Promise(resolve => setTimeout(resolve, mobileNavDelay.value))
+    }
   } finally {
     isNavigating.value = false
   }
@@ -112,14 +152,27 @@ const preventDropdownClose = (e: MouseEvent) => {
 watch(() => route.path, async () => {
   if (tourStore.isActive) {
     await nextTick()
-    await new Promise(resolve => setTimeout(resolve, 600))
+    // 移动端增加更长的延迟以确保页面完全加载
+    const delay = isMobile.value ? 800 : 600
+    await new Promise(resolve => setTimeout(resolve, delay))
   }
 }, { immediate: true })
+
+// 监听窗口大小变化，在移动端模式下调整步骤位置
+const handleResize = async () => {
+  if (tourStore.isActive && isMobile.value) {
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 300))
+  }
+}
 
 // 处理动态元素
 let observer: MutationObserver | null = null
 
 onMounted(() => {
+  // 添加窗口大小变化监听
+  window.addEventListener('resize', handleResize)
+  
   observer = new MutationObserver(async (mutations) => {
     if (tourStore.isActive) {
       const hasRelevantChange = mutations.some(mutation => 
@@ -128,7 +181,9 @@ onMounted(() => {
       
       if (hasRelevantChange) {
         await nextTick()
-        await new Promise(resolve => setTimeout(resolve, 300))
+        // 移动端增加更长的延迟
+        const delay = isMobile.value ? 500 : 300
+        await new Promise(resolve => setTimeout(resolve, delay))
       }
     }
   })
@@ -141,6 +196,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  
   if (observer) {
     observer.disconnect()
     observer = null
@@ -229,5 +286,121 @@ onUnmounted(() => {
   bottom: 0;
   background: transparent;
   z-index: 2001;
+}
+
+/* 响应式样式 - 平板设备 */
+@media screen and (max-width: 768px) {
+  :deep(.el-tour__content) {
+    min-width: 260px;
+    max-width: 90vw;
+    padding: 12px;
+  }
+  
+  .tour-title {
+    font-size: 15px;
+  }
+  
+  .tour-description {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .tour-footer {
+    margin-top: 10px;
+  }
+  
+  .tour-actions {
+    gap: 6px;
+  }
+  
+  :deep(.el-button) {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+/* 响应式样式 - 移动设备 */
+@media screen and (max-width: 480px) {
+  :deep(.el-tour__content) {
+    min-width: 240px;
+    max-width: 95vw;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .tour-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .tour-title {
+    font-size: 14px;
+  }
+  
+  .tour-progress {
+    font-size: 12px;
+  }
+  
+  .tour-description {
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 6px 0;
+  }
+  
+  .tour-footer {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  
+  .tour-actions {
+    width: 100%;
+    gap: 8px;
+  }
+  
+  :deep(.el-button) {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+  
+  :deep(.el-tour__closebtn) {
+    top: 8px;
+    right: 8px;
+    transform: scale(0.8);
+  }
+  
+  /* 调整移动端定位，优先显示在屏幕中心 */
+  :deep(.el-tour__popper.is-bottom),
+  :deep(.el-tour__popper.is-top),
+  :deep(.el-tour__popper.is-left),
+  :deep(.el-tour__popper.is-right) {
+    transform: none;
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  
+  /* 隐藏移动端指引箭头，避免遮挡内容 */
+  :deep(.el-tour__popper__arrow) {
+    display: none;
+  }
+  
+  /* 移动端触摸反馈效果 */
+  .mobile-touch-feedback :deep(.el-tour__content) {
+    animation: touchFeedback 0.15s ease-in-out;
+  }
+  
+  @keyframes touchFeedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
 }
 </style>

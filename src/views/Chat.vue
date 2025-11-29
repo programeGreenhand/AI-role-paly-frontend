@@ -56,7 +56,7 @@
     </div>
 
     <!-- 快速回复模板 -->
-    <div v-if="showQuickReplies && inputMessage.trim() === ''" class="quick-replies-section">
+    <div v-if="showQuickReplies && inputMessage.trim() === ''" class="quick-replies-section" style="position: relative; z-index: 20;">
       <div class="quick-replies-label">快速回复</div>
       <div class="quick-replies-grid">
         <el-button 
@@ -625,10 +625,108 @@ onUnmounted(() => {
   min-height: 300px;
 }
 
+/* 快速回复样式 */
+.quick-replies-section {
+  position: relative;
+  z-index: 20; /* 确保高于输入面板但低于浮动头部 */
+  margin: 0 1rem -0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.quick-replies-label {
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+}
+
+.quick-replies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.quick-reply-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.quick-reply-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.quick-reply-btn:disabled {
+  opacity: 0.6;
+}
+
+/* 响应式设计 - 平板设备 */
+@media (max-width: 768px) {
+  .quick-replies-section {
+    margin: 0 0.75rem -0.5rem 0.75rem;
+    padding: 0.875rem;
+  }
+  
+  .quick-replies-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.625rem;
+  }
+  
+  .quick-reply-btn {
+    font-size: clamp(0.75rem, 3vw, 0.875rem);
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* 响应式设计 - 移动设备 */
+@media (max-width: 480px) {
+  .quick-replies-section {
+    margin: 0 0.625rem -0.375rem 0.625rem;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .quick-replies-label {
+    font-size: clamp(0.8125rem, 4vw, 0.875rem);
+    margin-bottom: 0.625rem;
+  }
+  
+  .quick-replies-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .quick-reply-btn {
+    font-size: clamp(0.7rem, 4vw, 0.8rem);
+    padding: 0.4375rem 0.625rem;
+    border-radius: 0.625rem;
+  }
+  
+  /* 触摸反馈优化 */
+  .quick-reply-btn:active {
+    transform: scale(0.97);
+  }
+}
+
 /* 底部输入面板 - 响应式 */
 .input-panel {
   position: relative;
-  z-index: 10;
+  z-index: 10; /* 比快速回复低 */
   margin: 1rem;
 }
 
