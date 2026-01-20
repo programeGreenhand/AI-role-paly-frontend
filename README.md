@@ -12,7 +12,7 @@
 <div align="center">
 
 ### 🌐 在线演示地址
-[![立即体验](https://img.shields.io/badge/🚀-立即体验-00BFFF?style=for-the-badge&logo=web)](https://129.204.241.238/login)
+[![立即体验](https://img.shields.io/badge/🚀-立即体验-00BFFF?style=for-the-badge&logo=web)](https://129.204.241.238)
 
 **无需安装，立即体验智能语音对话的魅力！**
 
